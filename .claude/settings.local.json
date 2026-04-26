@@ -1,0 +1,23 @@
+{
+  "permissions": {
+    "allow": [
+      "WebFetch(domain:api.github.com)",
+      "Bash(python3 -c \"import json,sys; d=json.load\\(sys.stdin\\); print\\(d.get\\('bin',{}\\)\\)\")",
+      "Bash(pnpm add *)",
+      "Bash(pnpm dlx *)",
+      "Bash(pnpm check *)",
+      "Bash(pnpm typecheck *)",
+      "Bash(node -e \"const m = require\\('@tanstack/react-start'\\); console.log\\(Object.keys\\(m\\).filter\\(k => k.includes\\('Server'\\)\\)\\)\")",
+      "Bash(python3 -c \"import json,sys; d=json.load\\(sys.stdin\\); print\\(list\\(d.get\\('exports',{}\\).keys\\(\\)\\)[:10]\\)\")",
+      "Bash(gtimeout 15 pnpm dev)",
+      "Bash(curl -s http://localhost:3000/table)",
+      "Bash(python3 -c \"import sys; html=sys.stdin.read\\(\\); print\\('Transactions:', 'Transactions' in html, '| Show all:', 'Show all' in html, '| No transactions:', 'No transactions' in html\\)\")",
+      "Bash(curl -s http://localhost:3000/settings)",
+      "Bash(python3 -c \"import sys; html=sys.stdin.read\\(\\); print\\('Categories:', 'Categories' in html, '| Currency:', 'Currency' in html, '| Fiscal:', 'Fiscal' in html, '| Theme:', 'Theme' in html, '| Export:', 'Export CSV' in html\\)\")",
+      "Bash(pkill -f \"vite dev\")",
+      "WebSearch",
+      "Bash(python3 -c \"import json; d=json.load\\(open\\('/Users/przemek/code/tanstack/sknerus/.data/expenses.json'\\)\\); print\\(type\\(d\\).__name__, len\\(d\\) if isinstance\\(d, list\\) else list\\(d.keys\\(\\)\\)[:5]\\)\")",
+      "Bash(python3 *)"
+    ]
+  }
+}
