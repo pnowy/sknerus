@@ -1,7 +1,8 @@
 import { createServerFn } from '@tanstack/react-start'
 import { z } from 'zod'
 import { expenseSchema } from '@/lib/schemas'
-import type { Expense } from '../types/expense'
+import { genExpenseId } from '@/lib/server/ids'
+import type { Expense } from '@/lib/types/expense'
 import { readExpenses, writeExpenses } from './storage'
 
 export const getExpenses = createServerFn({ method: 'GET' }).handler(async () => readExpenses())
@@ -10,7 +11,7 @@ export const createExpense = createServerFn({ method: 'POST' })
   .inputValidator(expenseSchema)
   .handler(async ({ data }) => {
     const expenses = readExpenses()
-    const newExpense: Expense = { ...data, id: crypto.randomUUID() }
+    const newExpense: Expense = { ...data, id: genExpenseId() }
     writeExpenses([...expenses, newExpense])
     return newExpense
   })
