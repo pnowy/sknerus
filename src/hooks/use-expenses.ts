@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import type { ExpenseInput } from '@/lib/schemas'
-import { getConfig, updateConfig } from '../lib/server/functions/config'
+import { getConfig, renameCategory, updateConfig } from '../lib/server/functions/config'
 import { createExpense, deleteExpense, getExpenses, updateExpense } from '../lib/server/functions/expenses'
 import type { Config, Expense } from '../lib/shared/types/expense'
 
@@ -52,5 +52,14 @@ export function useUpdateConfig() {
   return useMutation({
     mutationFn: (data: Config) => updateConfig({ data }),
     onSuccess: () => qc.invalidateQueries({ queryKey: queryKeys.config }),
+  })
+}
+
+export function useRenameCategory() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (data: { oldName: string; newName: string }) => renameCategory({ data }),
+    onSuccess: () =>
+      Promise.all([qc.invalidateQueries({ queryKey: queryKeys.config }), qc.invalidateQueries({ queryKey: queryKeys.expenses })]),
   })
 }

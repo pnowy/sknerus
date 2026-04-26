@@ -26,9 +26,10 @@ const PALETTE = [
 type Props = {
   categories: Array<Category>
   onChange: (categories: Array<Category>) => void
+  onNameChange: (oldName: string, newName: string) => void
 }
 
-export function CategoryList({ categories, onChange }: Props) {
+export function CategoryList({ categories, onChange, onNameChange }: Props) {
   const [mounted, setMounted] = useState(false)
   const [newName, setNewName] = useState('')
 
@@ -80,7 +81,13 @@ export function CategoryList({ categories, onChange }: Props) {
         <SortableContext items={categories.map((c) => c.name)} strategy={verticalListSortingStrategy}>
           <div className="space-y-2">
             {categories.map((cat) => (
-              <SortableCategoryItem key={cat.name} category={cat} onColorChange={handleColorChange} onDelete={handleDelete} />
+              <SortableCategoryItem
+                key={cat.name}
+                category={cat}
+                onColorChange={handleColorChange}
+                onDelete={handleDelete}
+                onNameChange={onNameChange}
+              />
             ))}
           </div>
         </SortableContext>

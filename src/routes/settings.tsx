@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { useConfig, useExpenses, useUpdateConfig } from '@/hooks/use-expenses'
+import { useConfig, useExpenses, useRenameCategory, useUpdateConfig } from '@/hooks/use-expenses'
 import { getConfig } from '@/lib/server/functions/config'
 import { exportToCSV, parseCSV } from '@/lib/shared/csv'
 import { createExpense, getExpenses } from '../lib/server/functions/expenses'
@@ -29,6 +29,7 @@ function SettingsPage() {
   const { data: config } = useConfig()
   const { data: allExpenses = [] } = useExpenses()
   const updateConfig = useUpdateConfig()
+  const renameCategoryMutation = useRenameCategory()
   const { theme, setTheme } = useTheme()
   const fileInputRef = useRef<HTMLInputElement>(null)
 
@@ -50,6 +51,15 @@ function SettingsPage() {
       toast.success('Fiscal start date updated')
     } catch {
       toast.error('Failed to update start date')
+    }
+  }
+
+  async function handleCategoryRename(oldName: string, newName: string) {
+    try {
+      await renameCategoryMutation.mutateAsync({ oldName, newName })
+      toast.success(`Renamed "${oldName}" to "${newName}"`)
+    } catch {
+      toast.error('Failed to rename category')
     }
   }
 
@@ -89,7 +99,7 @@ function SettingsPage() {
             <CardTitle>Categories</CardTitle>
           </CardHeader>
           <CardContent>
-            <CategoryList categories={config.categories} onChange={handleCategoriesChange} />
+            <CategoryList categories={config.categories} onChange={handleCategoriesChange} onNameChange={handleCategoryRename} />
           </CardContent>
         </Card>
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
