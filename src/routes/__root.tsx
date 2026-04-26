@@ -6,6 +6,7 @@ import { createRootRouteWithContext, HeadContent, Scripts } from '@tanstack/reac
 import { TanStackRouterDevtoolsPanel } from '@tanstack/react-router-devtools'
 import { ThemeProvider } from 'next-themes'
 import { Toaster } from '@/components/ui/sonner'
+import { MonthNavProvider } from '@/contexts/month-nav-context'
 
 import appCss from '../styles/styles.css?url'
 
@@ -27,11 +28,12 @@ function RootDocument({ children }: { children: React.ReactNode }) {
       <body>
         <ThemeProvider attribute="class" defaultTheme="system" disableTransitionOnChange enableSystem>
           <QueryClientProvider client={queryClient}>
-            {children}
-            <Toaster richColors position="bottom-right" />
+            <MonthNavProvider>
+              {children}
+              <Toaster richColors position="bottom-right" />
+            </MonthNavProvider>
           </QueryClientProvider>
         </ThemeProvider>
-
         <TanStackDevtools
           config={{
             position: 'bottom-right',
