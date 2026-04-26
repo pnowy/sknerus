@@ -1,6 +1,6 @@
 import { createServerFn } from '@tanstack/react-start'
-import { configSchema } from '@/lib/schemas'
-import { readConfig, writeConfig } from './storage'
+import { configSchema } from 'src/lib/schemas'
+import { readConfig, writeConfig } from '../storage.server'
 
 export const getConfig = createServerFn({ method: 'GET' }).handler(async () => readConfig())
 

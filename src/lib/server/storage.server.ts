@@ -1,6 +1,6 @@
 import * as fs from 'node:fs'
 import * as path from 'node:path'
-import type { Config, Expense } from '../types/expense'
+import type { Config, Expense } from '../shared/types/expense'
 
 const DATA_DIR = path.resolve(process.cwd(), process.env.DATA_DIR ?? '.data')
 const EXPENSES_FILE = path.join(DATA_DIR, 'expenses.json')

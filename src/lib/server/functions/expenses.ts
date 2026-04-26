@@ -1,9 +1,9 @@
 import { createServerFn } from '@tanstack/react-start'
+import { expenseSchema } from 'src/lib/schemas'
 import { z } from 'zod'
-import { expenseSchema } from '@/lib/schemas'
-import { genExpenseId } from '@/lib/server/ids'
-import type { Expense } from '@/lib/types/expense'
-import { readExpenses, writeExpenses } from './storage'
+import type { Expense } from '../../shared/types/expense'
+import { genExpenseId } from '../ids.server'
+import { readExpenses, writeExpenses } from '../storage.server'
 
 export const getExpenses = createServerFn({ method: 'GET' }).handler(async () => readExpenses())
 
