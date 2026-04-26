@@ -7,9 +7,9 @@ import { MonthNav } from '@/components/dashboard/month-nav'
 import { AppLayout } from '@/components/layout/app-layout'
 import { useConfig, useExpenses } from '@/hooks/use-expenses'
 import { useMonthNav } from '@/hooks/use-month-nav'
-import { filterExpensesByMonth } from '@/lib/date-utils'
-import { getConfig } from '@/lib/server/config'
-import { getExpenses } from '@/lib/server/expenses'
+import { getConfig } from '@/lib/server/functions/config'
+import { getExpenses } from '@/lib/server/functions/expenses'
+import { filterExpensesByMonth } from '@/lib/shared/date-utils'
 
 export const Route = createFileRoute('/')({
   loader: ({ context: { queryClient } }) =>
@@ -29,10 +29,10 @@ function DashboardPage() {
   const currency = config?.currency ?? 'USD'
   const startDate = config?.startDate ?? 1
 
+  const allTags = useMemo(() => [...new Set(allExpenses.flatMap((e) => e.tags))].sort(), [allExpenses])
   const monthExpenses = useMemo(() => filterExpensesByMonth(allExpenses, year, month, startDate), [allExpenses, year, month, startDate])
   const income = useMemo(() => monthExpenses.filter((e) => e.amount > 0).reduce((sum, e) => sum + e.amount, 0), [monthExpenses])
   const expenses = useMemo(() => monthExpenses.filter((e) => e.amount < 0).reduce((sum, e) => sum - e.amount, 0), [monthExpenses])
-
   const chartData = useMemo(() => {
     const map = new Map<string, number>()
     for (const e of monthExpenses.filter((e) => e.amount < 0)) {
@@ -42,8 +42,6 @@ function DashboardPage() {
       .map(([category, total]) => ({ category, total }))
       .sort((a, b) => b.total - a.total)
   }, [monthExpenses])
-
-  const allTags = useMemo(() => [...new Set(allExpenses.flatMap((e) => e.tags))].sort(), [allExpenses])
 
   return (
     <AppLayout>
