@@ -1,6 +1,6 @@
 import { createServerFn } from '@tanstack/react-start'
-import { recurringExpenseSchema } from 'src/lib/schemas'
 import { z } from 'zod'
+import { recurringExpenseSchema } from '@/lib/schemas'
 import { genExpenseId, genRecurringId } from '@/lib/server/ids.server'
 import { storage } from '@/lib/server/storage'
 import { daysInMonth, toISO, toUTC } from '@/lib/shared/date-utils.ts'

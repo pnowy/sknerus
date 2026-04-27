@@ -9,7 +9,7 @@ import { Toaster } from '@/components/ui/sonner'
 import { MonthNavProvider } from '@/contexts/month-nav-context'
 import { materializeRecurring } from '@/lib/server/functions/recurring'
 
-import appCss from '../styles/styles.css?url'
+import appCss from '@/styles/styles.css?url'
 
 export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()({
   loader: () => materializeRecurring(),

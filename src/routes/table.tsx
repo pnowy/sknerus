@@ -10,10 +10,10 @@ import { Label } from '@/components/ui/label'
 import { Switch } from '@/components/ui/switch'
 import { useConfig, useDeleteExpense, useExpenses } from '@/hooks/use-expenses'
 import { useMonthNav } from '@/hooks/use-month-nav'
-import { getConfig } from '../lib/server/functions/config'
-import { getExpenses } from '../lib/server/functions/expenses'
-import { filterExpensesByMonth } from '../lib/shared/date-utils'
-import type { Expense } from '../lib/shared/types/expense'
+import { getConfig } from '@/lib/server/functions/config'
+import { getExpenses } from '@/lib/server/functions/expenses'
+import { filterExpensesByMonth } from '@/lib/shared/date-utils'
+import type { Expense } from '@/lib/shared/types/expense'
 
 export const Route = createFileRoute('/table')({
   loader: ({ context: { queryClient } }) =>

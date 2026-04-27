@@ -1,6 +1,6 @@
 import { createServerFn } from '@tanstack/react-start'
-import { configSchema } from 'src/lib/schemas'
 import { z } from 'zod'
+import { configSchema } from '@/lib/schemas'
 import { storage } from '@/lib/server/storage'
 
 export const getConfig = createServerFn({ method: 'GET' }).handler(() => storage.getConfig())

@@ -1,23 +1,8 @@
 import { useEffect, useState } from 'react'
 import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from 'recharts'
+import { formatCurrency } from '@/lib/shared/format'
+import type { Category } from '@/lib/shared/types/expense'
 import { cn } from '@/lib/utils'
-import { formatCurrency } from '../../lib/shared/format'
-import type { Category } from '../../lib/shared/types/expense'
-
-const PALETTE = [
-  '#FF6B6B',
-  '#4ECDC4',
-  '#45B7D1',
-  '#96CEB4',
-  '#FFBE0B',
-  '#FF006E',
-  '#8338EC',
-  '#3A86FF',
-  '#FB5607',
-  '#38B000',
-  '#9B5DE5',
-  '#F15BB5',
-]
 
 type ChartEntry = {
   category: string
@@ -39,7 +24,7 @@ export function ExpenseChart({ data, currency, categories }: Props) {
   }, [])
 
   function getColor(name: string): string {
-    return categories.find((c) => c.name === name)?.color ?? PALETTE[0]
+    return categories.find((c) => c.name === name)?.color ?? '#888888'
   }
 
   if (data.length === 0) {

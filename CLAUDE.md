@@ -25,8 +25,6 @@ import type { Expense } from '@/lib/shared/types/expense'
 import { cn } from '@/lib/utils'
 ```
 
-Never use relative paths like `../../lib/` or bare `src/lib/` (only two legacy spots in `createServerFn` calls use `src/lib/schemas` — don't copy that pattern).
-
 ## Architecture
 
 **Stack:** TanStack Start (SSR, Nitro) + TanStack Router (file-based) + TanStack Query · React 19 · Tailwind CSS 4 · shadcn/ui (base-nova, `@base-ui/react` primitives) · Biome linter · react-hook-form + Zod v4 · Recharts

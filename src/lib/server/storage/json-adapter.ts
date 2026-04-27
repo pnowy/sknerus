@@ -1,7 +1,7 @@
 import * as fs from 'node:fs'
 import * as path from 'node:path'
+import { genCategoryId } from '@/lib/server/ids.server'
 import type { Config, Expense, RecurringExpense } from '@/lib/shared/types/expense'
-import { genCategoryId } from '../ids.server'
 import type { StorageAdapter } from './types'
 
 const DEFAULT_CONFIG: Config = {

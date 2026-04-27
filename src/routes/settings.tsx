@@ -12,9 +12,9 @@ import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { useConfig, useExpenses, useRenameCategory, useUpdateConfig } from '@/hooks/use-expenses'
 import { getConfig } from '@/lib/server/functions/config'
+import { createExpense, getExpenses } from '@/lib/server/functions/expenses'
 import { getRecurring } from '@/lib/server/functions/recurring'
 import { exportToCSV, parseCSV } from '@/lib/shared/csv'
-import { createExpense, getExpenses } from '../lib/server/functions/expenses'
 
 export const Route = createFileRoute('/settings')({
   loader: ({ context: { queryClient } }) =>
@@ -127,7 +127,7 @@ function SettingsPage() {
             <CardContent>
               <Select value={String(config.startDate)} onValueChange={(v) => v && handleStartDateChange(v)}>
                 <SelectTrigger>
-                  <SelectValue />
+                  <SelectValue>{(value: string) => `Day ${value}`}</SelectValue>
                 </SelectTrigger>
                 <SelectContent>
                   {FISCAL_DAYS.map((d) => (
@@ -150,7 +150,7 @@ function SettingsPage() {
               <Label>Appearance</Label>
               <Select value={theme} onValueChange={(v) => v && setTheme(v)}>
                 <SelectTrigger className="w-36">
-                  <SelectValue />
+                  <SelectValue>{(value: string) => (value ? `${value.charAt(0).toUpperCase()}${value.slice(1)}` : null)}</SelectValue>
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="light">Light</SelectItem>

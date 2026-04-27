@@ -1,6 +1,6 @@
 import { createServerFn } from '@tanstack/react-start'
-import { expenseSchema } from 'src/lib/schemas'
 import { z } from 'zod'
+import { expenseSchema } from '@/lib/schemas'
 import { genExpenseId } from '@/lib/server/ids.server'
 import { storage } from '@/lib/server/storage'
 import type { Expense } from '@/lib/shared/types/expense'

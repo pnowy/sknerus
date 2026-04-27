@@ -1,9 +1,9 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import type { ExpenseInput } from '@/lib/schemas'
-import { getConfig, renameCategory, updateConfig } from '../lib/server/functions/config'
-import { createExpense, deleteExpense, getExpenses, updateExpense } from '../lib/server/functions/expenses'
-import { createRecurring, deleteRecurring, getRecurring, updateRecurring } from '../lib/server/functions/recurring'
-import type { Config, Expense, RecurringExpense } from '../lib/shared/types/expense'
+import { getConfig, renameCategory, updateConfig } from '@/lib/server/functions/config'
+import { createExpense, deleteExpense, getExpenses, updateExpense } from '@/lib/server/functions/expenses'
+import { createRecurring, deleteRecurring, getRecurring, updateRecurring } from '@/lib/server/functions/recurring'
+import type { Config, Expense, RecurringExpense } from '@/lib/shared/types/expense'
 
 export const queryKeys = {
   expenses: ['expenses'] as const,
