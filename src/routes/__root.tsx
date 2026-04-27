@@ -7,10 +7,12 @@ import { TanStackRouterDevtoolsPanel } from '@tanstack/react-router-devtools'
 import { ThemeProvider } from 'next-themes'
 import { Toaster } from '@/components/ui/sonner'
 import { MonthNavProvider } from '@/contexts/month-nav-context'
+import { materializeRecurring } from '@/lib/server/functions/recurring'
 
 import appCss from '../styles/styles.css?url'
 
 export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()({
+  loader: () => materializeRecurring(),
   head: () => ({
     meta: [{ charSet: 'utf-8' }, { name: 'viewport', content: 'width=device-width, initial-scale=1' }, { title: 'Sknerus' }],
     links: [{ rel: 'stylesheet', href: appCss }],

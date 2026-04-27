@@ -92,7 +92,9 @@ export function AddExpenseForm({ categories, currency, allTags }: Props) {
                 render={({ field }) => (
                   <Select value={field.value} onValueChange={field.onChange}>
                     <SelectTrigger>
-                      <SelectValue placeholder="Select category" />
+                      <SelectValue placeholder="Select category">
+                        {(value: string) => categories.find((c) => c.id === value)?.name}
+                      </SelectValue>
                     </SelectTrigger>
                     <SelectContent>
                       {categories.map((c) => (

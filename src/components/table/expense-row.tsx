@@ -1,4 +1,4 @@
-import { Pencil, Trash2 } from 'lucide-react'
+import { Pencil, Repeat, Trash2 } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { TableCell, TableRow } from '@/components/ui/table'
@@ -20,7 +20,12 @@ export function ExpenseRow({ expense, categories, currency, hasTags, onEdit, onD
 
   return (
     <TableRow>
-      <TableCell className="font-medium">{expense.name}</TableCell>
+      <TableCell className="font-medium">
+        <span className="flex items-center gap-1.5">
+          {expense.name}
+          {expense.recurringId && <Repeat aria-label="Recurring" className="size-3 shrink-0 text-muted-foreground" />}
+        </span>
+      </TableCell>
       <TableCell>{categoryName}</TableCell>
       {hasTags && (
         <TableCell>

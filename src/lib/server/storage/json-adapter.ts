@@ -1,6 +1,6 @@
 import * as fs from 'node:fs'
 import * as path from 'node:path'
-import type { Config, Expense } from '../../shared/types/expense'
+import type { Config, Expense, RecurringExpense } from '@/lib/shared/types/expense'
 import { genCategoryId } from '../ids.server'
 import type { StorageAdapter } from './types'
 
@@ -21,11 +21,13 @@ export class JsonAdapter implements StorageAdapter {
   private readonly dataDir: string
   private readonly expensesFile: string
   private readonly configFile: string
+  private readonly recurringFile: string
 
   constructor(dataDir?: string) {
     this.dataDir = path.resolve(process.cwd(), dataDir ?? process.env.DATA_DIR ?? '.data')
     this.expensesFile = path.join(this.dataDir, 'expenses.json')
     this.configFile = path.join(this.dataDir, 'config.json')
+    this.recurringFile = path.join(this.dataDir, 'recurring.json')
   }
 
   private ensureDataDir() {
@@ -75,5 +77,16 @@ export class JsonAdapter implements StorageAdapter {
   async saveConfig(config: Config): Promise<void> {
     this.ensureDataDir()
     fs.writeFileSync(this.configFile, JSON.stringify(config, null, 2))
+  }
+
+  async getRecurring(): Promise<Array<RecurringExpense>> {
+    this.ensureDataDir()
+    if (!fs.existsSync(this.recurringFile)) return []
+    return JSON.parse(fs.readFileSync(this.recurringFile, 'utf-8')) as Array<RecurringExpense>
+  }
+
+  async saveRecurring(recurring: Array<RecurringExpense>): Promise<void> {
+    this.ensureDataDir()
+    fs.writeFileSync(this.recurringFile, JSON.stringify(recurring, null, 2))
   }
 }

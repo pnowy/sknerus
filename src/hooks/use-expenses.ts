@@ -2,11 +2,13 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import type { ExpenseInput } from '@/lib/schemas'
 import { getConfig, renameCategory, updateConfig } from '../lib/server/functions/config'
 import { createExpense, deleteExpense, getExpenses, updateExpense } from '../lib/server/functions/expenses'
-import type { Config, Expense } from '../lib/shared/types/expense'
+import { createRecurring, deleteRecurring, getRecurring, updateRecurring } from '../lib/server/functions/recurring'
+import type { Config, Expense, RecurringExpense } from '../lib/shared/types/expense'
 
 export const queryKeys = {
   expenses: ['expenses'] as const,
   config: ['config'] as const,
+  recurring: ['recurring'] as const,
 }
 
 export function useExpenses() {
@@ -61,5 +63,37 @@ export function useRenameCategory() {
     mutationFn: (data: { id: string; newName: string }) => renameCategory({ data }),
     onSuccess: () =>
       Promise.all([qc.invalidateQueries({ queryKey: queryKeys.config }), qc.invalidateQueries({ queryKey: queryKeys.expenses })]),
+  })
+}
+
+export function useRecurring() {
+  return useQuery({
+    queryKey: queryKeys.recurring,
+    queryFn: () => getRecurring(),
+  })
+}
+
+export function useCreateRecurring() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (data: Omit<RecurringExpense, 'id'>) => createRecurring({ data }),
+    onSuccess: () =>
+      Promise.all([qc.invalidateQueries({ queryKey: queryKeys.recurring }), qc.invalidateQueries({ queryKey: queryKeys.expenses })]),
+  })
+}
+
+export function useUpdateRecurring() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (data: RecurringExpense) => updateRecurring({ data }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: queryKeys.recurring }),
+  })
+}
+
+export function useDeleteRecurring() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (id: string) => deleteRecurring({ data: { id } }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: queryKeys.recurring }),
   })
 }

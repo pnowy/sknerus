@@ -1,4 +1,4 @@
-import type { Expense } from './types/expense'
+import type { Expense } from '@/lib/shared/types/expense'
 
 export function getMonthRange(year: number, month: number, startDate: number) {
   const start = new Date(year, month, startDate)
@@ -16,4 +16,16 @@ export function filterExpensesByMonth(expenses: Array<Expense>, year: number, mo
 
 export function todayISO(): string {
   return new Date().toISOString().slice(0, 10)
+}
+
+export function toUTC(s: string) {
+  return new Date(`${s}T00:00:00Z`)
+}
+
+export function toISO(d: Date) {
+  return d.toISOString().slice(0, 10)
+}
+
+export function daysInMonth(year: number, month: number) {
+  return new Date(Date.UTC(year, month, 0)).getUTCDate()
 }

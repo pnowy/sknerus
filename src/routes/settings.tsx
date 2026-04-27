@@ -5,12 +5,14 @@ import { toast } from 'sonner'
 import { AppLayout } from '@/components/layout/app-layout'
 import { CategoryList } from '@/components/settings/category-list'
 import { CurrencySelector } from '@/components/settings/currency-selector'
+import { RecurringList } from '@/components/settings/recurring-list'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { useConfig, useExpenses, useRenameCategory, useUpdateConfig } from '@/hooks/use-expenses'
 import { getConfig } from '@/lib/server/functions/config'
+import { getRecurring } from '@/lib/server/functions/recurring'
 import { exportToCSV, parseCSV } from '@/lib/shared/csv'
 import { createExpense, getExpenses } from '../lib/server/functions/expenses'
 
@@ -19,6 +21,7 @@ export const Route = createFileRoute('/settings')({
     Promise.all([
       queryClient.ensureQueryData({ queryKey: ['expenses'], queryFn: () => getExpenses() }),
       queryClient.ensureQueryData({ queryKey: ['config'], queryFn: () => getConfig() }),
+      queryClient.ensureQueryData({ queryKey: ['recurring'], queryFn: () => getRecurring() }),
     ]),
   component: SettingsPage,
 })
@@ -156,6 +159,14 @@ function SettingsPage() {
                 </SelectContent>
               </Select>
             </div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader>
+            <CardTitle>Recurring Transactions</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <RecurringList categories={config.categories} currency={config.currency} />
           </CardContent>
         </Card>
         <Card>

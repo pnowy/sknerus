@@ -22,7 +22,7 @@ export const updateExpense = createServerFn({ method: 'POST' })
     const expenses = await storage.getExpenses()
     const idx = expenses.findIndex((e) => e.id === data.id)
     if (idx === -1) throw new Error('Expense not found')
-    expenses[idx] = data
+    expenses[idx] = { ...expenses[idx], ...data }
     await storage.saveExpenses(expenses)
     return data
   })

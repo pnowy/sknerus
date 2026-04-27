@@ -78,7 +78,7 @@ export function EditExpenseDialog({ expense, categories, allTags, onClose }: Pro
                 render={({ field }) => (
                   <Select value={field.value} onValueChange={field.onChange}>
                     <SelectTrigger>
-                      <SelectValue />
+                      <SelectValue>{(value: string) => categories.find((c) => c.id === value)?.name}</SelectValue>
                     </SelectTrigger>
                     <SelectContent>
                       {categories.map((c) => (
