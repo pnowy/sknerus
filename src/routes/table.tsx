@@ -2,8 +2,8 @@ import { createFileRoute } from '@tanstack/react-router'
 import { useMemo, useState } from 'react'
 import { toast } from 'sonner'
 import { MonthNav } from '@/components/dashboard/month-nav'
+import { ExpenseFormDialog } from '@/components/expense-form-dialog'
 import { AppLayout } from '@/components/layout/app-layout'
-import { EditExpenseDialog } from '@/components/table/edit-expense-dialog'
 import { EmptyState } from '@/components/table/empty-state'
 import { ExpenseTable } from '@/components/table/expense-table'
 import { Label } from '@/components/ui/label'
@@ -77,14 +77,15 @@ function TablePage() {
           />
         )}
       </div>
-      {editingExpense && (
-        <EditExpenseDialog
-          expense={editingExpense}
-          categories={config?.categories ?? []}
-          allTags={[...new Set(allExpenses.flatMap((e) => e.tags))].sort()}
-          onClose={() => setEditingExpense(null)}
-        />
-      )}
+      <ExpenseFormDialog
+        key={editingExpense?.id ?? 'add'}
+        allTags={[...new Set(allExpenses.flatMap((e) => e.tags))].sort()}
+        categories={config?.categories ?? []}
+        currency={config?.currency ?? 'USD'}
+        expense={editingExpense ?? undefined}
+        open={!!editingExpense}
+        onClose={() => setEditingExpense(null)}
+      />
     </AppLayout>
   )
 }

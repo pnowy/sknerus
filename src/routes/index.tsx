@@ -1,10 +1,12 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { useMemo } from 'react'
-import { AddExpenseForm } from '@/components/dashboard/add-expense-form'
+import { Plus } from 'lucide-react'
+import { useMemo, useState } from 'react'
 import { CashflowCards } from '@/components/dashboard/cashflow-cards'
 import { ExpenseChart } from '@/components/dashboard/expense-chart'
 import { MonthNav } from '@/components/dashboard/month-nav'
+import { ExpenseFormDialog } from '@/components/expense-form-dialog'
 import { AppLayout } from '@/components/layout/app-layout'
+import { Button } from '@/components/ui/button'
 import { useConfig, useExpenses } from '@/hooks/use-expenses'
 import { useMonthNav } from '@/hooks/use-month-nav'
 import { getConfig } from '@/lib/server/functions/config'
@@ -24,6 +26,7 @@ function DashboardPage() {
   const { data: allExpenses = [] } = useExpenses()
   const { data: config } = useConfig()
   const { year, month, label, prev, next, reset, canGoNext, isCurrentMonth } = useMonthNav()
+  const [addOpen, setAddOpen] = useState(false)
 
   const categories = config?.categories ?? []
   const currency = config?.currency ?? 'USD'
@@ -49,12 +52,18 @@ function DashboardPage() {
       <div className="space-y-6">
         <div className="flex items-center justify-between">
           <h1 className="font-semibold text-xl">Dashboard</h1>
-          <MonthNav canGoNext={canGoNext} isCurrentMonth={isCurrentMonth} label={label} onNext={next} onPrev={prev} onReset={reset} />
+          <div className="flex items-center gap-3">
+            <Button onClick={() => setAddOpen(true)}>
+              <Plus className="size-4" />
+              Add Expense
+            </Button>
+            <MonthNav canGoNext={canGoNext} isCurrentMonth={isCurrentMonth} label={label} onNext={next} onPrev={prev} onReset={reset} />
+          </div>
         </div>
         <ExpenseChart categories={categories} currency={currency} data={chartData} />
         <CashflowCards currency={currency} expenses={expenses} income={income} />
-        <AddExpenseForm allTags={allTags} categories={categories} currency={currency} />
       </div>
+      <ExpenseFormDialog allTags={allTags} categories={categories} currency={currency} open={addOpen} onClose={() => setAddOpen(false)} />
     </AppLayout>
   )
 }
