@@ -4,19 +4,14 @@ import { Dices, GripVertical, Trash2 } from 'lucide-react'
 import { useRef, useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import type { Category } from '@/lib/shared/types/expense.ts'
-
-function randomColor(): string {
-  return `#${Math.floor(Math.random() * 0xffffff)
-    .toString(16)
-    .padStart(6, '0')}`
-}
+import type { Category } from '@/lib/shared/types/expense'
+import { randomColor } from '@/lib/utils'
 
 type Props = {
   category: Category
-  onDelete: (name: string) => void
-  onColorChange: (name: string, color: string) => void
-  onNameChange: (oldName: string, newName: string) => void
+  onDelete: (id: string) => void
+  onColorChange: (id: string, color: string) => void
+  onNameChange: (id: string, newName: string) => void
 }
 
 export function SortableCategoryItem({ category, onDelete, onColorChange, onNameChange }: Props) {
@@ -34,7 +29,7 @@ export function SortableCategoryItem({ category, onDelete, onColorChange, onName
   function commitEdit() {
     const trimmed = draft.trim()
     if (trimmed && trimmed !== category.name) {
-      onNameChange(category.name, trimmed)
+      onNameChange(category.id, trimmed)
     } else {
       setDraft(category.name)
     }
@@ -73,14 +68,14 @@ export function SortableCategoryItem({ category, onDelete, onColorChange, onName
         className="sr-only"
         type="color"
         value={category.color}
-        onChange={(e) => onColorChange(category.name, e.target.value)}
+        onChange={(e) => onColorChange(category.id, e.target.value)}
       />
       <Button
         aria-label="Random color"
         className="size-7 text-muted-foreground"
         size="icon-sm"
         variant="ghost"
-        onClick={() => onColorChange(category.name, randomColor())}
+        onClick={() => onColorChange(category.id, randomColor())}
       >
         <Dices className="size-3.5" />
       </Button>
@@ -113,7 +108,7 @@ export function SortableCategoryItem({ category, onDelete, onColorChange, onName
         className="size-7"
         size="icon-sm"
         variant="ghost"
-        onClick={() => onDelete(category.name)}
+        onClick={() => onDelete(category.id)}
       >
         <Trash2 className="size-3.5 text-destructive" />
       </Button>

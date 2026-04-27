@@ -4,12 +4,13 @@ export type Expense = {
   /** Signed: positive = income, negative = expense */
   amount: number
   currency: string
-  category: string
+  categoryId: string
   date: string
   tags: Array<string>
 }
 
 export type Category = {
+  id: string
   name: string
   color: string
 }

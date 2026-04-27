@@ -58,7 +58,7 @@ export function useUpdateConfig() {
 export function useRenameCategory() {
   const qc = useQueryClient()
   return useMutation({
-    mutationFn: (data: { oldName: string; newName: string }) => renameCategory({ data }),
+    mutationFn: (data: { id: string; newName: string }) => renameCategory({ data }),
     onSuccess: () =>
       Promise.all([qc.invalidateQueries({ queryKey: queryKeys.config }), qc.invalidateQueries({ queryKey: queryKeys.expenses })]),
   })

@@ -54,9 +54,10 @@ function SettingsPage() {
     }
   }
 
-  async function handleCategoryRename(oldName: string, newName: string) {
+  async function handleCategoryRename(id: string, newName: string) {
+    const oldName = currentConfig.categories.find((c) => c.id === id)?.name ?? id
     try {
-      await renameCategoryMutation.mutateAsync({ oldName, newName })
+      await renameCategoryMutation.mutateAsync({ id, newName })
       toast.success(`Renamed "${oldName}" to "${newName}"`)
     } catch {
       toast.error('Failed to rename category')
@@ -72,7 +73,7 @@ function SettingsPage() {
   }
 
   function handleCsvExport() {
-    exportToCSV(allExpenses)
+    exportToCSV(allExpenses, currentConfig.categories)
     toast.success('Exported')
   }
 
@@ -80,10 +81,15 @@ function SettingsPage() {
     const file = e.target.files?.[0]
     if (!file) return
     const text = await file.text()
-    const parsed = parseCSV(text)
+    const { expenses: parsed, newCategories } = parseCSV(text, currentConfig.categories)
     try {
+      if (newCategories.length > 0) {
+        await updateConfig.mutateAsync({ ...currentConfig, categories: [...currentConfig.categories, ...newCategories] })
+      }
       await Promise.all(parsed.map((row) => createExpense({ data: row })))
-      toast.success(`Imported ${parsed.length} transactions`)
+      toast.success(
+        `Imported ${parsed.length} transactions${newCategories.length > 0 ? ` and ${newCategories.length} new categories` : ''}`
+      )
     } catch {
       toast.error('Import failed')
     }

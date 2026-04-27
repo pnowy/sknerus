@@ -2,23 +2,26 @@ import { Pencil, Trash2 } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { TableCell, TableRow } from '@/components/ui/table'
+import { formatCurrency, formatDate } from '@/lib/shared/format.ts'
+import type { Category, Expense } from '@/lib/shared/types/expense.ts'
 import { cn } from '@/lib/utils'
-import { formatCurrency, formatDate } from '../../lib/shared/format'
-import type { Expense } from '../../lib/shared/types/expense'
 
 type Props = {
   expense: Expense
+  categories: Array<Category>
   currency: string
   hasTags: boolean
   onEdit: (e: Expense) => void
   onDelete: (id: string) => void
 }
 
-export function ExpenseRow({ expense, currency, hasTags, onEdit, onDelete }: Props) {
+export function ExpenseRow({ expense, categories, currency, hasTags, onEdit, onDelete }: Props) {
+  const categoryName = categories.find((c) => c.id === expense.categoryId)?.name ?? expense.categoryId
+
   return (
     <TableRow>
       <TableCell className="font-medium">{expense.name}</TableCell>
-      <TableCell>{expense.category}</TableCell>
+      <TableCell>{categoryName}</TableCell>
       {hasTags && (
         <TableCell>
           <div className="flex flex-wrap gap-1">

@@ -11,8 +11,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Switch } from '@/components/ui/switch'
 import { useCreateExpense } from '@/hooks/use-expenses'
 import { type ExpenseFormInput, expenseFormSchema } from '@/lib/schemas'
-import { todayISO } from '@/lib/shared/date-utils.ts'
-import type { Category } from '@/lib/shared/types/expense.ts'
+import { todayISO } from '@/lib/shared/date-utils'
+import type { Category } from '@/lib/shared/types/expense'
 
 type Props = {
   categories: Array<Category>
@@ -24,7 +24,7 @@ const defaultValues: ExpenseFormInput = {
   name: '',
   amount: 0,
   currency: 'USD',
-  category: '',
+  categoryId: '',
   date: todayISO(),
   tags: [],
   isIncome: false,
@@ -43,7 +43,7 @@ export function AddExpenseForm({ categories, currency, allTags }: Props) {
   } = useForm<ExpenseFormInput>({
     // biome-ignore lint/suspicious/noExplicitAny: https://github.com/react-hook-form/resolvers/issues/842
     resolver: zodResolver(expenseFormSchema as any),
-    defaultValues: { ...defaultValues, currency, category: categories[0]?.name ?? '' },
+    defaultValues: { ...defaultValues, currency, categoryId: categories[0]?.id ?? '' },
   })
 
   async function onSubmit({ isIncome, amount, ...rest }: ExpenseFormInput) {
@@ -51,7 +51,7 @@ export function AddExpenseForm({ categories, currency, allTags }: Props) {
       const signedAmount = isIncome ? Math.abs(amount) : -Math.abs(amount)
       await createExpense.mutateAsync({ ...rest, amount: signedAmount })
       toast.success('Expense added')
-      reset({ ...defaultValues, currency, category: categories[0]?.name ?? '' })
+      reset({ ...defaultValues, currency, categoryId: categories[0]?.id ?? '' })
       setOpen(false)
     } catch {
       toast.error('Failed to add expense')
@@ -88,7 +88,7 @@ export function AddExpenseForm({ categories, currency, allTags }: Props) {
               <Label>Category</Label>
               <Controller
                 control={control}
-                name="category"
+                name="categoryId"
                 render={({ field }) => (
                   <Select value={field.value} onValueChange={field.onChange}>
                     <SelectTrigger>
@@ -96,7 +96,7 @@ export function AddExpenseForm({ categories, currency, allTags }: Props) {
                     </SelectTrigger>
                     <SelectContent>
                       {categories.map((c) => (
-                        <SelectItem key={c.name} value={c.name}>
+                        <SelectItem key={c.id} value={c.id}>
                           {c.name}
                         </SelectItem>
                       ))}

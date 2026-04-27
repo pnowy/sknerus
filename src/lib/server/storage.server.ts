@@ -1,6 +1,7 @@
 import * as fs from 'node:fs'
 import * as path from 'node:path'
 import type { Config, Expense } from '../shared/types/expense'
+import { genCategoryId } from './ids.server'
 
 const DATA_DIR = path.resolve(process.cwd(), process.env.DATA_DIR ?? '.data')
 const EXPENSES_FILE = path.join(DATA_DIR, 'expenses.json')
@@ -8,12 +9,12 @@ const CONFIG_FILE = path.join(DATA_DIR, 'config.json')
 
 const DEFAULT_CONFIG: Config = {
   categories: [
-    { name: 'Food', color: '#FF6B6B' },
-    { name: 'Transport', color: '#4ECDC4' },
-    { name: 'Housing', color: '#45B7D1' },
-    { name: 'Entertainment', color: '#96CEB4' },
-    { name: 'Health', color: '#FFBE0B' },
-    { name: 'Other', color: '#FF006E' },
+    { id: genCategoryId(), name: 'Food', color: '#FF6B6B' },
+    { id: genCategoryId(), name: 'Transport', color: '#4ECDC4' },
+    { id: genCategoryId(), name: 'Housing', color: '#45B7D1' },
+    { id: genCategoryId(), name: 'Entertainment', color: '#96CEB4' },
+    { id: genCategoryId(), name: 'Health', color: '#FFBE0B' },
+    { id: genCategoryId(), name: 'Other', color: '#FF006E' },
   ],
   currency: 'USD',
   startDate: 1,
@@ -37,15 +38,30 @@ export function writeExpenses(expenses: Array<Expense>): void {
 
 export function readConfig(): Config {
   ensureDataDir()
-  const stored: Partial<Config> = fs.existsSync(CONFIG_FILE) ? (JSON.parse(fs.readFileSync(CONFIG_FILE, 'utf-8')) as Partial<Config>) : {}
+  const stored = fs.existsSync(CONFIG_FILE)
+    ? (JSON.parse(fs.readFileSync(CONFIG_FILE, 'utf-8')) as Partial<
+        Config & { categories: Array<{ id?: string; name: string; color: string }> }
+      >)
+    : {}
+
+  // Migrate old categories that lack an id
+  const rawCategories = stored.categories ?? DEFAULT_CONFIG.categories
+  let needsWrite = false
+  const categories = rawCategories.map((c) => {
+    if (!c.id) {
+      needsWrite = true
+      return { ...c, id: genCategoryId() }
+    }
+    return c as Config['categories'][number]
+  })
 
   const config: Config = {
-    categories: stored.categories?.length ? stored.categories : DEFAULT_CONFIG.categories,
+    categories,
     currency: (stored.currency ?? DEFAULT_CONFIG.currency).toUpperCase(),
     startDate: stored.startDate ?? DEFAULT_CONFIG.startDate,
   }
 
-  writeConfig(config)
+  if (needsWrite) writeConfig(config)
   return config
 }
 

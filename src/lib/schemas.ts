@@ -4,7 +4,7 @@ export const expenseSchema = z.object({
   name: z.string().min(1, 'Name is required'),
   amount: z.number().refine((n) => n !== 0, 'Amount cannot be zero'),
   currency: z.string().min(1),
-  category: z.string().min(1, 'Category is required'),
+  categoryId: z.string().min(1, 'Category is required'),
   date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Invalid date'),
   tags: z.array(z.string()),
 })
@@ -16,6 +16,7 @@ export const expenseFormSchema = expenseSchema.extend({
 })
 
 export const categorySchema = z.object({
+  id: z.string().min(1),
   name: z.string().min(1),
   color: z.string(),
 })

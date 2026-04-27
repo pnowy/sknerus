@@ -34,14 +34,15 @@ function DashboardPage() {
   const income = useMemo(() => monthExpenses.filter((e) => e.amount > 0).reduce((sum, e) => sum + e.amount, 0), [monthExpenses])
   const expenses = useMemo(() => monthExpenses.filter((e) => e.amount < 0).reduce((sum, e) => sum - e.amount, 0), [monthExpenses])
   const chartData = useMemo(() => {
+    const catMap = new Map(categories.map((c) => [c.id, c.name]))
     const map = new Map<string, number>()
     for (const e of monthExpenses.filter((e) => e.amount < 0)) {
-      map.set(e.category, (map.get(e.category) ?? 0) - e.amount)
+      map.set(e.categoryId, (map.get(e.categoryId) ?? 0) - e.amount)
     }
     return Array.from(map.entries())
-      .map(([category, total]) => ({ category, total }))
+      .map(([id, total]) => ({ category: catMap.get(id) ?? id, total }))
       .sort((a, b) => b.total - a.total)
-  }, [monthExpenses])
+  }, [monthExpenses, categories])
 
   return (
     <AppLayout>

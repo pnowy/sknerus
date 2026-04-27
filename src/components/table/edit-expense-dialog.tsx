@@ -10,7 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Switch } from '@/components/ui/switch'
 import { useUpdateExpense } from '@/hooks/use-expenses'
 import { type ExpenseFormInput, expenseFormSchema } from '@/lib/schemas'
-import type { Category, Expense } from '@/lib/shared/types/expense.ts'
+import type { Category, Expense } from '@/lib/shared/types/expense'
 
 type Props = {
   expense: Expense
@@ -34,7 +34,7 @@ export function EditExpenseDialog({ expense, categories, allTags, onClose }: Pro
       name: expense.name,
       amount: Math.abs(expense.amount),
       currency: expense.currency,
-      category: expense.category,
+      categoryId: expense.categoryId,
       date: expense.date,
       tags: expense.tags,
       isIncome: expense.amount > 0,
@@ -74,7 +74,7 @@ export function EditExpenseDialog({ expense, categories, allTags, onClose }: Pro
               <Label>Category</Label>
               <Controller
                 control={control}
-                name="category"
+                name="categoryId"
                 render={({ field }) => (
                   <Select value={field.value} onValueChange={field.onChange}>
                     <SelectTrigger>
@@ -82,7 +82,7 @@ export function EditExpenseDialog({ expense, categories, allTags, onClose }: Pro
                     </SelectTrigger>
                     <SelectContent>
                       {categories.map((c) => (
-                        <SelectItem key={c.name} value={c.name}>
+                        <SelectItem key={c.id} value={c.id}>
                           {c.name}
                         </SelectItem>
                       ))}

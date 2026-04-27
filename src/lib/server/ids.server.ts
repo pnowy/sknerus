@@ -7,3 +7,7 @@ export function getId({ prefix }: { prefix: string }) {
 export function genExpenseId() {
   return `exp_${ulid()}`
 }
+
+export function genCategoryId() {
+  return `cat_${ulid()}`
+}

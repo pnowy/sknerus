@@ -69,6 +69,7 @@ function TablePage() {
           <EmptyState message={showAll ? 'No transactions yet.' : 'No transactions for this period.'} />
         ) : (
           <ExpenseTable
+            categories={config?.categories ?? []}
             expenses={displayedExpenses}
             currency={config?.currency ?? 'USD'}
             onEdit={setEditingExpense}
