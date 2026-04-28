@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import type { Expense } from '@/lib/shared/types/expense'
-import { filterExpensesByMonth, getMonthRange } from './date-utils'
+import type { Expense, RecurringExpense } from '@/lib/shared/types/expense'
+import { computeOccurrences, filterExpensesByMonth, getMonthRange } from './date-utils'
 
 function toStr(d: Date) {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
@@ -10,8 +10,14 @@ function makeExpense(date: string): Expense {
   return { id: date, name: '', amount: -1, currency: 'USD', categoryId: 'cat', date, tags: [] }
 }
 
-// month parameter is typed as Month (0 = January, 11 = December).
-// It is sourced from date.getMonth() in use-month-nav.ts and passed directly to new Date(year, month, 1).
+const baseRecurring: Omit<RecurringExpense, 'frequency' | 'startDate'> = {
+  id: 'rec_test',
+  name: 'Test',
+  amount: -100,
+  currency: 'USD',
+  categoryId: 'cat_test',
+  tags: [],
+}
 
 describe('getMonthRange', () => {
   describe('when the start day fits in every month', () => {
@@ -187,6 +193,83 @@ describe('filterExpensesByMonth', () => {
     it('should start the Mar period on Mar 31 and end before Apr 30 (clamped)', () => {
       const result = filterExpensesByMonth(expenses, 2024, 2, 31)
       expect(result.map((e) => e.date)).toEqual(['2024-03-31', '2024-04-01'])
+    })
+  })
+})
+
+describe('computeOccurrences', () => {
+  describe('when frequency is monthly with dayOfMonth 31', () => {
+    it('should clamp to Feb 29 in a leap year and Apr 30', () => {
+      const dates = computeOccurrences({ ...baseRecurring, frequency: 'monthly', dayOfMonth: 31, startDate: '2024-01-31' }, '2024-04-30')
+      expect(dates).toEqual(['2024-01-31', '2024-02-29', '2024-03-31', '2024-04-30'])
+    })
+
+    it('should clamp to Feb 28 in a non-leap year and Apr 30', () => {
+      const dates = computeOccurrences({ ...baseRecurring, frequency: 'monthly', dayOfMonth: 31, startDate: '2023-01-31' }, '2023-04-30')
+      expect(dates).toEqual(['2023-01-31', '2023-02-28', '2023-03-31', '2023-04-30'])
+    })
+
+    it('should clamp Nov to Nov 30 and keep Dec 31 and Jan 31', () => {
+      const dates = computeOccurrences({ ...baseRecurring, frequency: 'monthly', dayOfMonth: 31, startDate: '2024-11-01' }, '2025-01-31')
+      expect(dates).toEqual(['2024-11-30', '2024-12-31', '2025-01-31'])
+    })
+
+    it('should include a clamped occurrence that is still on or after startDate', () => {
+      const dates = computeOccurrences({ ...baseRecurring, frequency: 'monthly', dayOfMonth: 31, startDate: '2023-02-15' }, '2023-04-30')
+      expect(dates).toEqual(['2023-02-28', '2023-03-31', '2023-04-30'])
+    })
+
+    it('should stop at endDate even if future occurrences exist', () => {
+      const dates = computeOccurrences(
+        { ...baseRecurring, frequency: 'monthly', dayOfMonth: 31, startDate: '2024-01-01', endDate: '2024-03-15' },
+        '2024-12-31'
+      )
+      expect(dates).toEqual(['2024-01-31', '2024-02-29'])
+    })
+  })
+
+  describe('when frequency is yearly with dayOfMonth 31', () => {
+    it('should clamp to Feb 28 or Feb 29 depending on the year', () => {
+      const dates = computeOccurrences(
+        { ...baseRecurring, frequency: 'yearly', dayOfMonth: 31, month: 2, startDate: '2022-01-01' },
+        '2025-12-31'
+      )
+      expect(dates).toEqual(['2022-02-28', '2023-02-28', '2024-02-29', '2025-02-28'])
+    })
+
+    it('should clamp day 31 to Apr 30 every year', () => {
+      const dates = computeOccurrences(
+        { ...baseRecurring, frequency: 'yearly', dayOfMonth: 31, month: 4, startDate: '2022-01-01' },
+        '2024-12-31'
+      )
+      expect(dates).toEqual(['2022-04-30', '2023-04-30', '2024-04-30'])
+    })
+
+    it('should not clamp in December', () => {
+      const dates = computeOccurrences(
+        { ...baseRecurring, frequency: 'yearly', dayOfMonth: 31, month: 12, startDate: '2022-01-01' },
+        '2024-12-31'
+      )
+      expect(dates).toEqual(['2022-12-31', '2023-12-31', '2024-12-31'])
+    })
+  })
+
+  describe('when frequency is daily', () => {
+    it('should generate one entry per day inclusive of start and end', () => {
+      const dates = computeOccurrences({ ...baseRecurring, frequency: 'daily', startDate: '2024-03-01' }, '2024-03-03')
+      expect(dates).toEqual(['2024-03-01', '2024-03-02', '2024-03-03'])
+    })
+  })
+
+  describe('when frequency is weekly with dayOfWeek Monday (1)', () => {
+    it('should generate every Monday from startDate when startDate is a Monday', () => {
+      const dates = computeOccurrences({ ...baseRecurring, frequency: 'weekly', dayOfWeek: 1, startDate: '2024-04-01' }, '2024-04-22')
+      expect(dates).toEqual(['2024-04-01', '2024-04-08', '2024-04-15', '2024-04-22'])
+    })
+
+    it('should advance to the first Monday when startDate is not a Monday', () => {
+      const dates = computeOccurrences({ ...baseRecurring, frequency: 'weekly', dayOfWeek: 1, startDate: '2024-04-03' }, '2024-04-22')
+      expect(dates).toEqual(['2024-04-08', '2024-04-15', '2024-04-22'])
     })
   })
 })
