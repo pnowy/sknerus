@@ -15,7 +15,7 @@ import type { Category, RecurringExpense } from '@/lib/shared/types/expense'
 
 const DAYS_OF_WEEK = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
 const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
-const DAY_NUMS = Array.from({ length: 28 }, (_, i) => i + 1)
+const DAY_NUMS = Array.from({ length: 31 }, (_, i) => i + 1)
 
 type Props = {
   categories: Array<Category>

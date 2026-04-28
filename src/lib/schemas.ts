@@ -35,7 +35,7 @@ export const recurringExpenseSchema = z.object({
   categoryId: z.string().min(1, 'Category is required'),
   tags: z.array(z.string()),
   frequency: z.enum(['daily', 'weekly', 'monthly', 'yearly']),
-  dayOfMonth: z.number().int().min(1).max(28).optional(),
+  dayOfMonth: z.number().int().min(1).max(31).optional(),
   dayOfWeek: z.number().int().min(0).max(6).optional(),
   month: z.number().int().min(1).max(12).optional(),
   startDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Invalid date'),

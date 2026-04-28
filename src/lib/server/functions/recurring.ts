@@ -1,9 +1,9 @@
 import { createServerFn } from '@tanstack/react-start'
+import { addDays, addWeeks, format, getDay, getDaysInMonth, isAfter, isBefore, parseISO, setDate } from 'date-fns'
 import { z } from 'zod'
 import { recurringExpenseSchema } from '@/lib/schemas'
 import { genExpenseId, genRecurringId } from '@/lib/server/ids.server'
 import { storage } from '@/lib/server/storage'
-import { daysInMonth, toISO, toUTC } from '@/lib/shared/date-utils.ts'
 import type { Expense, RecurringExpense } from '@/lib/shared/types/expense'
 
 export const getRecurring = createServerFn({ method: 'GET' }).handler(() => storage.getRecurring())
@@ -40,7 +40,7 @@ export const materializeRecurring = createServerFn({ method: 'POST' }).handler(a
   const [recurring, expenses] = await Promise.all([storage.getRecurring(), storage.getExpenses()])
   if (recurring.length === 0) return { created: 0 }
 
-  const today = new Date().toISOString().slice(0, 10)
+  const today = format(new Date(), 'yyyy-MM-dd')
   const existingKeys = new Set(expenses.filter((e) => e.recurringId).map((e) => `${e.recurringId}:${e.date}`))
 
   const newExpenses: Array<Expense> = []
@@ -69,50 +69,54 @@ export const materializeRecurring = createServerFn({ method: 'POST' }).handler(a
 })
 
 export function computeOccurrences(template: RecurringExpense, todayStr: string): Array<string> {
-  const start = toUTC(template.startDate)
-  const today = toUTC(todayStr)
-  const endRaw = template.endDate ? toUTC(template.endDate) : today
-  const upper = endRaw < today ? endRaw : today
+  const start = parseISO(template.startDate)
+  const today = parseISO(todayStr)
+  const endRaw = template.endDate ? parseISO(template.endDate) : today
+  const upper = isBefore(endRaw, today) ? endRaw : today
 
   const dates: Array<string> = []
 
   if (template.frequency === 'daily') {
-    const cur = new Date(start)
-    while (cur <= upper) {
-      dates.push(toISO(cur))
-      cur.setUTCDate(cur.getUTCDate() + 1)
+    let cur = start
+    while (!isAfter(cur, upper)) {
+      dates.push(format(cur, 'yyyy-MM-dd'))
+      cur = addDays(cur, 1)
     }
   } else if (template.frequency === 'weekly') {
-    const target = template.dayOfWeek ?? start.getUTCDay()
-    const cur = new Date(start)
-    while (cur.getUTCDay() !== target) cur.setUTCDate(cur.getUTCDate() + 1)
-    while (cur <= upper) {
-      dates.push(toISO(cur))
-      cur.setUTCDate(cur.getUTCDate() + 7)
+    const target = template.dayOfWeek ?? getDay(start)
+    let cur = start
+    while (getDay(cur) !== target) cur = addDays(cur, 1)
+    while (!isAfter(cur, upper)) {
+      dates.push(format(cur, 'yyyy-MM-dd'))
+      cur = addWeeks(cur, 1)
     }
   } else if (template.frequency === 'monthly') {
-    const targetDay = template.dayOfMonth ?? start.getUTCDate()
-    let year = start.getUTCFullYear()
-    let mo = start.getUTCMonth() + 1
-    const endYear = upper.getUTCFullYear()
-    const endMo = upper.getUTCMonth() + 1
+    const targetDay = template.dayOfMonth ?? start.getDate()
+    let year = start.getFullYear()
+    let mo = start.getMonth()
+    const endYear = upper.getFullYear()
+    const endMo = upper.getMonth()
     while (year < endYear || (year === endYear && mo <= endMo)) {
-      const day = Math.min(targetDay, daysInMonth(year, mo))
-      const occurrence = new Date(Date.UTC(year, mo - 1, day))
-      if (occurrence >= start && occurrence <= upper) dates.push(toISO(occurrence))
+      const monthFirst = new Date(year, mo, 1)
+      const occurrence = setDate(monthFirst, Math.min(targetDay, getDaysInMonth(monthFirst)))
+      if (!isBefore(occurrence, start) && !isAfter(occurrence, upper)) {
+        dates.push(format(occurrence, 'yyyy-MM-dd'))
+      }
       mo++
-      if (mo > 12) {
-        mo = 1
+      if (mo > 11) {
+        mo = 0
         year++
       }
     }
   } else if (template.frequency === 'yearly') {
-    const targetMonth = template.month ?? start.getUTCMonth() + 1
-    const targetDay = template.dayOfMonth ?? start.getUTCDate()
-    for (let year = start.getUTCFullYear(); year <= upper.getUTCFullYear(); year++) {
-      const day = Math.min(targetDay, daysInMonth(year, targetMonth))
-      const occurrence = new Date(Date.UTC(year, targetMonth - 1, day))
-      if (occurrence >= start && occurrence <= upper) dates.push(toISO(occurrence))
+    const targetMonth = (template.month ?? start.getMonth() + 1) - 1
+    const targetDay = template.dayOfMonth ?? start.getDate()
+    for (let year = start.getFullYear(); year <= upper.getFullYear(); year++) {
+      const monthFirst = new Date(year, targetMonth, 1)
+      const occurrence = setDate(monthFirst, Math.min(targetDay, getDaysInMonth(monthFirst)))
+      if (!isBefore(occurrence, start) && !isAfter(occurrence, upper)) {
+        dates.push(format(occurrence, 'yyyy-MM-dd'))
+      }
     }
   }
 

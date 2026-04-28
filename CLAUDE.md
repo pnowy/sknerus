@@ -10,10 +10,25 @@ pnpm build        # production build
 pnpm typecheck    # tsc --noEmit (run after every change)
 pnpm check        # biome check --write (lint + format, auto-fixes)
 pnpm lint         # biome lint (check only)
-pnpm test         # vitest run
+pnpm test         # vitest run (all tests)
 ```
 
 Always run `pnpm typecheck && pnpm check` before finishing a task.
+
+## Testing
+
+**Runner:** Vitest with a dedicated `vitest.config.ts` (uses only `vite-tsconfig-paths`, not the full Vite/TanStack Start config). Test files live next to the code they test: `foo.test.ts` beside `foo.ts`.
+
+**Style:** BDD — `describe` blocks state the context, `it` blocks state the expected behavior:
+```ts
+describe('getMonthRange', () => {
+  describe('when the start day exceeds February length', () => {
+    it('should clamp day 31 to Feb 28 in a non-leap year', () => { ... })
+  })
+})
+```
+
+Use `describe('when <condition>')` for grouping and `it('should <behaviour>')` for individual assertions. Never use imperative phrasing like `it('returns X')` or `it('clamps the day')`.
 
 ## Import paths
 

@@ -1,4 +1,5 @@
 import { useMonthNavContext } from '@/contexts/month-nav-context'
+import type { Month } from '@/lib/shared/date-utils'
 
 export function useMonthNav() {
   const { offset, setOffset } = useMonthNavContext()
@@ -8,7 +9,7 @@ export function useMonthNav() {
 
   return {
     year: date.getFullYear(),
-    month: date.getMonth(),
+    month: date.getMonth() as Month,
     label: date.toLocaleString('default', { month: 'long', year: 'numeric' }),
     prev: () => setOffset((o) => o - 1),
     next: () => setOffset((o) => o + 1),

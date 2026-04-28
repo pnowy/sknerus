@@ -26,7 +26,7 @@ export const Route = createFileRoute('/settings')({
   component: SettingsPage,
 })
 
-const FISCAL_DAYS = Array.from({ length: 28 }, (_, i) => i + 1)
+const FISCAL_DAYS = Array.from({ length: 31 }, (_, i) => i + 1)
 
 function SettingsPage() {
   const { data: config } = useConfig()
