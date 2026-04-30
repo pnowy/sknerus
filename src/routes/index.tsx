@@ -40,7 +40,7 @@ function DashboardPage() {
   const currency = config?.currency ?? 'USD'
   const startDate = config?.startDate ?? 1
 
-  const { scope, from, to, label, setScope, prev, next, reset, canGoNext, isCurrentPeriod, showArrows } = useDateRange(startDate)
+  const { scope, offset, from, to, label, setScope, prev, next, reset, canGoNext, isCurrentPeriod, showArrows } = useDateRange(startDate)
 
   const allTags = useMemo(() => [...new Set(allExpenses.flatMap((e) => e.tags))].sort(), [allExpenses])
   const periodExpenses = useMemo(() => filterExpensesByRange(allExpenses, from, to), [allExpenses, from, to])
@@ -60,7 +60,7 @@ function DashboardPage() {
   function setTab(tab: string) {
     const scopeForTab = tab === DashboardTab.Breakdown ? RangeScope.Month : RangeScope.Year
     // biome-ignore lint/suspicious/noExplicitAny: search params validated by root route schema
-    void navigate({ search: (prev: any) => ({ ...prev, tab, scope: scopeForTab, offset: 0 }) } as any)
+    void navigate({ search: (prev: any) => ({ ...prev, tab, scope: scopeForTab, offset: scopeForTab === scope ? offset : 0 }) } as any)
   }
 
   return (
