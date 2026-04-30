@@ -20,9 +20,10 @@ type Props = {
   currency: string
   allTags: Array<string>
   expense?: Expense
+  template?: Expense
 }
 
-export function ExpenseFormDialog({ open, onClose, categories, currency, allTags, expense }: Props) {
+export function ExpenseFormDialog({ open, onClose, categories, currency, allTags, expense, template }: Props) {
   const isEdit = !!expense
   const createExpense = useCreateExpense()
   const updateExpense = useUpdateExpense()
@@ -47,15 +48,25 @@ export function ExpenseFormDialog({ open, onClose, categories, currency, allTags
           tags: expense.tags,
           isIncome: expense.amount > 0,
         }
-      : {
-          name: '',
-          amount: 0,
-          currency,
-          categoryId: categories[0]?.id ?? '',
-          date: todayISO(),
-          tags: [],
-          isIncome: false,
-        },
+      : template
+        ? {
+            name: template.name,
+            amount: Math.abs(template.amount),
+            currency: template.currency,
+            categoryId: template.categoryId,
+            date: todayISO(),
+            tags: template.tags,
+            isIncome: template.amount > 0,
+          }
+        : {
+            name: '',
+            amount: 0,
+            currency,
+            categoryId: categories[0]?.id ?? '',
+            date: todayISO(),
+            tags: [],
+            isIncome: false,
+          },
   })
 
   function handleClose() {
