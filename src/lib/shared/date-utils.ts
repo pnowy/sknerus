@@ -1,13 +1,14 @@
 import { addDays, addMonths, addWeeks, format, getDay, getDaysInMonth, isAfter, isBefore, parseISO, setDate } from 'date-fns'
 import type { Expense, RecurringExpense } from '@/lib/shared/types/expense'
+import { RangeScope } from '@/lib/shared/types/range-scope'
 
 export type Month = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11
 
-export function getMonthRange(year: number, month: Month, startDate: number) {
+export function getMonthRange(year: number, month: Month, fiscalStartDay: number) {
   const startMonth = new Date(year, month, 1)
   const endMonth = addMonths(startMonth, 1)
-  const start = setDate(startMonth, Math.min(startDate, getDaysInMonth(startMonth)))
-  const end = setDate(endMonth, Math.min(startDate, getDaysInMonth(endMonth)))
+  const start = setDate(startMonth, Math.min(fiscalStartDay, getDaysInMonth(startMonth)))
+  const end = setDate(endMonth, Math.min(fiscalStartDay, getDaysInMonth(endMonth)))
   return { start, end }
 }
 
@@ -21,6 +22,97 @@ export function filterExpensesByMonth(expenses: Array<Expense>, year: number, mo
 
 export function todayISO(): string {
   return format(new Date(), 'yyyy-MM-dd')
+}
+
+export function computeDateRange(scope: RangeScope, offset: number, fiscalStartDay: number): { from: Date; to: Date } {
+  const now = new Date()
+  const thisYear = now.getFullYear()
+
+  if (scope === RangeScope.Month) {
+    const target = addMonths(new Date(thisYear, now.getMonth(), 1), offset)
+    const { start: from, end: to } = getMonthRange(target.getFullYear(), target.getMonth() as Month, fiscalStartDay)
+    return { from, to }
+  }
+
+  if (scope === RangeScope.Quarter) {
+    const currentQ = Math.floor(now.getMonth() / 3)
+    const totalQ = currentQ + offset
+    const targetYear = thisYear + Math.floor(totalQ / 4)
+    const targetQ = ((totalQ % 4) + 4) % 4
+    const qStartMonth = targetQ * 3
+    const { start: from } = getMonthRange(targetYear, qStartMonth as Month, fiscalStartDay)
+    const nextQMonth = qStartMonth + 3
+    const endYear = nextQMonth > 11 ? targetYear + 1 : targetYear
+    const endMonth = (nextQMonth % 12) as Month
+    const { start: to } = getMonthRange(endYear, endMonth, fiscalStartDay)
+    return { from, to }
+  }
+
+  if (scope === RangeScope.Year) {
+    const targetYear = thisYear + offset
+    const { start: from } = getMonthRange(targetYear, 0, fiscalStartDay)
+    const { start: to } = getMonthRange(targetYear + 1, 0, fiscalStartDay)
+    return { from, to }
+  }
+
+  if (scope === RangeScope.LastYear) {
+    const { start: from } = getMonthRange(thisYear - 1, 0, fiscalStartDay)
+    const { start: to } = getMonthRange(thisYear, 0, fiscalStartDay)
+    return { from, to }
+  }
+
+  if (scope === RangeScope.ThreeYears) {
+    const { start: from } = getMonthRange(thisYear - 2, 0, fiscalStartDay)
+    const { start: to } = getMonthRange(thisYear + 1, 0, fiscalStartDay)
+    return { from, to }
+  }
+
+  if (scope === RangeScope.FiveYears) {
+    const { start: from } = getMonthRange(thisYear - 4, 0, fiscalStartDay)
+    const { start: to } = getMonthRange(thisYear + 1, 0, fiscalStartDay)
+    return { from, to }
+  }
+
+  if (scope === RangeScope.All) {
+    return { from: new Date(2000, 0, 1), to: new Date(thisYear + 1, 11, 31) }
+  }
+
+  // ytd
+  const { start: from } = getMonthRange(thisYear, 0, fiscalStartDay)
+  const to = new Date(thisYear, now.getMonth(), now.getDate() + 1)
+  return { from, to }
+}
+
+export function filterExpensesByRange(expenses: Array<Expense>, from: Date, to: Date): Array<Expense> {
+  return expenses.filter((e) => {
+    const d = parseISO(e.date)
+    return d >= from && d < to
+  })
+}
+
+export function formatRangeLabel(scope: RangeScope, offset: number): string {
+  const now = new Date()
+  const thisYear = now.getFullYear()
+
+  if (scope === RangeScope.Month) {
+    const target = addMonths(now, offset)
+    return format(target, 'MMMM yyyy')
+  }
+
+  if (scope === RangeScope.Quarter) {
+    const currentQ = Math.floor(now.getMonth() / 3)
+    const totalQ = currentQ + offset
+    const year = thisYear + Math.floor(totalQ / 4)
+    const q = ((totalQ % 4) + 4) % 4
+    return `Q${q + 1} ${year}`
+  }
+
+  if (scope === RangeScope.Year) return String(thisYear + offset)
+  if (scope === RangeScope.LastYear) return String(thisYear - 1)
+  if (scope === RangeScope.ThreeYears) return `${thisYear - 2}–${thisYear}`
+  if (scope === RangeScope.FiveYears) return `${thisYear - 4}–${thisYear}`
+  if (scope === RangeScope.All) return 'All Time'
+  return 'Year to Date'
 }
 
 export function computeOccurrences(template: RecurringExpense, todayStr: string): Array<string> {
