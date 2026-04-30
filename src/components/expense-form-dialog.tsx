@@ -13,6 +13,14 @@ import { type ExpenseFormInput, expenseFormSchema } from '@/lib/schemas'
 import { todayISO } from '@/lib/shared/date-utils'
 import type { Category, Expense } from '@/lib/shared/types/expense'
 
+function cloneDateFrom(templateDate: string): string {
+  const now = new Date()
+  const ym = (d: Date) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`
+  const prevMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1)
+  const isRecent = templateDate.slice(0, 7) === ym(now) || templateDate.slice(0, 7) === ym(prevMonth)
+  return isRecent ? todayISO() : templateDate
+}
+
 type Props = {
   open: boolean
   onClose: () => void
@@ -54,7 +62,7 @@ export function ExpenseFormDialog({ open, onClose, categories, currency, allTags
             amount: Math.abs(template.amount),
             currency: template.currency,
             categoryId: template.categoryId,
-            date: todayISO(),
+            date: cloneDateFrom(template.date),
             tags: template.tags,
             isIncome: template.amount > 0,
           }
