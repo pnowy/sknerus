@@ -1,0 +1,189 @@
+import { ChevronDown, ChevronRight, Copy, Pencil, Repeat, Trash2 } from 'lucide-react'
+import { useMemo, useState } from 'react'
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
+import { formatCurrency, formatDate } from '@/lib/shared/format'
+import type { Category, Expense } from '@/lib/shared/types/expense'
+import { cn } from '@/lib/utils'
+
+export const GROUP_SORT_OPTIONS = [
+  { value: 'config', label: 'Config order' },
+  { value: 'spend', label: 'By spend' },
+  { value: 'name', label: 'Alphabetical' },
+] as const
+
+export type GroupSort = (typeof GROUP_SORT_OPTIONS)[number]['value']
+
+type Props = {
+  expenses: Array<Expense>
+  categories: Array<Category>
+  currency: string
+  groupSort: GroupSort
+  onEdit: (e: Expense) => void
+  onDuplicate: (e: Expense) => void
+  onDelete: (id: string) => void
+}
+
+type CategoryGroup = {
+  category: Category
+  expenses: Array<Expense>
+  total: number
+}
+
+export function GroupedExpenseTable({ expenses, categories, currency, groupSort, onEdit, onDuplicate, onDelete }: Props) {
+  const hasTags = expenses.some((e) => e.tags.length > 0)
+  const [collapsed, setCollapsed] = useState<Set<string>>(new Set())
+
+  const groups = useMemo(() => {
+    const catMap = new Map(categories.map((c) => [c.id, c]))
+    const catOrder = new Map(categories.map((c, i) => [c.id, i]))
+    const map = new Map<string, Array<Expense>>()
+    for (const e of expenses) {
+      const list = map.get(e.categoryId) ?? []
+      list.push(e)
+      map.set(e.categoryId, list)
+    }
+    const result = Array.from(map.entries()).map(
+      ([id, items]): CategoryGroup => ({
+        category: catMap.get(id) ?? { id, name: id, color: '#888888' },
+        expenses: items.sort((a, b) => b.date.localeCompare(a.date)),
+        total: items.reduce((sum, e) => sum + e.amount, 0),
+      })
+    )
+    if (groupSort === 'spend') return result.sort((a, b) => a.total - b.total)
+    if (groupSort === 'name') return result.sort((a, b) => a.category.name.localeCompare(b.category.name))
+    return result.sort((a, b) => (catOrder.get(a.category.id) ?? 99) - (catOrder.get(b.category.id) ?? 99))
+  }, [expenses, categories, groupSort])
+
+  function toggleGroup(id: string) {
+    setCollapsed((prev) => {
+      const next = new Set(prev)
+      if (next.has(id)) next.delete(id)
+      else next.add(id)
+      return next
+    })
+  }
+
+  const colSpan = 4 + (hasTags ? 1 : 0)
+
+  return (
+    <div className="rounded-md border">
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead>Name</TableHead>
+            {hasTags && <TableHead>Tags</TableHead>}
+            <TableHead>Amount</TableHead>
+            <TableHead>Date</TableHead>
+            <TableHead />
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {groups.map((group) => {
+            const isCollapsed = collapsed.has(group.category.id)
+            return (
+              <GroupSection
+                key={group.category.id}
+                colSpan={colSpan}
+                currency={currency}
+                group={group}
+                hasTags={hasTags}
+                isCollapsed={isCollapsed}
+                onDelete={onDelete}
+                onDuplicate={onDuplicate}
+                onEdit={onEdit}
+                onToggle={() => toggleGroup(group.category.id)}
+              />
+            )
+          })}
+        </TableBody>
+      </Table>
+    </div>
+  )
+}
+
+function GroupSection({
+  group,
+  colSpan,
+  currency,
+  hasTags,
+  isCollapsed,
+  onToggle,
+  onEdit,
+  onDuplicate,
+  onDelete,
+}: {
+  group: CategoryGroup
+  colSpan: number
+  currency: string
+  hasTags: boolean
+  isCollapsed: boolean
+  onToggle: () => void
+  onEdit: (e: Expense) => void
+  onDuplicate: (e: Expense) => void
+  onDelete: (id: string) => void
+}) {
+  const Icon = isCollapsed ? ChevronRight : ChevronDown
+
+  return (
+    <>
+      <TableRow className="cursor-pointer bg-muted/50 hover:bg-muted/80" onClick={onToggle}>
+        <TableCell colSpan={colSpan}>
+          <div className="flex items-center justify-between">
+            <span className="flex items-center gap-2 font-semibold text-sm">
+              <Icon className="size-4" />
+              <span className="inline-block size-3 rounded-sm" style={{ backgroundColor: group.category.color }} />
+              {group.category.name}
+              <span className="font-normal text-muted-foreground">({group.expenses.length})</span>
+            </span>
+            <span className={cn('font-semibold text-sm tabular-nums', group.total > 0 ? 'text-emerald-600 dark:text-emerald-400' : '')}>
+              {group.total > 0 ? '+' : ''}
+              {formatCurrency(Math.abs(group.total), currency)}
+            </span>
+          </div>
+        </TableCell>
+      </TableRow>
+      {!isCollapsed &&
+        group.expenses.map((expense) => (
+          <TableRow key={expense.id}>
+            <TableCell className="pl-10 font-medium">
+              <span className="flex items-center gap-1.5">
+                {expense.name}
+                {expense.recurringId && <Repeat aria-label="Recurring" className="size-3 shrink-0 text-muted-foreground" />}
+              </span>
+            </TableCell>
+            {hasTags && (
+              <TableCell>
+                <div className="flex flex-wrap gap-1">
+                  {expense.tags.map((t) => (
+                    <Badge key={t} variant="secondary" className="text-xs">
+                      {t}
+                    </Badge>
+                  ))}
+                </div>
+              </TableCell>
+            )}
+            <TableCell className={cn('tabular-nums', expense.amount > 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-foreground')}>
+              {expense.amount > 0 ? '+' : ''}
+              {formatCurrency(Math.abs(expense.amount), currency)}
+            </TableCell>
+            <TableCell className="text-muted-foreground">{formatDate(expense.date)}</TableCell>
+            <TableCell>
+              <div className="flex items-center gap-1">
+                <Button size="icon-sm" variant="ghost" onClick={() => onEdit(expense)}>
+                  <Pencil className="size-3.5" />
+                </Button>
+                <Button size="icon-sm" variant="ghost" onClick={() => onDuplicate(expense)}>
+                  <Copy className="size-3.5" />
+                </Button>
+                <Button size="icon-sm" variant="ghost" onClick={() => onDelete(expense.id)}>
+                  <Trash2 className="size-3.5 text-destructive" />
+                </Button>
+              </div>
+            </TableCell>
+          </TableRow>
+        ))}
+    </>
+  )
+}

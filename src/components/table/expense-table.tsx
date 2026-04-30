@@ -13,10 +13,11 @@ type Props = {
   categories: Array<Category>
   currency: string
   onEdit: (e: Expense) => void
+  onDuplicate: (e: Expense) => void
   onDelete: (id: string) => void
 }
 
-export function ExpenseTable({ expenses, categories, currency, onEdit, onDelete }: Props) {
+export function ExpenseTable({ expenses, categories, currency, onEdit, onDuplicate, onDelete }: Props) {
   const [sortField, setSortField] = useState<SortField>('date')
   const [sortDir, setSortDir] = useState<SortDir>('desc')
   const hasTags = expenses.some((e) => e.tags.length > 0)
@@ -79,6 +80,7 @@ export function ExpenseTable({ expenses, categories, currency, onEdit, onDelete 
               expense={expense}
               hasTags={hasTags}
               onDelete={onDelete}
+              onDuplicate={onDuplicate}
               onEdit={onEdit}
             />
           ))}
