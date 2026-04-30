@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { CartesianGrid, Legend, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
+import { filterExpensesByRange } from '@/lib/shared/date-utils'
 import { aggregateByCategoryAndMonth } from '@/lib/shared/expense-utils'
 import { formatCurrency, formatCurrencyCompact } from '@/lib/shared/format'
 import type { Category, Expense } from '@/lib/shared/types/expense'
@@ -14,7 +15,20 @@ type Props = {
 
 export function CategoryTrends({ expenses, categories, currency, from, to }: Props) {
   const [mounted, setMounted] = useState(false)
-  const [selected, setSelected] = useState<Array<string>>(() => categories.slice(0, 3).map((c) => c.id))
+
+  const activeCategories = useMemo(() => {
+    const inRange = filterExpensesByRange(expenses, from, to)
+    return categories.filter((c) => inRange.some((e) => e.categoryId === c.id))
+  }, [categories, expenses, from, to])
+
+  const [selected, setSelected] = useState<Array<string>>(() => activeCategories.slice(0, 3).map((c) => c.id))
+
+  useEffect(() => {
+    setSelected((prev) => {
+      const stillActive = prev.filter((id) => activeCategories.some((c) => c.id === id))
+      return stillActive.length > 0 ? stillActive : activeCategories.slice(0, 3).map((c) => c.id)
+    })
+  }, [activeCategories])
 
   useEffect(() => {
     setMounted(true)
@@ -30,7 +44,7 @@ export function CategoryTrends({ expenses, categories, currency, from, to }: Pro
   return (
     <div className="space-y-4">
       <div className="flex flex-wrap gap-2">
-        {categories.map((c) => {
+        {activeCategories.map((c) => {
           const isActive = selected.includes(c.id)
           return (
             <button

@@ -60,7 +60,7 @@ export function aggregateByCategoryAndMonth(
     for (const e of expenses) {
       if (!categoryIds.includes(e.categoryId)) continue
       const d = parseISO(e.date)
-      if (d.getFullYear() === b.year && d.getMonth() === b.month && e.amount < 0) {
+      if (d.getFullYear() === b.year && d.getMonth() === b.month) {
         entry[e.categoryId] = (entry[e.categoryId] as number) + Math.abs(e.amount)
       }
     }
