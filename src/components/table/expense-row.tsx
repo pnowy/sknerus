@@ -1,4 +1,4 @@
-import { Pencil, Repeat, Trash2 } from 'lucide-react'
+import { Copy, Pencil, Repeat, Trash2 } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { TableCell, TableRow } from '@/components/ui/table'
@@ -12,10 +12,11 @@ type Props = {
   currency: string
   hasTags: boolean
   onEdit: (e: Expense) => void
+  onDuplicate: (e: Expense) => void
   onDelete: (id: string) => void
 }
 
-export function ExpenseRow({ expense, categories, currency, hasTags, onEdit, onDelete }: Props) {
+export function ExpenseRow({ expense, categories, currency, hasTags, onEdit, onDuplicate, onDelete }: Props) {
   const categoryName = categories.find((c) => c.id === expense.categoryId)?.name ?? expense.categoryId
 
   return (
@@ -47,6 +48,9 @@ export function ExpenseRow({ expense, categories, currency, hasTags, onEdit, onD
         <div className="flex items-center gap-1">
           <Button size="icon-sm" variant="ghost" onClick={() => onEdit(expense)}>
             <Pencil className="size-3.5" />
+          </Button>
+          <Button size="icon-sm" variant="ghost" onClick={() => onDuplicate(expense)}>
+            <Copy className="size-3.5" />
           </Button>
           <Button size="icon-sm" variant="ghost" onClick={() => onDelete(expense.id)}>
             <Trash2 className="size-3.5 text-destructive" />
