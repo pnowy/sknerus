@@ -166,6 +166,18 @@ export function computeOccurrences(template: RecurringExpense, todayStr: string)
       }
     }
   }
-
   return dates
+}
+
+export function generateMonthBuckets(from: Date, to: Date): Array<{ label: string; year: number; month: number }> {
+  const singleYear = from.getFullYear() === to.getFullYear()
+  const fmt = singleYear ? 'MMMM' : 'MMM yyyy'
+  const buckets: Array<{ label: string; year: number; month: number }> = []
+  let cur = new Date(from.getFullYear(), from.getMonth(), 1)
+  const end = new Date(to.getFullYear(), to.getMonth(), 1)
+  while (cur < end) {
+    buckets.push({ label: format(cur, fmt), year: cur.getFullYear(), month: cur.getMonth() })
+    cur = addMonths(cur, 1)
+  }
+  return buckets
 }
