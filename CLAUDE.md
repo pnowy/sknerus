@@ -7,17 +7,15 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ```bash
 pnpm dev          # start dev server on :3000
 pnpm build        # production build
-pnpm typecheck    # tsc --noEmit (run after every change)
+pnpm typecheck    # tsc --noEmit
 pnpm check        # biome check --write (lint + format, auto-fixes)
 pnpm lint         # biome lint (check only)
 pnpm test         # vitest run (all tests)
 ```
 
-Always run `pnpm typecheck && pnpm check` before finishing a task.
-
 ## Testing
 
-**Runner:** Vitest with a dedicated `vitest.config.ts` (uses only `vite-tsconfig-paths`, not the full Vite/TanStack Start config). Test files live next to the code they test: `foo.test.ts` beside `foo.ts`.
+**Runner:** Vitest. Test files live next to the code they test: `foo.test.ts` beside `foo.ts`.
 
 **Style:** BDD — `describe` blocks state the context, `it` blocks state the expected behavior:
 ```ts
@@ -32,64 +30,46 @@ Use `describe('when <condition>')` for grouping and `it('should <behaviour>')` f
 
 ## Import paths
 
-Always use the `@/` alias (mapped to `./src/` via `vite-tsconfig-paths`):
+Always use the `@/` alias (mapped to `./src/`):
 
 ```ts
-import { storage } from '@/lib/server/storage'
-import type { Expense } from '@/lib/shared/types/expense'
 import { cn } from '@/lib/utils'
 ```
 
-## Architecture
+## Stack
 
-**Stack:** TanStack Start (SSR, Nitro) + TanStack Router (file-based) + TanStack Query · React 19 · Tailwind CSS 4 · shadcn/ui (base-nova, `@base-ui/react` primitives) · Biome linter · react-hook-form + Zod v4 · Recharts
+TanStack Start (SSR) + TanStack Router (file-based) + TanStack Query · React 19 · Tailwind CSS 4 · shadcn/ui (`@base-ui/react` primitives) · Biome · react-hook-form + Zod v4 · Recharts
 
-### Data model (`src/lib/shared/types/expense.ts`)
+## Data model
 
-- `Expense` — signed `amount` (negative = expense, positive = income), `categoryId` (FK to `Category.id`), optional `recurringId`
-- `Category` — `{ id, name, color }`, IDs are `cat_<ULID>`
+- `Expense` — signed `amount` (negative = expense, positive = income), `categoryId`, optional `recurringId`
+- `Category` — `{ id, name, color }`
 - `Config` — `{ categories, currency, startDate }` (fiscal month start day)
-- `RecurringExpense` — template for auto-generated expenses; `frequency` + optional day/week/month fields
+- `RecurringExpense` — template for auto-generated expenses
 
-IDs follow `<prefix>_<ULID>` convention (`exp_`, `cat_`, `rec_`). Generators live in `src/lib/server/ids.server.ts`.
+IDs follow `<prefix>_<ULID>` convention (`exp_`, `cat_`, `rec_`).
 
-### Storage layer (`src/lib/server/storage/`)
+## Architecture rules
 
-`StorageAdapter` interface in `types.ts` with methods: `getExpenses/saveExpenses`, `getConfig/saveConfig`, `getRecurring/saveRecurring`. `JsonAdapter` implements it with three JSON files under `.data/` (configurable via `DATA_DIR` env var). Factory in `index.ts` selects the adapter via `STORAGE_TYPE` env var (currently only `"json"`).
+- **Storage** — access data only through the `StorageAdapter` interface; never read JSON files directly
+- **Server functions** — use `createServerFn` wrappers as the RPC layer; validate with Zod schemas
+- **Schemas** — two per domain: storage schema (signed amounts) and form schema (positive amount + `isIncome` toggle). Derive the form schema from the storage schema via `.omit().extend()` — don't duplicate fields
+- **Routes** — each route pre-fetches data in its `loader` via `queryClient.ensureQueryData`
+- **Client state** — use TanStack Query for server state; mutations must invalidate relevant query keys
+- **Shared types** — enum types go in `src/lib/shared/types/`
 
-### Server functions (`src/lib/server/functions/`)
+## UI conventions
 
-TanStack Start `createServerFn` wrappers — thin RPC layer over `storage`. Each file groups by domain: `expenses.ts`, `config.ts`, `recurring.ts`. Validators use Zod schemas from `src/lib/schemas.ts`.
+- `src/components/ui/` — shadcn/ui primitives, **not linted by Biome**. Don't modify them.
+- `Select.Value` requires a render-function to display programmatically set values (items register lazily via portal): `<SelectValue>{(value) => lookup(value)}</SelectValue>`
+- Use `cn()` for conditional Tailwind classes; `randomColor()` for random hex colors — don't duplicate these utilities.
+- Array type syntax: `Array<T>` not `T[]` (Biome `useConsistentArrayType` rule)
+- Tailwind classes must be sorted (Biome `useSortedClasses`, auto-fixed by `pnpm check`)
 
-### Schemas (`src/lib/schemas.ts`)
+## Zod rules
 
-Two schemas per domain: the **storage schema** (signed amounts, no extra UX fields) and the **form schema** (positive amount + `isIncome` boolean toggle). Form schema is derived from storage schema via `.omit().extend()` — don't duplicate fields.
+- Use `z.enum(...)` — `z.nativeEnum` is deprecated in Zod v4. To use a TypeScript enum with Zod: `z.enum(Object.values(MyEnum) as [MyEnum, ...Array<MyEnum>])`
 
-Known workaround: `zodResolver(schema as any)` — required due to hookform/resolvers#842 (Zod v4 minor version mismatch).
+## Known workarounds
 
-### Routing & data loading (`src/routes/`)
-
-File-based routes: `__root.tsx`, `index.tsx` (dashboard), `table.tsx`, `settings.tsx`. Each route has a `loader` that pre-fetches via `queryClient.ensureQueryData`. Root route loader runs `materializeRecurring()` once per session to auto-generate any due recurring expenses.
-
-### Client state
-
-- **TanStack Query** — server state cache; hooks in `src/hooks/use-expenses.ts` wrap all server functions. Mutations invalidate relevant query keys.
-- **MonthNavContext** (`src/contexts/month-nav-context.tsx`) — shared selected month/year across tabs; provided at root level in `__root.tsx`.
-
-### Recurring expenses
-
-`RecurringExpense` records are templates stored in `recurring.json`. `materializeRecurring()` (called in root loader) computes due dates via `computeOccurrences()` in `src/lib/shared/date-utils.ts`, then creates `Expense` rows with `recurringId` set. Deduplication key: `recurringId:date`. Generated expenses appear in the table with a `Repeat` icon.
-
-### UI conventions
-
-- `src/components/ui/` — shadcn/ui primitives, **not linted by Biome** (see `biome.json` excludes). Don't modify them.
-- `Select.Value` requires a render-function `children` to display the label of a programmatically set value (items register lazily via portal): `<SelectValue>{(value) => lookup(value)}</SelectValue>`
-- `cn()` from `src/lib/utils.ts` for conditional Tailwind classes; `randomColor()` for random hex colors — use these, don't duplicate.
-- Array type syntax: `Array<T>` not `T[]` (Biome `useConsistentArrayType` rule).
-- Tailwind classes must be sorted (Biome `useSortedClasses` rule, auto-fixed by `pnpm check`).
-
-### Shared utilities (`src/lib/shared/`)
-
-- `date-utils.ts` — `filterExpensesByMonth`, `todayISO`, `toUTC`, `toISO`, `daysInMonth`, `computeOccurrences`
-- `format.ts` — `formatCurrency`, `formatDate`
-- `csv.ts` — CSV export (resolves `categoryId` → name) and import (matches name → id, creates new categories with `randomColor()`)
+- `zodResolver(schema as any)` — required due to hookform/resolvers#842 (Zod v4 minor version mismatch)
