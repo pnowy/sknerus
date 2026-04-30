@@ -5,13 +5,20 @@ import { ReactQueryDevtoolsPanel } from '@tanstack/react-query-devtools'
 import { createRootRouteWithContext, HeadContent, Scripts } from '@tanstack/react-router'
 import { TanStackRouterDevtoolsPanel } from '@tanstack/react-router-devtools'
 import { ThemeProvider } from 'next-themes'
+import { z } from 'zod'
 import { Toaster } from '@/components/ui/sonner'
-import { MonthNavProvider } from '@/contexts/month-nav-context'
 import { materializeRecurring } from '@/lib/server/functions/recurring'
+import { DashboardTab } from '@/lib/shared/types/dashboard-tab'
+import { RangeScope } from '@/lib/shared/types/range-scope'
 
 import appCss from '@/styles/styles.css?url'
 
 export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()({
+  validateSearch: z.object({
+    scope: z.enum(Object.values(RangeScope) as [RangeScope, ...Array<RangeScope>]).default(RangeScope.Month),
+    offset: z.number().int().default(0),
+    tab: z.enum(Object.values(DashboardTab) as [DashboardTab, ...Array<DashboardTab>]).default(DashboardTab.Breakdown),
+  }),
   loader: () => materializeRecurring(),
   head: () => ({
     meta: [{ charSet: 'utf-8' }, { name: 'viewport', content: 'width=device-width, initial-scale=1' }, { title: 'Sknerus' }],
@@ -30,10 +37,8 @@ function RootDocument({ children }: { children: React.ReactNode }) {
       <body>
         <ThemeProvider attribute="class" defaultTheme="system" disableTransitionOnChange enableSystem>
           <QueryClientProvider client={queryClient}>
-            <MonthNavProvider>
-              {children}
-              <Toaster richColors position="bottom-right" />
-            </MonthNavProvider>
+            {children}
+            <Toaster richColors position="bottom-right" />
           </QueryClientProvider>
         </ThemeProvider>
         <TanStackDevtools
