@@ -4,6 +4,7 @@ import { Dices, GripVertical, Trash2 } from 'lucide-react'
 import { useRef, useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 import type { Category } from '@/lib/shared/types/expense'
 import { randomColor } from '@/lib/utils'
 
@@ -15,7 +16,7 @@ type Props = {
 }
 
 export function SortableCategoryItem({ category, onDelete, onColorChange, onNameChange }: Props) {
-  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: category.name })
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: category.id })
   const colorInputRef = useRef<HTMLInputElement>(null)
   const [editing, setEditing] = useState(false)
   const [draft, setDraft] = useState(category.name)
@@ -70,15 +71,22 @@ export function SortableCategoryItem({ category, onDelete, onColorChange, onName
         value={category.color}
         onChange={(e) => onColorChange(category.id, e.target.value)}
       />
-      <Button
-        aria-label="Random color"
-        className="size-7 text-muted-foreground"
-        size="icon-sm"
-        variant="ghost"
-        onClick={() => onColorChange(category.id, randomColor())}
-      >
-        <Dices className="size-3.5" />
-      </Button>
+      <TooltipProvider>
+        <Tooltip>
+          <TooltipTrigger render={<span />}>
+            <Button
+              aria-label="Random color"
+              className="size-7 text-muted-foreground"
+              size="icon-sm"
+              variant="ghost"
+              onClick={() => onColorChange(category.id, randomColor())}
+            >
+              <Dices className="size-3.5" />
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent>Assign random color</TooltipContent>
+        </Tooltip>
+      </TooltipProvider>
 
       {editing ? (
         <Input

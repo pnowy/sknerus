@@ -26,7 +26,7 @@ export function useDateRange(startDate: number) {
     prev: () => updateSearch({ offset: offset - 1 }),
     next: () => updateSearch({ offset: offset + 1 }),
     reset: () => updateSearch({ offset: 0 }),
-    canGoNext: offset < 0,
+    canGoNext: offset < 1,
     isCurrentPeriod: offset === 0,
     showArrows: scope === RangeScope.Month || scope === RangeScope.Quarter || scope === RangeScope.Year,
   }
