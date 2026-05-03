@@ -8,6 +8,8 @@ export type Expense = {
   date: string
   tags: Array<string>
   recurringId?: string
+  originalAmount?: number
+  originalCurrency?: string
 }
 
 export type RecurringExpense = {
@@ -36,4 +38,19 @@ export type Config = {
   categories: Array<Category>
   currency: string
   startDate: number
+  supportedCurrencies: Array<string>
+}
+
+type CurrencyCode = string
+type Rate = number
+// Record<fromCurrency, Record<toCurrency, rate>>,
+// e.g. {
+//  USD: { PLN: 3.64 },
+//  EUR: { PLN: 4.26 }
+// }
+export type ExchangeRateMap = Record<CurrencyCode, Record<CurrencyCode, Rate>>
+
+export type ExchangeRate = {
+  date: string
+  rates: ExchangeRateMap
 }

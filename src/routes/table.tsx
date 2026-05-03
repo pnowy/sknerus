@@ -55,10 +55,10 @@ function TablePage() {
     }
   }
 
+  const currency = config?.currency ?? 'USD'
   const tableProps = {
     categories: config?.categories ?? [],
     expenses: displayedExpenses,
-    currency: config?.currency ?? 'USD',
     onEdit: setEditingExpense,
     onDuplicate: setDuplicatingExpense,
     onDelete: handleDelete,
@@ -110,7 +110,7 @@ function TablePage() {
         {displayedExpenses.length === 0 ? (
           <EmptyState message="No transactions for this period." />
         ) : grouped ? (
-          <GroupedExpenseTable {...tableProps} groupSort={groupSort} />
+          <GroupedExpenseTable {...tableProps} currency={currency} groupSort={groupSort} />
         ) : (
           <ExpenseTable {...tableProps} />
         )}
@@ -120,6 +120,7 @@ function TablePage() {
         allTags={[...new Set(allExpenses.flatMap((e) => e.tags))].sort()}
         categories={config?.categories ?? []}
         currency={config?.currency ?? 'USD'}
+        supportedCurrencies={config?.supportedCurrencies ?? []}
         expense={editingExpense ?? undefined}
         template={duplicatingExpense ?? undefined}
         open={addOpen || !!editingExpense || !!duplicatingExpense}

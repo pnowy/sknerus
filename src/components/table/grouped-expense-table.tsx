@@ -165,8 +165,18 @@ function GroupSection({
               </TableCell>
             )}
             <TableCell className={cn('tabular-nums', expense.amount > 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-foreground')}>
-              {expense.amount > 0 ? '+' : ''}
-              {formatCurrency(Math.abs(expense.amount), currency)}
+              <span className="flex flex-col">
+                <span>
+                  {expense.amount > 0 ? '+' : ''}
+                  {formatCurrency(Math.abs(expense.amount), expense.currency)}
+                </span>
+                {expense.originalCurrency && expense.originalAmount !== undefined && (
+                  <span className="text-muted-foreground text-xs tabular-nums">
+                    {expense.originalAmount > 0 ? '+' : ''}
+                    {formatCurrency(Math.abs(expense.originalAmount), expense.originalCurrency)}
+                  </span>
+                )}
+              </span>
             </TableCell>
             <TableCell className="text-muted-foreground">{formatDate(expense.date)}</TableCell>
             <TableCell>

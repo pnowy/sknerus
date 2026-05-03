@@ -1,7 +1,7 @@
 import * as fs from 'node:fs'
 import * as path from 'node:path'
 import { genCategoryId } from '@/lib/server/ids.server'
-import type { Config, Expense, RecurringExpense } from '@/lib/shared/types/expense'
+import type { Config, ExchangeRate, Expense, RecurringExpense } from '@/lib/shared/types/expense'
 import type { StorageAdapter } from './types'
 
 const DEFAULT_CONFIG: Config = {
@@ -15,6 +15,7 @@ const DEFAULT_CONFIG: Config = {
   ],
   currency: 'USD',
   startDate: 1,
+  supportedCurrencies: [],
 }
 
 export class JsonAdapter implements StorageAdapter {
@@ -22,12 +23,14 @@ export class JsonAdapter implements StorageAdapter {
   private readonly expensesFile: string
   private readonly configFile: string
   private readonly recurringFile: string
+  private readonly exchangeRatesFile: string
 
   constructor(dataDir?: string) {
     this.dataDir = path.resolve(process.cwd(), dataDir ?? process.env.DATA_DIR ?? '.data')
     this.expensesFile = path.join(this.dataDir, 'expenses.json')
     this.configFile = path.join(this.dataDir, 'config.json')
     this.recurringFile = path.join(this.dataDir, 'recurring.json')
+    this.exchangeRatesFile = path.join(this.dataDir, 'exchange-rates.json')
   }
 
   private ensureDataDir() {
@@ -68,6 +71,7 @@ export class JsonAdapter implements StorageAdapter {
       categories,
       currency: (stored.currency ?? DEFAULT_CONFIG.currency).toUpperCase(),
       startDate: stored.startDate ?? DEFAULT_CONFIG.startDate,
+      supportedCurrencies: stored.supportedCurrencies ?? [],
     }
 
     if (needsWrite) await this.saveConfig(config)
@@ -88,5 +92,16 @@ export class JsonAdapter implements StorageAdapter {
   async saveRecurring(recurring: Array<RecurringExpense>): Promise<void> {
     this.ensureDataDir()
     fs.writeFileSync(this.recurringFile, JSON.stringify(recurring, null, 2))
+  }
+
+  async getExchangeRates(): Promise<Array<ExchangeRate>> {
+    this.ensureDataDir()
+    if (!fs.existsSync(this.exchangeRatesFile)) return []
+    return JSON.parse(fs.readFileSync(this.exchangeRatesFile, 'utf-8')) as Array<ExchangeRate>
+  }
+
+  async saveExchangeRates(rates: Array<ExchangeRate>): Promise<void> {
+    this.ensureDataDir()
+    fs.writeFileSync(this.exchangeRatesFile, JSON.stringify(rates, null, 2))
   }
 }

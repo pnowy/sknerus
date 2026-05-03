@@ -108,7 +108,14 @@ function DashboardPage() {
           </TabsContent>
         </Tabs>
       </div>
-      <ExpenseFormDialog allTags={allTags} categories={categories} currency={currency} open={addOpen} onClose={() => setAddOpen(false)} />
+      <ExpenseFormDialog
+        allTags={allTags}
+        categories={categories}
+        currency={currency}
+        supportedCurrencies={config?.supportedCurrencies ?? []}
+        open={addOpen}
+        onClose={() => setAddOpen(false)}
+      />
     </AppLayout>
   )
 }

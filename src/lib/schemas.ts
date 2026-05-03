@@ -7,6 +7,8 @@ export const expenseSchema = z.object({
   categoryId: z.string().min(1, 'Category is required'),
   date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Invalid date'),
   tags: z.array(z.string()),
+  originalAmount: z.number().optional(),
+  originalCurrency: z.string().optional(),
 })
 
 // Form schema keeps amount positive + isIncome toggle for UX convenience
@@ -25,6 +27,7 @@ export const configSchema = z.object({
   categories: z.array(categorySchema),
   currency: z.string().min(1),
   startDate: z.number().int().min(1).max(31),
+  supportedCurrencies: z.array(z.string()).default([]),
 })
 
 export const recurringExpenseSchema = z.object({

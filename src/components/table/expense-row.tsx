@@ -9,14 +9,13 @@ import { cn } from '@/lib/utils'
 type Props = {
   expense: Expense
   categories: Array<Category>
-  currency: string
   hasTags: boolean
   onEdit: (e: Expense) => void
   onDuplicate: (e: Expense) => void
   onDelete: (id: string) => void
 }
 
-export function ExpenseRow({ expense, categories, currency, hasTags, onEdit, onDuplicate, onDelete }: Props) {
+export function ExpenseRow({ expense, categories, hasTags, onEdit, onDuplicate, onDelete }: Props) {
   const categoryName = categories.find((c) => c.id === expense.categoryId)?.name ?? expense.categoryId
 
   return (
@@ -40,8 +39,18 @@ export function ExpenseRow({ expense, categories, currency, hasTags, onEdit, onD
         </TableCell>
       )}
       <TableCell className={cn('tabular-nums', expense.amount > 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-foreground')}>
-        {expense.amount > 0 ? '+' : ''}
-        {formatCurrency(Math.abs(expense.amount), currency)}
+        <span className="flex flex-col">
+          <span>
+            {expense.amount > 0 ? '+' : ''}
+            {formatCurrency(Math.abs(expense.amount), expense.currency)}
+          </span>
+          {expense.originalCurrency && expense.originalAmount !== undefined && (
+            <span className="text-muted-foreground text-xs tabular-nums">
+              {expense.originalAmount > 0 ? '+' : ''}
+              {formatCurrency(Math.abs(expense.originalAmount), expense.originalCurrency)}
+            </span>
+          )}
+        </span>
       </TableCell>
       <TableCell className="text-muted-foreground">{formatDate(expense.date)}</TableCell>
       <TableCell>

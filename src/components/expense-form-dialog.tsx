@@ -1,4 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod'
+import { useEffect, useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { toast } from 'sonner'
 import { TagInput } from '@/components/dashboard/tag-input'
@@ -10,7 +11,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Switch } from '@/components/ui/switch'
 import { useCreateExpense, useUpdateExpense } from '@/hooks/use-expenses'
 import { type ExpenseFormInput, expenseFormSchema } from '@/lib/schemas'
+import { resolveExchangeRate } from '@/lib/server/functions/exchange-rates'
 import { todayISO } from '@/lib/shared/date-utils'
+import { formatCurrency } from '@/lib/shared/format'
 import type { Category, Expense } from '@/lib/shared/types/expense'
 
 function cloneDateFrom(templateDate: string): string {
@@ -26,22 +29,27 @@ type Props = {
   onClose: () => void
   categories: Array<Category>
   currency: string
+  supportedCurrencies: Array<string>
   allTags: Array<string>
   expense?: Expense
   template?: Expense
 }
 
-export function ExpenseFormDialog({ open, onClose, categories, currency, allTags, expense, template }: Props) {
+export function ExpenseFormDialog({ open, onClose, categories, currency, supportedCurrencies, allTags, expense, template }: Props) {
   const isEdit = !!expense
   const createExpense = useCreateExpense()
   const updateExpense = useUpdateExpense()
   const isPending = createExpense.isPending || updateExpense.isPending
+
+  const availableCurrencies = [currency, ...supportedCurrencies]
+  const isMultiCurrency = availableCurrencies.length > 1
 
   const {
     register,
     control,
     handleSubmit,
     reset,
+    watch,
     formState: { errors },
   } = useForm<ExpenseFormInput>({
     // biome-ignore lint/suspicious/noExplicitAny: https://github.com/react-hook-form/resolvers/issues/842
@@ -50,7 +58,7 @@ export function ExpenseFormDialog({ open, onClose, categories, currency, allTags
       ? {
           name: expense.name,
           amount: Math.abs(expense.amount),
-          currency: expense.currency,
+          currency: expense.originalCurrency ?? expense.currency,
           categoryId: expense.categoryId,
           date: expense.date,
           tags: expense.tags,
@@ -60,7 +68,7 @@ export function ExpenseFormDialog({ open, onClose, categories, currency, allTags
         ? {
             name: template.name,
             amount: Math.abs(template.amount),
-            currency: template.currency,
+            currency: template.originalCurrency ?? template.currency,
             categoryId: template.categoryId,
             date: cloneDateFrom(template.date),
             tags: template.tags,
@@ -77,19 +85,59 @@ export function ExpenseFormDialog({ open, onClose, categories, currency, allTags
           },
   })
 
+  const watchedAmount = watch('amount')
+  const watchedDate = watch('date')
+  const watchedCurrency = watch('currency')
+
+  const [convertedPreview, setConvertedPreview] = useState<number | null>(null)
+  const [previewLoading, setPreviewLoading] = useState(false)
+
+  useEffect(() => {
+    if (watchedCurrency === currency || !watchedAmount || watchedAmount <= 0) {
+      setConvertedPreview(null)
+      return
+    }
+    const t = setTimeout(async () => {
+      setPreviewLoading(true)
+      try {
+        const rate = await resolveExchangeRate({ data: { date: watchedDate, from: watchedCurrency, to: currency } })
+        setConvertedPreview(watchedAmount * rate)
+      } catch {
+        setConvertedPreview(null)
+      } finally {
+        setPreviewLoading(false)
+      }
+    }, 600)
+    return () => clearTimeout(t)
+  }, [watchedAmount, watchedDate, watchedCurrency, currency])
+
   function handleClose() {
     reset()
+    setConvertedPreview(null)
     onClose()
   }
 
-  async function onSubmit({ isIncome, amount, ...rest }: ExpenseFormInput) {
+  async function onSubmit({ isIncome, amount, currency: selectedCurrency, ...rest }: ExpenseFormInput) {
     try {
       const signedAmount = isIncome ? Math.abs(amount) : -Math.abs(amount)
+      let finalAmount = signedAmount
+      let originalAmount: number | undefined
+      let originalCurrency: string | undefined
+
+      if (selectedCurrency !== currency) {
+        const rate = await resolveExchangeRate({ data: { date: rest.date, from: selectedCurrency, to: currency } })
+        finalAmount = signedAmount * rate
+        originalAmount = signedAmount
+        originalCurrency = selectedCurrency
+      }
+
+      const payload = { ...rest, amount: finalAmount, currency, originalAmount, originalCurrency }
+
       if (isEdit && expense) {
-        await updateExpense.mutateAsync({ ...rest, amount: signedAmount, id: expense.id })
+        await updateExpense.mutateAsync({ ...payload, id: expense.id })
         toast.success('Expense updated')
       } else {
-        await createExpense.mutateAsync({ ...rest, amount: signedAmount })
+        await createExpense.mutateAsync(payload)
         toast.success('Expense added')
       }
       handleClose()
@@ -115,7 +163,39 @@ export function ExpenseFormDialog({ open, onClose, categories, currency, allTags
               <Label htmlFor="exp-amount">Amount</Label>
               <Input id="exp-amount" min="0.01" step="0.01" type="number" {...register('amount', { valueAsNumber: true })} />
               {errors.amount && <p className="text-destructive text-xs">{errors.amount.message}</p>}
+              {isMultiCurrency && watchedCurrency !== currency && (
+                <p className="text-muted-foreground text-xs">
+                  {previewLoading
+                    ? 'Converting…'
+                    : convertedPreview != null
+                      ? `≈ ${formatCurrency(convertedPreview, currency)}`
+                      : 'Rate unavailable'}
+                </p>
+              )}
             </div>
+            {isMultiCurrency && (
+              <div className="space-y-1">
+                <Label>Currency</Label>
+                <Controller
+                  control={control}
+                  name="currency"
+                  render={({ field }) => (
+                    <Select value={field.value} onValueChange={field.onChange}>
+                      <SelectTrigger>
+                        <SelectValue>{(v: string) => v}</SelectValue>
+                      </SelectTrigger>
+                      <SelectContent>
+                        {availableCurrencies.map((code) => (
+                          <SelectItem key={code} value={code}>
+                            {code}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  )}
+                />
+              </div>
+            )}
             <div className="space-y-1">
               <Label>Category</Label>
               <Controller

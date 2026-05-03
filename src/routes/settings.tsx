@@ -6,6 +6,7 @@ import { AppLayout } from '@/components/layout/app-layout'
 import { CategoryList } from '@/components/settings/category-list'
 import { CurrencySelector } from '@/components/settings/currency-selector'
 import { RecurringList } from '@/components/settings/recurring-list'
+import { SupportedCurrenciesSelector } from '@/components/settings/supported-currencies-selector'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Label } from '@/components/ui/label'
@@ -15,6 +16,7 @@ import { getConfig } from '@/lib/server/functions/config'
 import { createExpense, getExpenses } from '@/lib/server/functions/expenses'
 import { getRecurring } from '@/lib/server/functions/recurring'
 import { exportToCSV, parseCSV } from '@/lib/shared/csv'
+import { CURRENCIES } from '@/lib/shared/currencies'
 
 export const Route = createFileRoute('/settings')({
   loader: ({ context: { queryClient } }) =>
@@ -41,10 +43,23 @@ function SettingsPage() {
 
   async function handleCurrencyChange(currency: string) {
     try {
-      await updateConfig.mutateAsync({ ...currentConfig, currency })
+      await updateConfig.mutateAsync({
+        ...currentConfig,
+        currency,
+        supportedCurrencies: currentConfig.supportedCurrencies.filter((c) => c !== currency),
+      })
       toast.success('Currency updated')
     } catch {
       toast.error('Failed to update currency')
+    }
+  }
+
+  async function handleSupportedCurrenciesChange(supportedCurrencies: Array<string>) {
+    try {
+      await updateConfig.mutateAsync({ ...currentConfig, supportedCurrencies })
+      toast.success('Supported currencies updated')
+    } catch {
+      toast.error('Failed to update currencies')
     }
   }
 
@@ -141,6 +156,20 @@ function SettingsPage() {
             </CardContent>
           </Card>
         </div>
+        <Card>
+          <CardHeader>
+            <CardTitle>Additional Currencies</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="mb-3 text-muted-foreground text-sm">Select currencies to use when recording expenses.</p>
+            <SupportedCurrenciesSelector
+              allCurrencies={CURRENCIES}
+              defaultCurrency={config.currency}
+              value={config.supportedCurrencies}
+              onChange={handleSupportedCurrenciesChange}
+            />
+          </CardContent>
+        </Card>
         <Card>
           <CardHeader>
             <CardTitle>Theme</CardTitle>
