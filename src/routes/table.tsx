@@ -68,8 +68,8 @@ function TablePage() {
     <AppLayout>
       <div className="space-y-4">
         <div className="flex flex-wrap items-center justify-between gap-3">
-          <h1 className="font-semibold text-xl">Transactions</h1>
-          <div className="flex items-center gap-4">
+          <h1 className="hidden font-semibold text-xl sm:block">Transactions</h1>
+          <div className="flex flex-1 flex-wrap items-center justify-center gap-4 sm:flex-none sm:justify-end">
             <Button size="sm" onClick={() => setAddOpen(true)}>
               <Plus className="size-4" />
               Add Expense

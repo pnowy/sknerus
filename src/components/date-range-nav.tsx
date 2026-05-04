@@ -30,7 +30,7 @@ export function DateRangeNav({ scope, label, onScopeChange, onPrev, onNext, onRe
   return (
     <div className="flex items-center gap-1">
       <Select value={scope} onValueChange={(v) => v && onScopeChange(v as RangeScope)}>
-        <SelectTrigger size="sm" className="w-36">
+        <SelectTrigger size="sm" className="w-28 sm:w-36">
           <SelectValue>{(value: string) => SCOPE_LABELS[value as RangeScope]}</SelectValue>
         </SelectTrigger>
         <SelectContent>
@@ -46,7 +46,7 @@ export function DateRangeNav({ scope, label, onScopeChange, onPrev, onNext, onRe
           <ChevronLeft className="size-4" />
         </Button>
       )}
-      <span className="min-w-36 text-center font-medium text-sm">{label}</span>
+      <span className="min-w-24 text-center font-medium text-sm sm:min-w-36">{label}</span>
       {showArrows && (
         <Button disabled={!canGoNext} size="icon" variant="ghost" onClick={onNext}>
           <ChevronRight className="size-4" />

@@ -68,7 +68,7 @@ export function GroupedExpenseTable({ expenses, categories, currency, groupSort,
   const colSpan = 4 + (hasTags ? 1 : 0)
 
   return (
-    <div className="rounded-md border">
+    <div className="overflow-x-auto rounded-md border">
       <Table>
         <TableHeader>
           <TableRow>
