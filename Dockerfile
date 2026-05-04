@@ -8,8 +8,8 @@ ENV NODE_ENV="production"
 # Throw-away build stage to reduce size of final image
 FROM base AS build
 
-# Enable pnpm via corepack
-RUN corepack enable
+# Install pnpm
+RUN npm install -g pnpm
 
 # Install node modules
 COPY package.json pnpm-lock.yaml ./
@@ -27,7 +27,7 @@ WORKDIR /app
 
 COPY --from=build --chown=node:node /app/.output ./
 
-ENV PORT="8080"
-EXPOSE 8080
+ENV PORT="3000"
+EXPOSE 3000
 ENV HOSTNAME="0.0.0.0"
 CMD ["node", "server/index.mjs"]
