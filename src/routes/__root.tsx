@@ -5,6 +5,7 @@ import { ReactQueryDevtoolsPanel } from '@tanstack/react-query-devtools'
 import { createRootRouteWithContext, HeadContent, Scripts } from '@tanstack/react-router'
 import { TanStackRouterDevtoolsPanel } from '@tanstack/react-router-devtools'
 import { ThemeProvider } from 'next-themes'
+import { useEffect } from 'react'
 import { z } from 'zod'
 import { Toaster } from '@/components/ui/sonner'
 import { materializeRecurring } from '@/lib/server/functions/recurring'
@@ -21,14 +22,37 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
   }),
   loader: () => materializeRecurring(),
   head: () => ({
-    meta: [{ charSet: 'utf-8' }, { name: 'viewport', content: 'width=device-width, initial-scale=1' }, { title: 'Sknerus' }],
-    links: [{ rel: 'stylesheet', href: appCss }],
+    meta: [
+      { charSet: 'utf-8' },
+      { name: 'viewport', content: 'width=device-width, initial-scale=1' },
+      { title: 'Sknerus' },
+      { name: 'theme-color', content: '#09090b' },
+      { name: 'apple-mobile-web-app-capable', content: 'yes' },
+      { name: 'apple-mobile-web-app-title', content: 'Sknerus' },
+      { name: 'apple-mobile-web-app-status-bar-style', content: 'black-translucent' },
+    ],
+    links: [
+      { rel: 'stylesheet', href: appCss },
+      { rel: 'manifest', href: '/manifest.json' },
+      { rel: 'apple-touch-icon', href: '/apple-touch-icon.png' },
+    ],
   }),
   shellComponent: RootDocument,
 })
 
 function RootDocument({ children }: { children: React.ReactNode }) {
   const { queryClient } = Route.useRouteContext()
+
+  useEffect(() => {
+    if (!('serviceWorker' in navigator)) return
+    if (import.meta.env.PROD) {
+      navigator.serviceWorker.register('/sw.js')
+    } else {
+      navigator.serviceWorker.getRegistrations().then((registrations) => {
+        for (const r of registrations) r.unregister()
+      })
+    }
+  }, [])
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
