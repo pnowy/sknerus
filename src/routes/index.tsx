@@ -67,8 +67,8 @@ function DashboardPage() {
     <AppLayout>
       <div className="space-y-6">
         <div className="flex flex-wrap items-center justify-between gap-3">
-          <h1 className="font-semibold text-xl">Dashboard</h1>
-          <div className="flex items-center gap-3">
+          <h1 className="hidden font-semibold text-xl sm:block">Dashboard</h1>
+          <div className="flex flex-1 flex-col items-center gap-2 sm:flex-none sm:flex-row sm:gap-3">
             <Button onClick={() => setAddOpen(true)}>
               <Plus className="size-4" />
               Add Expense
