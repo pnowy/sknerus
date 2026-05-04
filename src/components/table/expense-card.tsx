@@ -1,0 +1,79 @@
+import { Copy, MoreHorizontal, Pencil, Repeat, Trash2 } from 'lucide-react'
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
+import { formatCurrency, formatDate } from '@/lib/shared/format'
+import type { Category, Expense } from '@/lib/shared/types/expense'
+import { cn } from '@/lib/utils'
+
+type Props = {
+  expense: Expense
+  categories: Array<Category>
+  onEdit: (e: Expense) => void
+  onDuplicate: (e: Expense) => void
+  onDelete: (id: string) => void
+}
+
+export function ExpenseCard({ expense, categories, onEdit, onDuplicate, onDelete }: Props) {
+  const category = categories.find((c) => c.id === expense.categoryId)
+  const categoryName = category?.name ?? expense.categoryId
+
+  return (
+    <div className="rounded-lg border bg-card p-3">
+      <div className="flex items-start justify-between gap-2">
+        <span className="flex items-center gap-1.5 font-medium text-sm">
+          {expense.name}
+          {expense.recurringId && <Repeat aria-label="Recurring" className="size-3 shrink-0 text-muted-foreground" />}
+        </span>
+        <span className="flex flex-col items-end">
+          <span className={cn('font-medium text-sm tabular-nums', expense.amount > 0 ? 'text-emerald-600 dark:text-emerald-400' : '')}>
+            {expense.amount > 0 ? '+' : ''}
+            {formatCurrency(Math.abs(expense.amount), expense.currency)}
+          </span>
+          {expense.originalCurrency && expense.originalAmount !== undefined && (
+            <span className="text-muted-foreground text-xs tabular-nums">
+              {expense.originalAmount > 0 ? '+' : ''}
+              {formatCurrency(Math.abs(expense.originalAmount), expense.originalCurrency)}
+            </span>
+          )}
+        </span>
+      </div>
+      <div className="mt-1 flex items-center justify-between gap-2">
+        <span className="flex items-center gap-1.5 text-muted-foreground text-xs">
+          {category && <span className="inline-block size-2.5 rounded-sm" style={{ backgroundColor: category.color }} />}
+          <span>{categoryName}</span>
+          <span>·</span>
+          <span>{formatDate(expense.date)}</span>
+        </span>
+        <DropdownMenu>
+          <DropdownMenuTrigger render={<Button size="icon-sm" variant="ghost" className="-mr-1 size-6" />}>
+            <MoreHorizontal className="size-3.5" />
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuItem onClick={() => onEdit(expense)}>
+              <Pencil className="size-3.5" />
+              Edit
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => onDuplicate(expense)}>
+              <Copy className="size-3.5" />
+              Duplicate
+            </DropdownMenuItem>
+            <DropdownMenuItem variant="destructive" onClick={() => onDelete(expense.id)}>
+              <Trash2 className="size-3.5" />
+              Delete
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </div>
+      {expense.tags.length > 0 && (
+        <div className="mt-1.5 flex flex-wrap gap-1">
+          {expense.tags.map((t) => (
+            <Badge key={t} variant="secondary" className="text-xs">
+              {t}
+            </Badge>
+          ))}
+        </div>
+      )}
+    </div>
+  )
+}

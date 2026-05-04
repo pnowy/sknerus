@@ -1,5 +1,6 @@
 import { ChevronDown, ChevronRight, Copy, Pencil, Repeat, Trash2 } from 'lucide-react'
 import { useMemo, useState } from 'react'
+import { ExpenseCard } from '@/components/table/expense-card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
@@ -68,38 +69,81 @@ export function GroupedExpenseTable({ expenses, categories, currency, groupSort,
   const colSpan = 4 + (hasTags ? 1 : 0)
 
   return (
-    <div className="overflow-x-auto rounded-md border">
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead>Name</TableHead>
-            {hasTags && <TableHead>Tags</TableHead>}
-            <TableHead>Amount</TableHead>
-            <TableHead>Date</TableHead>
-            <TableHead />
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {groups.map((group) => {
-            const isCollapsed = collapsed.has(group.category.id)
-            return (
-              <GroupSection
-                key={group.category.id}
-                colSpan={colSpan}
-                currency={currency}
-                group={group}
-                hasTags={hasTags}
-                isCollapsed={isCollapsed}
-                onDelete={onDelete}
-                onDuplicate={onDuplicate}
-                onEdit={onEdit}
-                onToggle={() => toggleGroup(group.category.id)}
-              />
-            )
-          })}
-        </TableBody>
-      </Table>
-    </div>
+    <>
+      <div className="space-y-3 sm:hidden">
+        {groups.map((group) => {
+          const isCollapsed = collapsed.has(group.category.id)
+          const Icon = isCollapsed ? ChevronRight : ChevronDown
+          return (
+            <div key={group.category.id}>
+              <button
+                type="button"
+                className="flex w-full items-center justify-between rounded-lg bg-muted/50 px-3 py-2"
+                onClick={() => toggleGroup(group.category.id)}
+              >
+                <span className="flex items-center gap-2 font-semibold text-sm">
+                  <Icon className="size-4" />
+                  <span className="inline-block size-3 rounded-sm" style={{ backgroundColor: group.category.color }} />
+                  {group.category.name}
+                  <span className="font-normal text-muted-foreground">({group.expenses.length})</span>
+                </span>
+                <span className={cn('font-semibold text-sm tabular-nums', group.total > 0 ? 'text-emerald-600 dark:text-emerald-400' : '')}>
+                  {group.total > 0 ? '+' : ''}
+                  {formatCurrency(Math.abs(group.total), currency)}
+                </span>
+              </button>
+              {!isCollapsed && (
+                <div className="mt-1 space-y-1.5 pl-2">
+                  {group.expenses.map((expense) => (
+                    <ExpenseCard
+                      key={expense.id}
+                      categories={categories}
+                      expense={expense}
+                      onDelete={onDelete}
+                      onDuplicate={onDuplicate}
+                      onEdit={onEdit}
+                    />
+                  ))}
+                </div>
+              )}
+            </div>
+          )
+        })}
+      </div>
+
+      <div className="hidden overflow-x-auto rounded-md border sm:block">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Name</TableHead>
+              {hasTags && <TableHead>Tags</TableHead>}
+              <TableHead>Amount</TableHead>
+              <TableHead>Date</TableHead>
+              <TableHead />
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {groups.map((group) => {
+              const isCollapsed = collapsed.has(group.category.id)
+              return (
+                <GroupSection
+                  key={group.category.id}
+                  colSpan={colSpan}
+                  currency={currency}
+                  group={group}
+                  hasTags={hasTags}
+                  isCollapsed={isCollapsed}
+                  onDelete={onDelete}
+                  onDuplicate={onDuplicate}
+                  onEdit={onEdit}
+                  onToggle={() => toggleGroup(group.category.id)}
+                />
+              )
+            })}
+          </TableBody>
+        </Table>
+      </div>
+    </>
   )
 }
 
