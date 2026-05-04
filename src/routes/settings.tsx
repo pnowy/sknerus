@@ -117,7 +117,7 @@ function SettingsPage() {
   return (
     <AppLayout>
       <div className="space-y-6">
-        <h1 className="font-semibold text-xl">Settings</h1>
+        <h1 className="hidden font-semibold text-xl sm:block">Settings</h1>
         <Card>
           <CardHeader>
             <CardTitle>Categories</CardTitle>
