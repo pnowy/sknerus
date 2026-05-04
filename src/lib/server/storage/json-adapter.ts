@@ -16,6 +16,7 @@ const DEFAULT_CONFIG: Config = {
   currency: 'USD',
   startDate: 1,
   supportedCurrencies: [],
+  startPage: 'dashboard',
 }
 
 export class JsonAdapter implements StorageAdapter {
@@ -72,6 +73,7 @@ export class JsonAdapter implements StorageAdapter {
       currency: (stored.currency ?? DEFAULT_CONFIG.currency).toUpperCase(),
       startDate: stored.startDate ?? DEFAULT_CONFIG.startDate,
       supportedCurrencies: stored.supportedCurrencies ?? [],
+      startPage: stored.startPage ?? DEFAULT_CONFIG.startPage,
     }
 
     if (needsWrite) await this.saveConfig(config)

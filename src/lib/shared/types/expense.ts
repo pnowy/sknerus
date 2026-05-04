@@ -39,6 +39,7 @@ export type Config = {
   currency: string
   startDate: number
   supportedCurrencies: Array<string>
+  startPage: string
 }
 
 type CurrencyCode = string

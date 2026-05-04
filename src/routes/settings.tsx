@@ -17,6 +17,7 @@ import { createExpense, getExpenses } from '@/lib/server/functions/expenses'
 import { getRecurring } from '@/lib/server/functions/recurring'
 import { exportToCSV, parseCSV } from '@/lib/shared/csv'
 import { CURRENCIES } from '@/lib/shared/currencies'
+import { StartPage } from '@/lib/shared/types/start-page'
 
 export const Route = createFileRoute('/settings')({
   loader: ({ context: { queryClient } }) =>
@@ -60,6 +61,15 @@ function SettingsPage() {
       toast.success('Supported currencies updated')
     } catch {
       toast.error('Failed to update currencies')
+    }
+  }
+
+  async function handleStartPageChange(val: string) {
+    try {
+      await updateConfig.mutateAsync({ ...currentConfig, startPage: val })
+      toast.success('Start page updated')
+    } catch {
+      toast.error('Failed to update start page')
     }
   }
 
@@ -155,6 +165,43 @@ function SettingsPage() {
               <p className="mt-1 text-muted-foreground text-xs">Day of month when your budget cycle starts</p>
             </CardContent>
           </Card>
+          <Card>
+            <CardHeader>
+              <CardTitle>Start Page</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <Select value={config.startPage} onValueChange={(v) => v && handleStartPageChange(v)}>
+                <SelectTrigger>
+                  <SelectValue>{(value: string) => (value === StartPage.Table ? 'Table' : 'Dashboard')}</SelectValue>
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value={StartPage.Dashboard}>Dashboard</SelectItem>
+                  <SelectItem value={StartPage.Table}>Table</SelectItem>
+                </SelectContent>
+              </Select>
+              <p className="mt-1 text-muted-foreground text-xs">Page shown when you open the app</p>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader>
+              <CardTitle>Theme</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="flex items-center gap-3">
+                <Label>Appearance</Label>
+                <Select value={theme} onValueChange={(v) => v && setTheme(v)}>
+                  <SelectTrigger className="w-36">
+                    <SelectValue>{(value: string) => (value ? `${value.charAt(0).toUpperCase()}${value.slice(1)}` : null)}</SelectValue>
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="light">Light</SelectItem>
+                    <SelectItem value="dark">Dark</SelectItem>
+                    <SelectItem value="system">System</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </CardContent>
+          </Card>
         </div>
         <Card>
           <CardHeader>
@@ -168,26 +215,6 @@ function SettingsPage() {
               value={config.supportedCurrencies}
               onChange={handleSupportedCurrenciesChange}
             />
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader>
-            <CardTitle>Theme</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="flex items-center gap-3">
-              <Label>Appearance</Label>
-              <Select value={theme} onValueChange={(v) => v && setTheme(v)}>
-                <SelectTrigger className="w-36">
-                  <SelectValue>{(value: string) => (value ? `${value.charAt(0).toUpperCase()}${value.slice(1)}` : null)}</SelectValue>
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="light">Light</SelectItem>
-                  <SelectItem value="dark">Dark</SelectItem>
-                  <SelectItem value="system">System</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
           </CardContent>
         </Card>
         <Card>

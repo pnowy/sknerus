@@ -28,6 +28,7 @@ export const configSchema = z.object({
   currency: z.string().min(1),
   startDate: z.number().int().min(1).max(31),
   supportedCurrencies: z.array(z.string()).default([]),
+  startPage: z.string().default('dashboard'),
 })
 
 export const recurringExpenseSchema = z.object({

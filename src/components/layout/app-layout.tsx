@@ -3,7 +3,7 @@ import { LayoutDashboard, Settings, Table } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 const NAV_LINKS = [
-  { to: '/', label: 'Dashboard', icon: LayoutDashboard },
+  { to: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { to: '/table', label: 'Table', icon: Table },
   { to: '/settings', label: 'Settings', icon: Settings },
 ] as const
