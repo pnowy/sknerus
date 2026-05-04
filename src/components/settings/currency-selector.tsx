@@ -12,7 +12,7 @@ export function CurrencySelector({ value, onChange }: Props) {
       <SelectTrigger>
         <SelectValue placeholder="Select currency">{(value: string) => CURRENCIES.find((c) => c.code === value)?.label}</SelectValue>
       </SelectTrigger>
-      <SelectContent>
+      <SelectContent align="start" alignItemWithTrigger={false} className="w-auto min-w-(--anchor-width)">
         {CURRENCIES.map(({ code, label }) => (
           <SelectItem key={code} value={code}>
             {label}
