@@ -5,14 +5,7 @@ import type { Config, ExchangeRate, Expense, RecurringExpense } from '@/lib/shar
 import type { StorageAdapter } from './types'
 
 const DEFAULT_CONFIG: Config = {
-  categories: [
-    { id: genCategoryId(), name: 'Food', color: '#FF6B6B' },
-    { id: genCategoryId(), name: 'Transport', color: '#4ECDC4' },
-    { id: genCategoryId(), name: 'Housing', color: '#45B7D1' },
-    { id: genCategoryId(), name: 'Entertainment', color: '#96CEB4' },
-    { id: genCategoryId(), name: 'Health', color: '#FFBE0B' },
-    { id: genCategoryId(), name: 'Other', color: '#FF006E' },
-  ],
+  categories: [],
   currency: 'USD',
   startDate: 1,
   supportedCurrencies: [],

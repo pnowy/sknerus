@@ -1,3 +1,4 @@
+import { seedIfFirstRun } from '../seed'
 import { JsonAdapter } from './json-adapter'
 import type { StorageAdapter } from './types'
 
@@ -12,4 +13,6 @@ function createStorage(): StorageAdapter {
 }
 
 export const storage: StorageAdapter = createStorage()
+await seedIfFirstRun(storage)
+
 export type { StorageAdapter }
