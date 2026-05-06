@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sknerus — App Preview</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      width: 1400px;
+      height: 875px;
+      overflow: hidden;
+      font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', Roboto, sans-serif;
+      background: #080d18;
+    }
+
+    /* ── Background ── */
+    .bg {
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 65% 70% at 72% 50%, rgba(20, 90, 160, 0.28) 0%, transparent 65%),
+        radial-gradient(ellipse 35% 45% at 25% 45%, rgba(16, 60, 110, 0.18) 0%, transparent 60%),
+        linear-gradient(155deg, #080d18 0%, #0c1525 55%, #080d18 100%);
+    }
+
+    /* subtle dot-grid overlay */
+    .bg::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image: radial-gradient(circle, rgba(255,255,255,0.035) 1px, transparent 1px);
+      background-size: 28px 28px;
+    }
+
+    /* ── Layout ── */
+    .layout {
+      position: relative;
+      z-index: 1;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+    }
+
+    /* ── Branding panel ── */
+    .brand {
+      flex-shrink: 0;
+      width: 300px;
+      padding-left: 58px;
+    }
+
+    .logo-row {
+      display: flex;
+      align-items: center;
+      gap: 13px;
+      margin-bottom: 14px;
+    }
+
+    .logo-row img {
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+    }
+
+    .app-name {
+      font-size: 40px;
+      font-weight: 700;
+      color: #f0f6fc;
+      letter-spacing: -1.5px;
+      line-height: 1;
+    }
+
+    .tagline {
+      font-size: 13.5px;
+      line-height: 1.65;
+      color: #6b7a90;
+      margin-bottom: 28px;
+      max-width: 220px;
+    }
+
+    .feats {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 9px;
+    }
+
+    .feats li {
+      font-size: 12.5px;
+      color: #8892a4;
+      display: flex;
+      align-items: center;
+      gap: 9px;
+    }
+
+    .feats li .dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #22c55e;
+      flex-shrink: 0;
+      box-shadow: 0 0 6px rgba(34, 197, 94, 0.6);
+    }
+
+    /* ── Screenshots zone ── */
+    .shots {
+      position: relative;
+      flex: 1;
+      height: 100%;
+    }
+
+    /* ── Window chrome ── */
+    .window {
+      position: absolute;
+      border-radius: 11px;
+      overflow: hidden;
+      box-shadow:
+        0 0 0 1px rgba(255,255,255,0.07),
+        0 2px 4px rgba(0,0,0,0.3),
+        0 20px 50px rgba(0,0,0,0.65),
+        0 50px 100px rgba(0,0,0,0.4);
+    }
+
+    .chrome {
+      height: 30px;
+      display: flex;
+      align-items: center;
+      padding: 0 12px;
+      gap: 6px;
+      flex-shrink: 0;
+    }
+
+    .chrome.dark-chrome { background: #1a1f2e; border-bottom: 1px solid rgba(255,255,255,0.05); }
+    .chrome.light-chrome { background: #e8e8ea; border-bottom: 1px solid rgba(0,0,0,0.08); }
+
+    .btn { width: 11px; height: 11px; border-radius: 50%; }
+    .btn-r { background: #ff5f57; }
+    .btn-y { background: #febc2e; }
+    .btn-g { background: #28c840; }
+
+    .window img { display: block; }
+
+    /* theme badge */
+    .badge {
+      position: absolute;
+      top: 38px;
+      right: 10px;
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      padding: 3px 8px;
+      border-radius: 20px;
+      z-index: 2;
+      pointer-events: none;
+    }
+    .badge-dark  { background: rgba(30,40,60,0.9); color: #7dd3fc; border: 1px solid rgba(125,211,252,0.2); }
+    .badge-light { background: rgba(240,245,255,0.9); color: #3b5bdb; border: 1px solid rgba(59,91,219,0.2); }
+
+    /* ── Window positions ── */
+
+    /* Main: dark mode trends — dominant, center-right */
+    .w-main {
+      right: 24px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 790px;
+      z-index: 4;
+    }
+    .w-main img { width: 790px; }
+
+    /* Upper-left: light mode breakdown */
+    .w-top {
+      left: 4px;
+      top: 48px;
+      width: 330px;
+      transform: rotate(-2.5deg);
+      z-index: 3;
+    }
+    .w-top img { width: 330px; }
+
+    /* Lower-left: light mode table grouped */
+    .w-btm {
+      left: 28px;
+      bottom: 44px;
+      width: 310px;
+      transform: rotate(2deg);
+      z-index: 3;
+    }
+    .w-btm img { width: 310px; }
+
+  </style>
+</head>
+<body>
+  <div class="bg"></div>
+  <div class="layout">
+
+    <!-- Branding -->
+    <div class="brand">
+      <div class="logo-row">
+        <img src="./logo.png" alt="Sknerus logo">
+        <span class="app-name">Sknerus</span>
+      </div>
+      <p class="tagline">Self-hosted personal finance tracker focused on clarity and speed.</p>
+      <ul class="feats">
+        <li><span class="dot"></span>Multi-chart analytics dashboard</li>
+        <li><span class="dot"></span>Income &amp; expense tracking</li>
+        <li><span class="dot"></span>Recurring transactions</li>
+        <li><span class="dot"></span>Multi-currency with auto exchange rates</li>
+        <li><span class="dot"></span>Configurable fiscal periods</li>
+        <li><span class="dot"></span>Light &amp; dark theme · PWA</li>
+        <li><span class="dot"></span>Export / import · self-hosted</li>
+      </ul>
+    </div>
+
+    <!-- Screenshots -->
+    <div class="shots">
+
+      <!-- Light: Breakdown -->
+      <div class="window w-top">
+        <div class="chrome light-chrome">
+          <div class="btn btn-r"></div>
+          <div class="btn btn-y"></div>
+          <div class="btn btn-g"></div>
+        </div>
+        <img src="./desktop-dashboard-income-vs-expenses.png" alt="Dashboard – Breakdown">
+        <span class="badge badge-light">DARK</span>
+      </div>
+
+      <!-- Light: Table grouped -->
+      <div class="window w-btm">
+        <div class="chrome light-chrome">
+          <div class="btn btn-r"></div>
+          <div class="btn btn-y"></div>
+          <div class="btn btn-g"></div>
+        </div>
+        <img src="./desktop-table-grouped.png" alt="Table – Grouped">
+        <span class="badge badge-light">LIGHT</span>
+      </div>
+
+      <!-- Dark: Trends (main) -->
+      <div class="window w-main">
+        <div class="chrome dark-chrome">
+          <div class="btn btn-r"></div>
+          <div class="btn btn-y"></div>
+          <div class="btn btn-g"></div>
+        </div>
+        <img src="./desktop-dashboard-breakdown.png" alt="Dashboard – Trends">
+        <span class="badge badge-dark">LIGHT</span>
+      </div>
+
+    </div>
+  </div>
+</body>
+</html>

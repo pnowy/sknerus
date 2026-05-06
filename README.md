@@ -22,6 +22,10 @@
 <em>💰 <b>Sknerus</b> (pronounced <em>skneh-roos</em>) is Polish for <b>Scrooge</b> — a penny-pinching miser who knows exactly where every złoty goes. If you're obsessive enough about your finances to self-host a tracker, the name fits.</em>
 </p>
 
+<p align="center">
+  <img src="./etc/app-preview.png" alt="Sknerus App Preview" width="100%">
+</p>
+
 <br>
 
 # Why Sknerus?
