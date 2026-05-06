@@ -18,6 +18,10 @@
 <b>Sknerus</b> is a self-hosted personal finance tracker focused on clarity and speed. Track income and expenses across custom categories, visualize spending trends over time, and get a clear picture of your cashflow — all from a clean, modern interface.
 </p>
 
+<p align="center">
+<i>💰 <b>Sknerus</b> (pronounced <i>skneh-roos</i>) is Polish for <b>Scrooge</b> — a penny-pinching miser who knows exactly where every złoty goes. If you're obsessive enough about your finances to self-host a tracker, the name fits.</i>
+</p>
+
 <br>
 
 # Why Sknerus?
