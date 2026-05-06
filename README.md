@@ -19,7 +19,7 @@
 </p>
 
 <p align="center">
-<i>💰 <b>Sknerus</b> (pronounced <i>skneh-roos</i>) is Polish for <b>Scrooge</b> — a penny-pinching miser who knows exactly where every złoty goes. If you're obsessive enough about your finances to self-host a tracker, the name fits.</i>
+<em>💰 <b>Sknerus</b> (pronounced <em>skneh-roos</em>) is Polish for <b>Scrooge</b> — a penny-pinching miser who knows exactly where every złoty goes. If you're obsessive enough about your finances to self-host a tracker, the name fits.</em>
 </p>
 
 <br>
