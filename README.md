@@ -31,6 +31,7 @@ The original inspiration for this project was [ExpenseOwl](https://github.com/ta
 Sknerus picks up where ExpenseOwl left off. It keeps the philosophy of **dead simple, self-hosted, single-user or family expense tracking**, while adding:
 
 - A proper analytics dashboard with multiple chart types and time-range navigation
+- Table view with grouping and sorting
 - Full recurring expense management (create, edit, delete templates)
 - Multi-currency support with automatic exchange rate resolution
 - A modern SSR React stack (TanStack Start)
@@ -45,7 +46,7 @@ It is still *not* a budgeting app. No accounts, no complex budgets, no bank sync
 - Custom categories with color coding — reorder, rename, or remove them at any time
 - Recurring transactions — define a template once, the app materializes entries automatically up to today
 - Multi-currency support: record transactions in any currency, configure supported currencies, and exchange rates are resolved and cached automatically via [Frankfurter](https://www.frankfurter.app/)
-- CSV export and import — bring your data in from any tool or take it anywhere, also from ExpenseOwl
+- Export and import — bring your data in from any tool or take it anywhere, also from ExpenseOwl
 - Configurable fiscal month start date (e.g. set to 5 to count from the 5th of each month)
 - Configurable default start page (dashboard or table view)
 - Light and dark theme with system-preference detection
@@ -65,7 +66,7 @@ All dashboard views support flexible time-range navigation: switch between month
 ### Table View
 
 - Chronological list of all transactions for the selected period
-- Toggle between flat list and grouped-by-day view
+- Toggle between flat list and grouped-by-category view
 - Inline delete with confirmation
 - Add new expenses directly from the table view
 
@@ -87,9 +88,9 @@ All dashboard views support flexible time-range navigation: switch between month
 | Dashboard – Income vs Expenses (dark) | ![](./etc/desktop-dashboard-income-vs-expenses.png) |
 | Dashboard – Monthly (light)           | ![](./etc/desktop-dashboard-monthly.png)            |
 | Dashboard – Trends (dark)             | ![](./etc/desktop-dashboard-trends.png)             |
-| Table View                            | _(placeholder)_                                     |
-| Table View (group by category)        | _(placeholder)_                                     |
-| Settings                              | _(placeholder)_                                     |
+| Table View                            | ![](./etc/desktop-table-view.png)                   |
+| Table View (group by category)        | ![](./etc/desktop-table-grouped.png)                |
+| Settings                              | ![](./etc/settings.png)                             |
 
 # Installation
 
