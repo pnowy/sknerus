@@ -26,14 +26,14 @@
 
 # Why Sknerus?
 
-[ExpenseOwl](https://github.com/tanq16/expenseowl) was the original inspiration for this project — a wonderfully simple self-hosted expense tracker. However, it is no longer actively developed and maintained, and it lacked a few things I needed: multi-chart dashboards, recurring transactions with full CRUD, multi-currency support, and a richer data visualization experience.
+The original inspiration for this project was [ExpenseOwl](https://github.com/tanq16/expenseowl) — a simple self-hosted expense tracker. However, it is no longer actively developed and maintained, and it lacked a few things I needed: multi-chart dashboards, multi-currency support, and a richer data visualization experience.
 
-Sknerus picks up where ExpenseOwl left off. It keeps the philosophy of **dead simple, self-hosted, single-user expense tracking**, while adding:
+Sknerus picks up where ExpenseOwl left off. It keeps the philosophy of **dead simple, self-hosted, single-user or family expense tracking**, while adding:
 
 - A proper analytics dashboard with multiple chart types and time-range navigation
 - Full recurring expense management (create, edit, delete templates)
 - Multi-currency support with automatic exchange rate resolution
-- A modern SSR React stack (TanStack Start) instead of a traditional server-rendered app
+- A modern SSR React stack (TanStack Start)
 
 It is still *not* a budgeting app. No accounts, no complex budgets, no bank syncing. Just a fast, honest look at where your money goes.
 
@@ -45,7 +45,7 @@ It is still *not* a budgeting app. No accounts, no complex budgets, no bank sync
 - Custom categories with color coding — reorder, rename, or remove them at any time
 - Recurring transactions — define a template once, the app materializes entries automatically up to today
 - Multi-currency support: record transactions in any currency, configure supported currencies, and exchange rates are resolved and cached automatically via [Frankfurter](https://www.frankfurter.app/)
-- CSV export and import — bring your data in from any tool or take it anywhere
+- CSV export and import — bring your data in from any tool or take it anywhere, also from ExpenseOwl
 - Configurable fiscal month start date (e.g. set to 5 to count from the 5th of each month)
 - Configurable default start page (dashboard or table view)
 - Light and dark theme with system-preference detection
@@ -75,21 +75,21 @@ All dashboard views support flexible time-range navigation: switch between month
 - Set primary currency and a list of supported currencies for multi-currency entry
 - Configure fiscal month start date and default start page
 - Manage recurring transactions (view, edit, delete templates)
-- Export all expenses to CSV
-- Import expenses from CSV (columns: `name`, `amount`, `currency`, `category`, `date`, `tags`)
+- Export and import all expenses
 
 # Screenshots
 
 > Screenshots coming soon — you can generate a populated instance with demo data using the `SEED_DEMO_DATA` flag described below.
 
-| Page | Desktop |
-| --- | --- |
-| Dashboard – Breakdown | _(placeholder)_ |
-| Dashboard – Income vs Expenses | _(placeholder)_ |
-| Dashboard – Monthly | _(placeholder)_ |
-| Dashboard – Trends | _(placeholder)_ |
-| Table View | _(placeholder)_ |
-| Settings | _(placeholder)_ |
+| Page                                  | Desktop                                             |
+|---------------------------------------|-----------------------------------------------------|
+| Dashboard – Breakdown (light)         | ![](./etc/desktop-dashboard-breakdown.png)          |
+| Dashboard – Income vs Expenses (dark) | ![](./etc/desktop-dashboard-income-vs-expenses.png) |
+| Dashboard – Monthly (light)           | ![](./etc/desktop-dashboard-monthly.png)            |
+| Dashboard – Trends (dark)             | ![](./etc/desktop-dashboard-trends.png)             |
+| Table View                            | _(placeholder)_                                     |
+| Table View (group by category)        | _(placeholder)_                                     |
+| Settings                              | _(placeholder)_                                     |
 
 # Installation
 
