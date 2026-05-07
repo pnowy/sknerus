@@ -84,8 +84,6 @@ All dashboard views support flexible time-range navigation: switch between month
 
 # Screenshots
 
-> Screenshots coming soon — you can generate a populated instance with demo data using the `SEED_DEMO_DATA` flag described below.
-
 | Page                                  | Desktop                                             |
 |---------------------------------------|-----------------------------------------------------|
 | Dashboard – Breakdown (light)         | ![](./etc/desktop-dashboard-breakdown.png)          |
@@ -150,12 +148,12 @@ All configuration is done either via environment variables (infrastructure-level
 
 ### Environment Variables
 
-| Variable | Default | Description |
-| --- | --- | --- |
-| `PORT` | `3000` | Port the server listens on |
-| `DATA_DIR` | `.data` | Directory where JSON data files are stored |
+| Variable         | Default   | Description                                              |
+|------------------|-----------|----------------------------------------------------------|
+| `PORT`           | `3000`    | Port the server listens on                               |
+| `DATA_DIR`       | `.data`   | Directory where JSON data files are stored               |
 | `SEED_DEMO_DATA` | _(unset)_ | Set to `true` to seed demo data on first run (see below) |
-| `LOG_LEVEL` | `info` | Log verbosity: `debug`, `info`, `warn`, `error` |
+| `LOG_LEVEL`      | `info`    | Log verbosity: `debug`, `info`, `warn`, `error`          |
 
 ### In-App Settings
 
@@ -176,14 +174,22 @@ Sknerus uses a simple file-based JSON storage by default. Data is stored in thre
 - `expenses.json` — all transactions
 - `config.json` — categories, currency, and app settings
 - `recurring.json` — recurring transaction templates
+- `exchange-rates.json` - cache for exchange rates data
 
 Mount `DATA_DIR` as a persistent volume to retain data across container restarts.
 
 > **Note:** Sknerus does not include authentication. Use a reverse proxy (e.g. Nginx, Caddy, Traefik) with basic auth or SSO in front of it if exposing beyond localhost.
 
+### Considered features
+
+There is a bunch o potential features which could be added if there will interest. Some which I consider but don't need them in my use-case:
+
+- extra storage types (SQL Database – PostgreSQL)
+- authentication and authorization
+
 # Demo Data
 
-Sknerus ships with a built-in demo data generator that seeds ~2.5 years of realistic family budget data (Jan 2023 → current month). It is useful for exploring the app before entering your own data.
+Sknerus ships with a built-in demo data generator that seeds ~2.5 years of realistic family budget data. It is useful for exploring the app before entering your own data.
 
 **To enable:** set `SEED_DEMO_DATA=true` and start with no existing data (or a fresh `DATA_DIR`).
 
