@@ -84,15 +84,16 @@ All dashboard views support flexible time-range navigation: switch between month
 
 # Screenshots
 
-| Page                                  | Desktop                                             |
-|---------------------------------------|-----------------------------------------------------|
-| Dashboard – Breakdown (light)         | ![](./etc/desktop-dashboard-breakdown.png)          |
-| Dashboard – Income vs Expenses (dark) | ![](./etc/desktop-dashboard-income-vs-expenses.png) |
-| Dashboard – Monthly (light)           | ![](./etc/desktop-dashboard-monthly.png)            |
-| Dashboard – Trends (dark)             | ![](./etc/desktop-dashboard-trends.png)             |
-| Table View                            | ![](./etc/desktop-table-view.png)                   |
-| Table View (group by category)        | ![](./etc/desktop-table-grouped.png)                |
-| Settings                              | ![](./etc/desktop-settings.png)                     |
+| Page                                            | View                                                |
+|-------------------------------------------------|-----------------------------------------------------|
+| Desktop - Dashboard – Breakdown (light)         | ![](./etc/desktop-dashboard-breakdown.png)          |
+| Desktop - Dashboard – Income vs Expenses (dark) | ![](./etc/desktop-dashboard-income-vs-expenses.png) |
+| Desktop - Dashboard – Monthly (light)           | ![](./etc/desktop-dashboard-monthly.png)            |
+| Desktop - Dashboard – Trends (dark)             | ![](./etc/desktop-dashboard-trends.png)             |
+| Mobile - Table view                             | ![](./etc/mobile-table.png)                         |
+| Desktop - Table View                            | ![](./etc/desktop-table-view.png)                   |
+| Desktop - Table View (group by category)        | ![](./etc/desktop-table-grouped.png)                |
+| Desktop - Settings                              | ![](./etc/desktop-settings.png)                     |
 
 # Installation
 
