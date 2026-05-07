@@ -1,10 +1,10 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { useTheme } from 'next-themes'
-import { useRef } from 'react'
 import { toast } from 'sonner'
 import { AppLayout } from '@/components/layout/app-layout'
 import { CategoryList } from '@/components/settings/category-list'
 import { CurrencySelector } from '@/components/settings/currency-selector'
+import { ImportDialog } from '@/components/settings/import-dialog'
 import { RecurringList } from '@/components/settings/recurring-list'
 import { SupportedCurrenciesSelector } from '@/components/settings/supported-currencies-selector'
 import { Button } from '@/components/ui/button'
@@ -37,7 +37,6 @@ function SettingsPage() {
   const updateConfig = useUpdateConfig()
   const renameCategoryMutation = useRenameCategory()
   const { theme, setTheme } = useTheme()
-  const fileInputRef = useRef<HTMLInputElement>(null)
 
   if (!config) return null
   const currentConfig = config
@@ -105,23 +104,26 @@ function SettingsPage() {
     toast.success('Exported')
   }
 
-  async function handleCsvImport(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0]
-    if (!file) return
+  async function handleFileImport(file: File) {
     const text = await file.text()
-    const { expenses: parsed, newCategories } = parseCSV(text, currentConfig.categories)
+    const { expenses: parsed, newCategories } = parseCSV(text, currentConfig.categories, currentConfig.currency)
+    const toastId = 'csv-import'
     try {
       if (newCategories.length > 0) {
         await updateConfig.mutateAsync({ ...currentConfig, categories: [...currentConfig.categories, ...newCategories] })
       }
-      await Promise.all(parsed.map((row) => createExpense({ data: row })))
+      for (let i = 0; i < parsed.length; i++) {
+        toast.loading(`Importing ${i + 1} / ${parsed.length}…`, { id: toastId })
+        await createExpense({ data: parsed[i] })
+      }
       toast.success(
-        `Imported ${parsed.length} transactions${newCategories.length > 0 ? ` and ${newCategories.length} new categories` : ''}`
+        `Imported ${parsed.length} transactions${newCategories.length > 0 ? ` and ${newCategories.length} new categories` : ''}`,
+        { id: toastId }
       )
-    } catch {
-      toast.error('Import failed')
+    } catch (err) {
+      console.error('Import failed:', err)
+      toast.error(`Import failed: ${err instanceof Error ? err.message : String(err)}`, { id: toastId })
     }
-    if (fileInputRef.current) fileInputRef.current.value = ''
   }
 
   return (
@@ -234,10 +236,7 @@ function SettingsPage() {
               <Button variant="outline" onClick={handleCsvExport}>
                 Export CSV
               </Button>
-              <Button variant="outline" onClick={() => fileInputRef.current?.click()}>
-                Import CSV
-              </Button>
-              <input ref={fileInputRef} accept=".csv" className="hidden" type="file" onChange={handleCsvImport} />
+              <ImportDialog onFileSelected={handleFileImport} />
             </div>
           </CardContent>
         </Card>

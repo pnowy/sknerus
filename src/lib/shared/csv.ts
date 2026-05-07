@@ -1,3 +1,4 @@
+import Papa from 'papaparse'
 import { ulid } from 'ulid'
 import { randomColor } from '@/lib/utils'
 import type { Category, Expense } from './types/expense'
@@ -23,7 +24,7 @@ export type ParsedCSV = {
   newCategories: Array<Category>
 }
 
-export function parseCSV(csv: string, categories: Array<Category>): ParsedCSV {
+export function parseCSV(csv: string, categories: Array<Category>, defaultCurrency: string): ParsedCSV {
   const nameToId = new Map(categories.map((c) => [c.name.toLowerCase(), c.id]))
   const newCategories: Array<Category> = []
 
@@ -38,21 +39,25 @@ export function parseCSV(csv: string, categories: Array<Category>): ParsedCSV {
     return id
   }
 
-  const lines = csv.trim().split('\n').slice(1)
-  const expenses = lines
-    .filter((line) => line.trim())
-    .map((line) => {
-      const parts = line.split(',')
-      const [, name, amount, currency, category, date, tags] = parts
-      return {
-        name: name ?? '',
-        amount: Number(amount ?? 0),
-        currency: currency ?? 'USD',
-        categoryId: resolveCategoryId(category ?? ''),
-        date: date ?? '',
-        tags: tags ? tags.split(';').filter(Boolean) : [],
-      }
-    })
+  type CsvRow = { name?: string; amount?: string; category?: string; date?: string; tags?: string }
+
+  const { data } = Papa.parse<CsvRow>(csv, {
+    header: true,
+    skipEmptyLines: true,
+    transformHeader: (h) => h.trim().toLowerCase(),
+  })
+
+  const expenses = data.map((row) => {
+    const tagsRaw = row.tags ?? ''
+    return {
+      name: row.name ?? '',
+      amount: Number(row.amount || 0),
+      currency: defaultCurrency,
+      categoryId: resolveCategoryId(row.category ?? ''),
+      date: (row.date ?? '').slice(0, 10),
+      tags: tagsRaw ? tagsRaw.split(';').filter(Boolean) : [],
+    }
+  })
 
   return { expenses, newCategories }
 }
