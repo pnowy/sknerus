@@ -92,7 +92,7 @@ All dashboard views support flexible time-range navigation: switch between month
 | Dashboard – Trends (dark)             | ![](./etc/desktop-dashboard-trends.png)             |
 | Table View                            | ![](./etc/desktop-table-view.png)                   |
 | Table View (group by category)        | ![](./etc/desktop-table-grouped.png)                |
-| Settings                              | ![](./etc/settings.png)                             |
+| Settings                              | ![](./etc/desktop-settings.png)                     |
 
 # Installation
 
@@ -165,7 +165,7 @@ Everything else is configured from the `/settings` page:
 - **Start Date** — day of month that begins a new fiscal period (default: 1st)
 - **Start Page** — which page loads first: dashboard or table view
 - **Recurring Transactions** — manage recurring income and expense templates
-- **Export / Import** — download all data as CSV or upload a CSV to import transactions
+- **Export / Import** — download all data as CSV or upload a CSV to import transactions. The import modal in the app describes the expected format and supported columns in detail.
 
 ### Data Storage
 
