@@ -27,17 +27,17 @@ filter_commits = true
 sort_commits = "newest"
 
 commit_parsers = [
-  { message = "^.*!:",               group = "Breaking Changes" },
-  { body    = ".*BREAKING CHANGE.*", group = "Breaking Changes" },
-  { message = "^feat",               group = "Features" },
-  { message = "^fix",                group = "Bug Fixes" },
-  { message = "^perf",               group = "Performance" },
-  { message = "^refactor",           group = "Refactoring" },
+  { message = "^.*!:",               group = "💥 Breaking Changes" },
+  { body    = ".*BREAKING CHANGE.*", group = "💥 Breaking Changes" },
+  { message = "^feat",               group = "🚀 Features" },
+  { message = "^fix",                group = "🐛 Bug Fixes" },
+  { message = "^perf",               group = "⚡ Performance" },
+  { message = "^refactor",           group = "🔨 Refactoring" },
   { message = "^ci",                 skip = true },
-  { message = "^deps",               skip = true },
-  { message = "^docs",               skip = true },
-  { message = "^chore",              skip = true },
-  { message = "^test",               skip = true },
+  { message = "^deps",               group = "📦 Dependencies" },
+  { message = "^docs",               group = "📝 Documentation" },
+  { message = "^chore",              group = "🧹 Chores" },
+  { message = "^test",               group = "🧪 Tests" },
   { message = "^build",              skip = true },
   { message = ".*",                  skip = true },
 ]
