@@ -5,7 +5,7 @@
 <h1 align="center">Sknerus</h1>
 
 <p align="center">
-<a href="https://github.com/pnowy/sknerus/actions/workflows/ci.yaml"><img src="https://github.com/pnowy/sknerus/actions/workflows/ci.yaml/badge.svg" alt="CI"></a>&nbsp;<a href="https://github.com/pnowy/sknerus/actions/workflows/release.yaml"><img src="https://github.com/pnowy/sknerus/actions/workflows/release.yaml/badge.svg" alt="Release"></a>&nbsp;<a href="https://github.com/pnowy/sknerus/blob/main/LICENSE"><img alt="License" src="https://img.shields.io/badge/License-MIT-yellow.svg"></a>
+<a href="https://github.com/pnowy/sknerus/actions/workflows/ci.yaml"><img src="https://github.com/pnowy/sknerus/actions/workflows/ci.yaml/badge.svg" alt="CI"></a>&nbsp;<a href="https://github.com/pnowy/sknerus/actions/workflows/release.yaml"><img src="https://github.com/pnowy/sknerus/actions/workflows/release.yaml/badge.svg" alt="Release"></a>&nbsp;<a href="https://github.com/pnowy/sknerus/releases/latest"><img src="https://img.shields.io/github/v/release/pnowy/sknerus" alt="Latest Release"></a>&nbsp;<a href="https://github.com/pnowy/sknerus/blob/main/LICENSE"><img alt="License" src="https://img.shields.io/badge/License-MIT-yellow.svg"></a>
 </p>
 
 <p align="center">
