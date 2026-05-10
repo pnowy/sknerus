@@ -1,0 +1,43 @@
+[changelog]
+header = """
+# Changelog\n
+All notable changes are documented here.\n
+"""
+body = """
+{% if version %}\
+## [{{ version | trim_start_matches(pat="v") }}] — {{ timestamp | date(format="%Y-%m-%d") }}
+{% else %}\
+## [Unreleased]
+{% endif %}\
+{% for group, commits in commits | group_by(attribute="group") %}
+### {{ group }}
+{% for commit in commits %}
+- {% if commit.breaking %}**BREAKING** {% endif %}{{ commit.message | upper_first }}
+{% endfor %}
+{% endfor %}\n
+"""
+footer = ""
+trim = true
+
+[git]
+conventional_commits = true
+filter_unconventional = true
+split_commits = false
+filter_commits = true
+sort_commits = "newest"
+
+commit_parsers = [
+  { message = "^.*!:",               group = "Breaking Changes" },
+  { body    = ".*BREAKING CHANGE.*", group = "Breaking Changes" },
+  { message = "^feat",               group = "Features" },
+  { message = "^fix",                group = "Bug Fixes" },
+  { message = "^perf",               group = "Performance" },
+  { message = "^refactor",           group = "Refactoring" },
+  { message = "^ci",                 skip = true },
+  { message = "^deps",               skip = true },
+  { message = "^docs",               skip = true },
+  { message = "^chore",              skip = true },
+  { message = "^test",               skip = true },
+  { message = "^build",              skip = true },
+  { message = ".*",                  skip = true },
+]
