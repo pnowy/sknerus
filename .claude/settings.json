@@ -1,0 +1,16 @@
+{
+  "hooks": {
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "pnpm typecheck && pnpm check && pnpm test",
+            "timeout": 60,
+            "statusMessage": "Running typecheck, lint & tests..."
+          }
+        ]
+      }
+    ]
+  }
+}
