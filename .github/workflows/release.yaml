@@ -60,6 +60,7 @@ jobs:
     if: github.ref_type == 'tag'
     permissions:
       contents: write
+      pull-requests: read
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository with full history
