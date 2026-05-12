@@ -40,6 +40,8 @@ export type Config = {
   startDate: number
   supportedCurrencies: Array<string>
   startPage: string
+  exchangeProvider: string
+  exchangeApiKey?: string
 }
 
 type CurrencyCode = string

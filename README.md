@@ -49,7 +49,7 @@ It is still *not* a budgeting app. No accounts, no complex budgets, no bank sync
 - Add income and expenses with category, date, amount, currency, and optional tags
 - Custom categories with color coding — reorder, rename, or remove them at any time
 - Recurring transactions — define a template once, the app materializes entries automatically up to today
-- Multi-currency support: record transactions in any currency, configure supported currencies, and exchange rates are resolved and cached automatically via [Frankfurter](https://www.frankfurter.app/)
+- Multi-currency support: record transactions in any currency, configure supported currencies, and exchange rates are resolved and cached automatically. Two providers available: [Frankfurter](https://www.frankfurter.app/) (31 currencies, no key needed) and [ExchangeRate-API](https://www.exchangerate-api.com/) (165 currencies, free API key required)
 - Export and import — bring your data in from any tool or take it anywhere, also from ExpenseOwl
 - Configurable fiscal month start date (e.g. set to 5 to count from the 5th of each month)
 - Configurable default start page (dashboard or table view)
@@ -155,6 +155,7 @@ All configuration is done either via environment variables (infrastructure-level
 | `DATA_DIR`       | `.data`   | Directory where JSON data files are stored               |
 | `SEED_DEMO_DATA` | _(unset)_ | Set to `true` to seed demo data on first run (see below) |
 | `LOG_LEVEL`      | `info`    | Log verbosity: `debug`, `info`, `warn`, `error`          |
+| `EXCHANGE_RATE_API_KEY` | _(unset)_ | API key for [ExchangeRate-API](https://www.exchangerate-api.com/) (alternative to setting it in the UI) |
 
 ### In-App Settings
 
@@ -163,6 +164,7 @@ Everything else is configured from the `/settings` page:
 - **Categories** — add, rename, reorder (drag-and-drop), and delete categories
 - **Currency** — set the primary display currency
 - **Supported Currencies** — currencies available when adding a transaction (exchange rates resolved automatically)
+- **Exchange Rate Provider** — choose between Frankfurter (31 major currencies, no setup) or ExchangeRate-API (165 currencies including MVR, THB, etc. — requires a free API key)
 - **Start Date** — day of month that begins a new fiscal period (default: 1st)
 - **Start Page** — which page loads first: dashboard or table view
 - **Recurring Transactions** — manage recurring income and expense templates

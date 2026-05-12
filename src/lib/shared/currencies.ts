@@ -15,7 +15,11 @@ export const CURRENCIES = [
   { code: 'HUF', label: 'HUF — Hungarian Forint' },
   { code: 'BRL', label: 'BRL — Brazilian Real' },
   { code: 'INR', label: 'INR — Indian Rupee' },
+  { code: 'MVR', label: 'MVR — Maldivian Rufiyaa' },
   { code: 'MXN', label: 'MXN — Mexican Peso' },
   { code: 'SGD', label: 'SGD — Singapore Dollar' },
   { code: 'NZD', label: 'NZD — New Zealand Dollar' },
+  { code: 'PKR', label: 'PKR — Pakistani Rupee' },
+  { code: 'RON', label: 'RON — Romanian Leu' },
+  { code: 'SAR', label: 'SAR — Saudi Riyal' },
 ] as const

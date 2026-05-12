@@ -1,6 +1,10 @@
 import { createServerFn } from '@tanstack/react-start'
 import { z } from 'zod'
+import { logger } from '@/lib/logging'
+import { createExchangeProvider } from '@/lib/server/exchange'
 import { storage } from '@/lib/server/storage'
+
+const log = logger.named('exchange')
 
 export const resolveExchangeRate = createServerFn({ method: 'POST' })
   .inputValidator(
@@ -17,19 +21,24 @@ export const resolveExchangeRate = createServerFn({ method: 'POST' })
     const entry = cached.find((r) => r.date === date)
     if (entry?.rates[from]?.[to] !== undefined) return entry.rates[from][to]
 
-    const res = await fetch(`https://api.frankfurter.app/${date}?base=${from}&symbols=${to}`)
-    if (!res.ok) throw new Error(`Exchange rate fetch failed: ${res.status}`)
-    const json = (await res.json()) as { base: string; date: string; rates: Record<string, number> }
+    const config = await storage.getConfig()
+    const provider = createExchangeProvider(config)
+    let rate: number
+    try {
+      rate = await provider.fetchRate(date, from, to)
+    } catch (err) {
+      log.error(`Failed to fetch rate ${from}→${to} on ${date}`, {
+        provider: config.exchangeProvider,
+        error: err instanceof Error ? err.message : String(err),
+      })
+      throw err
+    }
 
-    const rate = json.rates[to]
-    if (rate === undefined) throw new Error(`No rate for ${from}→${to} on ${date}`)
-
-    // Upsert into single entry per effective date
-    const existing = cached.find((r) => r.date === json.date)
+    const existing = cached.find((r) => r.date === date)
     if (existing) {
       existing.rates[from] = { ...existing.rates[from], [to]: rate }
     } else {
-      cached.push({ date: json.date, rates: { [from]: { [to]: rate } } })
+      cached.push({ date, rates: { [from]: { [to]: rate } } })
     }
     await storage.saveExchangeRates(cached)
 

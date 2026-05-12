@@ -10,6 +10,7 @@ const DEFAULT_CONFIG: Config = {
   startDate: 1,
   supportedCurrencies: [],
   startPage: 'dashboard',
+  exchangeProvider: 'frankfurter',
 }
 
 export class JsonAdapter implements StorageAdapter {
@@ -67,6 +68,8 @@ export class JsonAdapter implements StorageAdapter {
       startDate: stored.startDate ?? DEFAULT_CONFIG.startDate,
       supportedCurrencies: stored.supportedCurrencies ?? [],
       startPage: stored.startPage ?? DEFAULT_CONFIG.startPage,
+      exchangeProvider: stored.exchangeProvider ?? DEFAULT_CONFIG.exchangeProvider,
+      exchangeApiKey: stored.exchangeApiKey,
     }
 
     if (needsWrite) await this.saveConfig(config)
