@@ -4,6 +4,7 @@ import { toast } from 'sonner'
 import { AppLayout } from '@/components/layout/app-layout'
 import { CategoryList } from '@/components/settings/category-list'
 import { CurrencySelector } from '@/components/settings/currency-selector'
+import { ExchangeProviderSelector } from '@/components/settings/exchange-provider-selector'
 import { ImportDialog } from '@/components/settings/import-dialog'
 import { RecurringList } from '@/components/settings/recurring-list'
 import { SupportedCurrenciesSelector } from '@/components/settings/supported-currencies-selector'
@@ -51,6 +52,15 @@ function SettingsPage() {
       toast.success('Currency updated')
     } catch {
       toast.error('Failed to update currency')
+    }
+  }
+
+  async function handleExchangeProviderChange(exchangeProvider: string, exchangeApiKey?: string) {
+    try {
+      await updateConfig.mutateAsync({ ...currentConfig, exchangeProvider, exchangeApiKey })
+      toast.success('Exchange provider updated')
+    } catch {
+      toast.error('Failed to update exchange provider')
     }
   }
 
@@ -145,6 +155,18 @@ function SettingsPage() {
             </CardHeader>
             <CardContent>
               <CurrencySelector value={config.currency} onChange={handleCurrencyChange} />
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader>
+              <CardTitle>Exchange Rate Provider</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <ExchangeProviderSelector
+                apiKey={config.exchangeApiKey}
+                provider={config.exchangeProvider}
+                onChange={handleExchangeProviderChange}
+              />
             </CardContent>
           </Card>
           <Card>

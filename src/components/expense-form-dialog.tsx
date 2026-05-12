@@ -141,8 +141,10 @@ export function ExpenseFormDialog({ open, onClose, categories, currency, support
         toast.success('Expense added')
       }
       handleClose()
-    } catch {
-      toast.error(isEdit ? 'Failed to update expense' : 'Failed to add expense')
+    } catch (err) {
+      const message = err instanceof Error ? err.message : ''
+      const isProviderError = message.includes('does not support') || message.includes('key is not configured')
+      toast.error(isProviderError ? message : isEdit ? 'Failed to update expense' : 'Failed to add expense')
     }
   }
 
