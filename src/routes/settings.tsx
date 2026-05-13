@@ -265,25 +265,25 @@ function SettingsPage() {
                     </div>
                   </CardContent>
                 </Card>
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Display</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-between gap-3">
+                        <Label htmlFor="show-tags">Show tags</Label>
+                        <Switch checked={config.showTags} id="show-tags" onCheckedChange={handleShowTagsChange} />
+                      </div>
+                      <div className="flex items-center justify-between gap-3">
+                        <Label htmlFor="show-notes">Show notes</Label>
+                        <Switch checked={config.showNotes} id="show-notes" onCheckedChange={handleShowNotesChange} />
+                      </div>
+                    </div>
+                    <p className="mt-2 text-muted-foreground text-xs">Hide tags or notes from forms and tables</p>
+                  </CardContent>
+                </Card>
               </div>
-              <Card>
-                <CardHeader>
-                  <CardTitle>Display</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-3">
-                    <div className="flex items-center justify-between gap-3">
-                      <Label htmlFor="show-tags">Show tags</Label>
-                      <Switch checked={config.showTags} id="show-tags" onCheckedChange={handleShowTagsChange} />
-                    </div>
-                    <div className="flex items-center justify-between gap-3">
-                      <Label htmlFor="show-notes">Show notes</Label>
-                      <Switch checked={config.showNotes} id="show-notes" onCheckedChange={handleShowNotesChange} />
-                    </div>
-                  </div>
-                  <p className="mt-2 text-muted-foreground text-xs">Hide tags or notes from forms and tables</p>
-                </CardContent>
-              </Card>
               <Card>
                 <CardHeader>
                   <CardTitle>Additional Currencies</CardTitle>
