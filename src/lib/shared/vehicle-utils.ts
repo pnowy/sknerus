@@ -1,3 +1,4 @@
+import { addMonths, format, parseISO } from 'date-fns'
 import type { Expense } from './types/expense'
 import type { Vehicle } from './types/vehicle'
 import { VehicleExpenseType } from './types/vehicle'
@@ -40,7 +41,8 @@ function calcFuelStats(vehicle: Vehicle, expenses: Array<Expense>): FuelStats | 
   const distance = (latestEntry.vehicleExpense?.odometerReading ?? 0) - baselineDistance
   if (distance <= 0) return null
 
-  const consumption = Math.round((burned / distance) * 100 * 100) / 100
+  const litersPer100km = (burned / distance) * 100
+  const consumption = Math.round(litersPer100km * 100) / 100
   return { burned: Math.round(burned * 100) / 100, distance, consumption }
 }
 
@@ -68,9 +70,7 @@ export function nextOilChangeDate(vehicle: Vehicle, expenses: Array<Expense>): s
   if (!vehicle.oilChangeIntervalMonths) return null
   const latest = latestOilChange(vehicle, expenses)
   if (!latest) return null
-  const d = new Date(latest.date)
-  d.setMonth(d.getMonth() + vehicle.oilChangeIntervalMonths)
-  return d.toISOString().slice(0, 10)
+  return format(addMonths(parseISO(latest.date), vehicle.oilChangeIntervalMonths), 'yyyy-MM-dd')
 }
 
 export type VehicleSpendWeekRow = { week: string } & Partial<Record<VehicleExpenseType, number>>
