@@ -196,6 +196,8 @@ export function generateDemoData(): { config: Config; expenses: Array<Expense> }
       supportedCurrencies: [],
       startPage: 'dashboard',
       exchangeProvider: 'frankfurter',
+      showTags: true,
+      showNotes: true,
     },
     expenses,
   }
