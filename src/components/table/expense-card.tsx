@@ -1,4 +1,5 @@
 import { Copy, MoreHorizontal, Pencil, Repeat, Trash2 } from 'lucide-react'
+import { NoteIndicator } from '@/components/note-indicator'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
@@ -9,12 +10,14 @@ import { cn } from '@/lib/utils'
 type Props = {
   expense: Expense
   categories: Array<Category>
+  showTags: boolean
+  showNotes: boolean
   onEdit: (e: Expense) => void
   onDuplicate: (e: Expense) => void
   onDelete: (id: string) => void
 }
 
-export function ExpenseCard({ expense, categories, onEdit, onDuplicate, onDelete }: Props) {
+export function ExpenseCard({ expense, categories, showTags, showNotes, onEdit, onDuplicate, onDelete }: Props) {
   const category = categories.find((c) => c.id === expense.categoryId)
   const categoryName = category?.name ?? expense.categoryId
 
@@ -24,6 +27,7 @@ export function ExpenseCard({ expense, categories, onEdit, onDuplicate, onDelete
         <span className="flex items-center gap-1.5 font-medium text-sm">
           {expense.name}
           {expense.recurringId && <Repeat aria-label="Recurring" className="size-3 shrink-0 text-muted-foreground" />}
+          {showNotes && expense.notes && <NoteIndicator notes={expense.notes} />}
         </span>
         <span className="flex flex-col items-end">
           <span className={cn('font-medium text-sm tabular-nums', expense.amount > 0 ? 'text-emerald-600 dark:text-emerald-400' : '')}>
@@ -65,7 +69,7 @@ export function ExpenseCard({ expense, categories, onEdit, onDuplicate, onDelete
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
-      {expense.tags.length > 0 && (
+      {showTags && expense.tags.length > 0 && (
         <div className="mt-1.5 flex flex-wrap gap-1">
           {expense.tags.map((t) => (
             <Badge key={t} variant="secondary" className="text-xs">

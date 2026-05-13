@@ -7,6 +7,7 @@ export type Expense = {
   categoryId: string
   date: string
   tags: Array<string>
+  notes?: string
   recurringId?: string
   originalAmount?: number
   originalCurrency?: string
@@ -20,6 +21,7 @@ export type RecurringExpense = {
   currency: string
   categoryId: string
   tags: Array<string>
+  notes?: string
   frequency: 'daily' | 'weekly' | 'monthly' | 'yearly'
   dayOfMonth?: number
   dayOfWeek?: number
@@ -42,6 +44,8 @@ export type Config = {
   startPage: string
   exchangeProvider: string
   exchangeApiKey?: string
+  showTags: boolean
+  showNotes: boolean
 }
 
 type CurrencyCode = string

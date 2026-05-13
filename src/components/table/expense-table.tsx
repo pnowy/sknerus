@@ -5,6 +5,7 @@ import { ExpenseRow } from '@/components/table/expense-row'
 import { Button } from '@/components/ui/button'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Table, TableBody, TableHead, TableHeader, TableRow } from '@/components/ui/table'
+import { useConfig } from '@/hooks/use-expenses'
 import type { Category, Expense } from '@/lib/shared/types/expense'
 
 type SortField = 'name' | 'category' | 'amount' | 'date'
@@ -28,7 +29,10 @@ type Props = {
 export function ExpenseTable({ expenses, categories, onEdit, onDuplicate, onDelete }: Props) {
   const [sortField, setSortField] = useState<SortField>('date')
   const [sortDir, setSortDir] = useState<SortDir>('desc')
-  const hasTags = expenses.some((e) => e.tags.length > 0)
+  const { data: config } = useConfig()
+  const showTags = config?.showTags ?? true
+  const showNotes = config?.showNotes ?? true
+  const hasTags = showTags && expenses.some((e) => e.tags.length > 0)
   const catNameMap = new Map(categories.map((c) => [c.id, c.name]))
 
   function toggleSort(field: SortField) {
@@ -83,6 +87,8 @@ export function ExpenseTable({ expenses, categories, onEdit, onDuplicate, onDele
             key={expense.id}
             categories={categories}
             expense={expense}
+            showTags={showTags}
+            showNotes={showNotes}
             onDelete={onDelete}
             onDuplicate={onDuplicate}
             onEdit={onEdit}
@@ -117,6 +123,7 @@ export function ExpenseTable({ expenses, categories, onEdit, onDuplicate, onDele
                 categories={categories}
                 expense={expense}
                 hasTags={hasTags}
+                showNotes={showNotes}
                 onDelete={onDelete}
                 onDuplicate={onDuplicate}
                 onEdit={onEdit}

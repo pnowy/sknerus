@@ -12,6 +12,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { Switch } from '@/components/ui/switch'
 import { useConfig, useExpenses, useRenameCategory, useUpdateConfig } from '@/hooks/use-expenses'
 import { getConfig } from '@/lib/server/functions/config'
 import { createExpense, getExpenses } from '@/lib/server/functions/expenses'
@@ -79,6 +80,24 @@ function SettingsPage() {
       toast.success('Start page updated')
     } catch {
       toast.error('Failed to update start page')
+    }
+  }
+
+  async function handleShowTagsChange(showTags: boolean) {
+    try {
+      await updateConfig.mutateAsync({ ...currentConfig, showTags })
+      toast.success(showTags ? 'Tags enabled' : 'Tags hidden')
+    } catch {
+      toast.error('Failed to update tags visibility')
+    }
+  }
+
+  async function handleShowNotesChange(showNotes: boolean) {
+    try {
+      await updateConfig.mutateAsync({ ...currentConfig, showNotes })
+      toast.success(showNotes ? 'Notes enabled' : 'Notes hidden')
+    } catch {
+      toast.error('Failed to update notes visibility')
     }
   }
 
@@ -224,6 +243,24 @@ function SettingsPage() {
                   </SelectContent>
                 </Select>
               </div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader>
+              <CardTitle>Display</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-3">
+                <div className="flex items-center justify-between gap-3">
+                  <Label htmlFor="show-tags">Show tags</Label>
+                  <Switch checked={config.showTags} id="show-tags" onCheckedChange={handleShowTagsChange} />
+                </div>
+                <div className="flex items-center justify-between gap-3">
+                  <Label htmlFor="show-notes">Show notes</Label>
+                  <Switch checked={config.showNotes} id="show-notes" onCheckedChange={handleShowNotesChange} />
+                </div>
+              </div>
+              <p className="mt-2 text-muted-foreground text-xs">Hide tags or notes from forms and tables</p>
             </CardContent>
           </Card>
         </div>

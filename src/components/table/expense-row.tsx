@@ -1,4 +1,5 @@
 import { Copy, Pencil, Repeat, Trash2 } from 'lucide-react'
+import { NoteIndicator } from '@/components/note-indicator'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { TableCell, TableRow } from '@/components/ui/table'
@@ -10,12 +11,13 @@ type Props = {
   expense: Expense
   categories: Array<Category>
   hasTags: boolean
+  showNotes: boolean
   onEdit: (e: Expense) => void
   onDuplicate: (e: Expense) => void
   onDelete: (id: string) => void
 }
 
-export function ExpenseRow({ expense, categories, hasTags, onEdit, onDuplicate, onDelete }: Props) {
+export function ExpenseRow({ expense, categories, hasTags, showNotes, onEdit, onDuplicate, onDelete }: Props) {
   const categoryName = categories.find((c) => c.id === expense.categoryId)?.name ?? expense.categoryId
 
   return (
@@ -24,6 +26,7 @@ export function ExpenseRow({ expense, categories, hasTags, onEdit, onDuplicate, 
         <span className="flex items-center gap-1.5">
           {expense.name}
           {expense.recurringId && <Repeat aria-label="Recurring" className="size-3 shrink-0 text-muted-foreground" />}
+          {showNotes && expense.notes && <NoteIndicator notes={expense.notes} />}
         </span>
       </TableCell>
       <TableCell>{categoryName}</TableCell>

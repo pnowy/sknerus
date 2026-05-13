@@ -6,8 +6,17 @@ import type { Category, Expense } from './types/expense'
 export function exportToCSV(expenses: Array<Expense>, categories: Array<Category>): void {
   const catMap = new Map(categories.map((c) => [c.id, c.name]))
   const csv = Papa.unparse({
-    fields: ['id', 'name', 'amount', 'currency', 'category', 'date', 'tags'],
-    data: expenses.map((e) => [e.id, e.name, e.amount, e.currency, catMap.get(e.categoryId) ?? e.categoryId, e.date, e.tags.join(';')]),
+    fields: ['id', 'name', 'amount', 'currency', 'category', 'date', 'tags', 'notes'],
+    data: expenses.map((e) => [
+      e.id,
+      e.name,
+      e.amount,
+      e.currency,
+      catMap.get(e.categoryId) ?? e.categoryId,
+      e.date,
+      e.tags.join(';'),
+      e.notes ?? '',
+    ]),
   })
   const blob = new Blob([csv], { type: 'text/csv' })
   const url = URL.createObjectURL(blob)
@@ -38,7 +47,7 @@ export function parseCSV(csv: string, categories: Array<Category>, defaultCurren
     return id
   }
 
-  type CsvRow = { name?: string; amount?: string; category?: string; date?: string; tags?: string }
+  type CsvRow = { name?: string; amount?: string; category?: string; date?: string; tags?: string; notes?: string }
 
   const { data } = Papa.parse<CsvRow>(csv, {
     header: true,
@@ -48,6 +57,7 @@ export function parseCSV(csv: string, categories: Array<Category>, defaultCurren
 
   const expenses = data.map((row) => {
     const tagsRaw = row.tags ?? ''
+    const notes = row.notes?.trim()
     return {
       name: row.name ?? '',
       amount: Number(row.amount || 0),
@@ -55,6 +65,7 @@ export function parseCSV(csv: string, categories: Array<Category>, defaultCurren
       categoryId: resolveCategoryId(row.category ?? ''),
       date: (row.date ?? '').slice(0, 10),
       tags: tagsRaw ? tagsRaw.split(';').filter(Boolean) : [],
+      notes: notes ? notes : undefined,
     }
   })
 

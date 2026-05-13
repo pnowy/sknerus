@@ -7,6 +7,7 @@ export const expenseSchema = z.object({
   categoryId: z.string().min(1, 'Category is required'),
   date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Invalid date'),
   tags: z.array(z.string()),
+  notes: z.string().optional(),
   originalAmount: z.number().optional(),
   originalCurrency: z.string().optional(),
 })
@@ -31,6 +32,8 @@ export const configSchema = z.object({
   startPage: z.string().default('dashboard'),
   exchangeProvider: z.string().default('frankfurter'),
   exchangeApiKey: z.string().optional(),
+  showTags: z.boolean().default(true),
+  showNotes: z.boolean().default(true),
 })
 
 export const recurringExpenseSchema = z.object({
@@ -40,6 +43,7 @@ export const recurringExpenseSchema = z.object({
   currency: z.string().min(1),
   categoryId: z.string().min(1, 'Category is required'),
   tags: z.array(z.string()),
+  notes: z.string().optional(),
   frequency: z.enum(['daily', 'weekly', 'monthly', 'yearly']),
   dayOfMonth: z.number().int().min(1).max(31).optional(),
   dayOfWeek: z.number().int().min(0).max(6).optional(),

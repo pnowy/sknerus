@@ -8,7 +8,8 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Switch } from '@/components/ui/switch'
-import { useCreateRecurring, useUpdateRecurring } from '@/hooks/use-expenses'
+import { Textarea } from '@/components/ui/textarea'
+import { useConfig, useCreateRecurring, useUpdateRecurring } from '@/hooks/use-expenses'
 import { type RecurringFormInput, recurringFormSchema } from '@/lib/schemas'
 import { todayISO } from '@/lib/shared/date-utils'
 import type { Category, RecurringExpense } from '@/lib/shared/types/expense'
@@ -29,6 +30,9 @@ export function RecurringFormDialog({ categories, currency, allTags, recurring, 
   const isEdit = !!recurring
   const create = useCreateRecurring()
   const update = useUpdateRecurring()
+  const { data: config } = useConfig()
+  const showTags = config?.showTags ?? true
+  const showNotes = config?.showNotes ?? true
 
   const {
     register,
@@ -46,6 +50,7 @@ export function RecurringFormDialog({ categories, currency, allTags, recurring, 
           currency: recurring.currency,
           categoryId: recurring.categoryId,
           tags: recurring.tags,
+          notes: recurring.notes ?? '',
           frequency: recurring.frequency,
           dayOfMonth: recurring.dayOfMonth ?? 1,
           dayOfWeek: recurring.dayOfWeek ?? 1,
@@ -60,6 +65,7 @@ export function RecurringFormDialog({ categories, currency, allTags, recurring, 
           currency,
           categoryId: categories[0]?.id ?? '',
           tags: [],
+          notes: '',
           frequency: 'monthly' as const,
           dayOfMonth: 1,
           dayOfWeek: 1,
@@ -74,8 +80,10 @@ export function RecurringFormDialog({ categories, currency, allTags, recurring, 
 
   async function onSubmit({ isIncome, amount, endDate, ...rest }: RecurringFormInput) {
     const signedAmount = isIncome ? Math.abs(amount) : -Math.abs(amount)
+    const trimmedNotes = rest.notes?.trim()
     const data = {
       ...rest,
+      notes: trimmedNotes ? trimmedNotes : undefined,
       amount: signedAmount,
       endDate: endDate || undefined,
       dayOfMonth: rest.frequency === 'weekly' ? undefined : rest.dayOfMonth,
@@ -236,14 +244,22 @@ export function RecurringFormDialog({ categories, currency, allTags, recurring, 
               <Input id="rec-end" type="date" {...register('endDate')} />
             </div>
           </div>
-          <div className="space-y-1">
-            <Label>Tags</Label>
-            <Controller
-              control={control}
-              name="tags"
-              render={({ field }) => <TagInput suggestions={allTags} value={field.value} onChange={field.onChange} />}
-            />
-          </div>
+          {showTags && (
+            <div className="space-y-1">
+              <Label>Tags</Label>
+              <Controller
+                control={control}
+                name="tags"
+                render={({ field }) => <TagInput suggestions={allTags} value={field.value} onChange={field.onChange} />}
+              />
+            </div>
+          )}
+          {showNotes && (
+            <div className="space-y-1">
+              <Label htmlFor="rec-notes">Notes</Label>
+              <Textarea id="rec-notes" placeholder="Optional notes" rows={3} {...register('notes')} />
+            </div>
+          )}
           <div className="flex items-center gap-2">
             <Controller
               control={control}
