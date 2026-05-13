@@ -60,9 +60,11 @@ function TablePage() {
   }
 
   const currency = config?.currency ?? 'USD'
+  const vehicleTrackingEnabled = config?.features?.vehicleExpenseTracking
   const tableProps = {
     categories: config?.categories ?? [],
     expenses: displayedExpenses,
+    vehicles: vehicleTrackingEnabled ? vehicles : undefined,
     onEdit: setEditingExpense,
     onDuplicate: setDuplicatingExpense,
     onDelete: handleDelete,
@@ -127,7 +129,7 @@ function TablePage() {
         supportedCurrencies={config?.supportedCurrencies ?? []}
         expense={editingExpense ?? undefined}
         template={duplicatingExpense ?? undefined}
-        vehicles={config?.features?.vehicleExpenseTracking ? vehicles : undefined}
+        vehicles={vehicleTrackingEnabled ? vehicles : undefined}
         open={addOpen || !!editingExpense || !!duplicatingExpense}
         onClose={() => {
           setAddOpen(false)
