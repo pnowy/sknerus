@@ -9,7 +9,45 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useCreateVehicle, useUpdateVehicle } from '@/hooks/use-vehicles'
 import { type VehicleFormInput, vehicleFormSchema } from '@/lib/schemas'
 import type { Vehicle } from '@/lib/shared/types/vehicle'
-import { FuelType, VehicleExpenseType, VehicleType } from '@/lib/shared/types/vehicle'
+import { FuelType, VEHICLE_EXPENSE_TYPE_LABELS, type VehicleExpenseType, VehicleType } from '@/lib/shared/types/vehicle'
+import {
+  DEFAULT_EXPENSE_TYPE_COLOR,
+  DEFAULT_EXPENSE_TYPE_ICON,
+  getExpenseTypeIcon,
+  VEHICLE_EXPENSE_ICON_OPTIONS,
+} from '@/lib/shared/vehicle-icons'
+
+const EXPENSE_TYPE_ENTRIES = Object.entries(VEHICLE_EXPENSE_TYPE_LABELS) as Array<[VehicleExpenseType, string]>
+
+function buildDefaultNames(vehicle?: Vehicle): Record<VehicleExpenseType, string> {
+  return EXPENSE_TYPE_ENTRIES.reduce(
+    (acc, [type]) => {
+      acc[type] = vehicle?.expenseTypeNames?.[type] ?? ''
+      return acc
+    },
+    {} as Record<VehicleExpenseType, string>
+  )
+}
+
+function buildDefaultIcons(vehicle?: Vehicle): Record<VehicleExpenseType, string> {
+  return EXPENSE_TYPE_ENTRIES.reduce(
+    (acc, [type]) => {
+      acc[type] = vehicle?.expenseTypeIcons?.[type] ?? DEFAULT_EXPENSE_TYPE_ICON[type] ?? ''
+      return acc
+    },
+    {} as Record<VehicleExpenseType, string>
+  )
+}
+
+function buildDefaultColors(vehicle?: Vehicle): Record<VehicleExpenseType, string> {
+  return EXPENSE_TYPE_ENTRIES.reduce(
+    (acc, [type]) => {
+      acc[type] = vehicle?.expenseTypeColors?.[type] ?? DEFAULT_EXPENSE_TYPE_COLOR[type]
+      return acc
+    },
+    {} as Record<VehicleExpenseType, string>
+  )
+}
 
 type Props = {
   vehicle?: Vehicle
@@ -41,7 +79,11 @@ export function VehicleFormDialog({ vehicle, onClose }: Props) {
           fuelType: vehicle.fuelType,
           insuranceExpiry: vehicle.insuranceExpiry ?? '',
           technicalInspectionExpiry: vehicle.technicalInspectionExpiry ?? '',
-          expenseTypeNames: { [VehicleExpenseType.Fuel]: vehicle.expenseTypeNames?.[VehicleExpenseType.Fuel] ?? '' },
+          oilChangeIntervalKm: vehicle.oilChangeIntervalKm,
+          oilChangeIntervalMonths: vehicle.oilChangeIntervalMonths,
+          expenseTypeNames: buildDefaultNames(vehicle),
+          expenseTypeIcons: buildDefaultIcons(vehicle),
+          expenseTypeColors: buildDefaultColors(vehicle),
         }
       : {
           name: '',
@@ -53,17 +95,35 @@ export function VehicleFormDialog({ vehicle, onClose }: Props) {
           fuelType: FuelType.Gasoline,
           insuranceExpiry: '',
           technicalInspectionExpiry: '',
-          expenseTypeNames: { [VehicleExpenseType.Fuel]: '' },
+          oilChangeIntervalKm: undefined,
+          oilChangeIntervalMonths: undefined,
+          expenseTypeNames: buildDefaultNames(),
+          expenseTypeIcons: buildDefaultIcons(),
+          expenseTypeColors: buildDefaultColors(),
         },
   })
 
   async function onSubmit(data: VehicleFormInput) {
-    const fuelName = data.expenseTypeNames?.[VehicleExpenseType.Fuel] || undefined
+    const names: Partial<Record<VehicleExpenseType, string>> = {}
+    const icons: Partial<Record<VehicleExpenseType, string>> = {}
+    const colors: Partial<Record<VehicleExpenseType, string>> = {}
+    for (const [type] of EXPENSE_TYPE_ENTRIES) {
+      const n = data.expenseTypeNames?.[type]
+      if (n) names[type] = n
+      const i = data.expenseTypeIcons?.[type]
+      if (i) icons[type] = i
+      const c = data.expenseTypeColors?.[type]
+      if (c && c !== DEFAULT_EXPENSE_TYPE_COLOR[type]) colors[type] = c
+    }
     const payload = {
       ...data,
       insuranceExpiry: data.insuranceExpiry || undefined,
       technicalInspectionExpiry: data.technicalInspectionExpiry || undefined,
-      expenseTypeNames: fuelName ? { [VehicleExpenseType.Fuel]: fuelName } : undefined,
+      oilChangeIntervalKm: data.oilChangeIntervalKm || undefined,
+      oilChangeIntervalMonths: data.oilChangeIntervalMonths || undefined,
+      expenseTypeNames: Object.keys(names).length > 0 ? names : undefined,
+      expenseTypeIcons: Object.keys(icons).length > 0 ? icons : undefined,
+      expenseTypeColors: Object.keys(colors).length > 0 ? colors : undefined,
     }
     try {
       if (isEdit && vehicle) {
@@ -169,15 +229,91 @@ export function VehicleFormDialog({ vehicle, onClose }: Props) {
               <Label htmlFor="veh-inspection">Technical inspection expiry (optional)</Label>
               <Input id="veh-inspection" type="date" {...register('technicalInspectionExpiry')} />
             </div>
+            <div className="space-y-1">
+              <Label htmlFor="veh-oil-km">Oil change interval (km, optional)</Label>
+              <Input
+                id="veh-oil-km"
+                min="1"
+                step="1"
+                type="number"
+                placeholder="e.g. 6000"
+                {...register('oilChangeIntervalKm', {
+                  setValueAs: (v) => (v === '' || v === null || Number.isNaN(Number(v)) ? undefined : Number(v)),
+                })}
+              />
+              {errors.oilChangeIntervalKm && <p className="text-destructive text-xs">{errors.oilChangeIntervalKm.message}</p>}
+            </div>
+            <div className="space-y-1">
+              <Label htmlFor="veh-oil-months">Oil change interval (months, optional)</Label>
+              <Input
+                id="veh-oil-months"
+                min="1"
+                step="1"
+                type="number"
+                placeholder="e.g. 12"
+                {...register('oilChangeIntervalMonths', {
+                  setValueAs: (v) => (v === '' || v === null || Number.isNaN(Number(v)) ? undefined : Number(v)),
+                })}
+              />
+              {errors.oilChangeIntervalMonths && <p className="text-destructive text-xs">{errors.oilChangeIntervalMonths.message}</p>}
+            </div>
           </div>
           <div className="space-y-2">
             <Label>Expense type names</Label>
-            <p className="text-muted-foreground text-xs">Auto-fills the expense name when you select a vehicle expense type.</p>
-            <div className="rounded-lg border">
-              <div className="flex items-center gap-3 px-3 py-2">
-                <span className="w-24 shrink-0 text-sm">Fuel</span>
-                <Input className="h-7 text-sm" placeholder="e.g. Paliwo, Fuel, Benzin…" {...register('expenseTypeNames.fuel')} />
-              </div>
+            <p className="text-muted-foreground text-xs">
+              Auto-fills the expense name when you select a vehicle expense type. The icon is shown in the transaction list.
+            </p>
+            <div className="divide-y rounded-lg border">
+              {EXPENSE_TYPE_ENTRIES.map(([type, label]) => (
+                <div key={type} className="flex items-center gap-3 px-3 py-2">
+                  <span className="w-32 shrink-0 text-sm">{label}</span>
+                  <Input className="h-7 flex-1 text-sm" placeholder={`e.g. ${label}…`} {...register(`expenseTypeNames.${type}`)} />
+                  <Controller
+                    control={control}
+                    name={`expenseTypeColors.${type}`}
+                    render={({ field }) => (
+                      <label
+                        className="relative size-7 shrink-0 cursor-pointer rounded-full border-2 border-black/20 transition-transform hover:scale-110 dark:border-white/20"
+                        style={{ backgroundColor: field.value || DEFAULT_EXPENSE_TYPE_COLOR[type] }}
+                        aria-label={`Color for ${label}`}
+                      >
+                        <input
+                          className="sr-only"
+                          type="color"
+                          value={field.value || DEFAULT_EXPENSE_TYPE_COLOR[type]}
+                          onChange={(e) => field.onChange(e.target.value)}
+                        />
+                      </label>
+                    )}
+                  />
+                  <Controller
+                    control={control}
+                    name={`expenseTypeIcons.${type}`}
+                    render={({ field }) => (
+                      <Select value={field.value ?? ''} onValueChange={field.onChange}>
+                        <SelectTrigger size="sm" className="shrink-0" aria-label="Icon">
+                          <SelectValue>
+                            {(v: string) => {
+                              const ValueIcon = getExpenseTypeIcon(v)
+                              return ValueIcon ? <ValueIcon className="size-4" /> : null
+                            }}
+                          </SelectValue>
+                        </SelectTrigger>
+                        <SelectContent>
+                          {VEHICLE_EXPENSE_ICON_OPTIONS.map((o) => {
+                            const OptionIcon = getExpenseTypeIcon(o.value)
+                            return (
+                              <SelectItem key={o.value} value={o.value} aria-label={o.label}>
+                                {OptionIcon && <OptionIcon className="size-4" />}
+                              </SelectItem>
+                            )
+                          })}
+                        </SelectContent>
+                      </Select>
+                    )}
+                  />
+                </div>
+              ))}
             </div>
           </div>
         </form>
