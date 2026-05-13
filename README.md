@@ -46,7 +46,8 @@ It is still *not* a budgeting app. No accounts, no complex budgets, no bank sync
 
 ### Core Functionality
 
-- Add income and expenses with category, date, amount, currency, and optional tags
+- Add income and expenses with category, date, amount, currency, optional tags, and free-text notes
+- Toggle tags and notes on or off globally from Settings — disabled fields disappear from forms, tables, and cards if you don't use them
 - Custom categories with color coding — reorder, rename, or remove them at any time
 - Recurring transactions — define a template once, the app materializes entries automatically up to today
 - Multi-currency support: record transactions in any currency, configure supported currencies, and exchange rates are resolved and cached automatically. Two providers available: [Frankfurter](https://www.frankfurter.app/) (31 currencies, no key needed) and [ExchangeRate-API](https://www.exchangerate-api.com/) (165 currencies, free API key required)
@@ -79,6 +80,7 @@ All dashboard views support flexible time-range navigation: switch between month
 - Add, rename, reorder, and delete categories (drag-and-drop ordering)
 - Set primary currency and a list of supported currencies for multi-currency entry
 - Configure fiscal month start date and default start page
+- Toggle visibility of tags and notes fields across the app
 - Manage recurring transactions (view, edit, delete templates)
 - Export and import all expenses
 
@@ -149,12 +151,12 @@ All configuration is done either via environment variables (infrastructure-level
 
 ### Environment Variables
 
-| Variable         | Default   | Description                                              |
-|------------------|-----------|----------------------------------------------------------|
-| `PORT`           | `3000`    | Port the server listens on                               |
-| `DATA_DIR`       | `.data`   | Directory where JSON data files are stored               |
-| `SEED_DEMO_DATA` | _(unset)_ | Set to `true` to seed demo data on first run (see below) |
-| `LOG_LEVEL`      | `info`    | Log verbosity: `debug`, `info`, `warn`, `error`          |
+| Variable                | Default   | Description                                                                                             |
+|-------------------------|-----------|---------------------------------------------------------------------------------------------------------|
+| `PORT`                  | `3000`    | Port the server listens on                                                                              |
+| `DATA_DIR`              | `.data`   | Directory where JSON data files are stored                                                              |
+| `SEED_DEMO_DATA`        | _(unset)_ | Set to `true` to seed demo data on first run (see below)                                                |
+| `LOG_LEVEL`             | `info`    | Log verbosity: `debug`, `info`, `warn`, `error`                                                         |
 | `EXCHANGE_RATE_API_KEY` | _(unset)_ | API key for [ExchangeRate-API](https://www.exchangerate-api.com/) (alternative to setting it in the UI) |
 
 ### In-App Settings
