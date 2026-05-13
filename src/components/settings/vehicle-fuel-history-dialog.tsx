@@ -91,7 +91,7 @@ export function VehicleFuelHistoryDialog({ vehicle, expenses, currency, onClose 
             <div className="flex justify-between text-sm">
               <span className="text-muted-foreground">
                 {fuelEntries.length} fill-ups · {totalLiters.toFixed(2)} L total
-                {currentTankEstimate != null && ` · ~${currentTankEstimate.toFixed(1)}L in tank`}
+                {currentTankEstimate != null && ` (~${currentTankEstimate.toFixed(1)}L still in tank ⛽︎)`}
               </span>
               <span className="font-medium">{formatCurrency(totalCost, currency)}</span>
             </div>
