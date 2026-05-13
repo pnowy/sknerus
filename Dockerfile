@@ -18,8 +18,14 @@ RUN pnpm install --frozen-lockfile
 # Copy application code
 COPY . .
 
-# Build application
-RUN pnpm build
+# Copy .git so we can resolve the build version
+COPY .git ./.git
+
+ARG APP_VERSION=""
+RUN APP_VERSION="${APP_VERSION:-$(git describe --tags --exact-match 2>/dev/null || git rev-parse --short HEAD 2>/dev/null || echo dev)}" && echo "APP_VERSION=${APP_VERSION}" > /tmp/app_version.env
+
+# Build application (APP_VERSION is read by vite.config.ts at build time)
+RUN set -a && . /tmp/app_version.env && set +a && pnpm run build
 
 FROM base
 

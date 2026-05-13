@@ -6,9 +6,11 @@ import { nitro } from 'nitro/vite'
 import { defineConfig } from 'vite'
 import viteTsConfigPaths from 'vite-tsconfig-paths'
 
+const appVersion = process.env.APP_VERSION || 'dev'
+
 const config = defineConfig({
-  server: {
-    allowedHosts: ['local.przemeknowak.com'],
+  define: {
+    __APP_VERSION__: JSON.stringify(appVersion),
   },
   plugins: [
     devtools(),
