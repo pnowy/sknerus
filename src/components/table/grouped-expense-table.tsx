@@ -9,7 +9,7 @@ import { useConfig } from '@/hooks/use-expenses'
 import { formatCurrency, formatDate } from '@/lib/shared/format'
 import type { Category, Expense } from '@/lib/shared/types/expense'
 import type { Vehicle } from '@/lib/shared/types/vehicle'
-import { DEFAULT_EXPENSE_TYPE_ICON, getExpenseTypeIcon } from '@/lib/shared/vehicle-icons'
+import { resolveVehicleExpenseIcon } from '@/lib/shared/vehicle-icons'
 import { cn } from '@/lib/utils'
 
 export const GROUP_SORT_OPTIONS = [
@@ -207,18 +207,15 @@ function GroupSection({
       </TableRow>
       {!isCollapsed &&
         group.expenses.map((expense) => {
-          const vehicle = expense.vehicleExpense ? vehicles?.find((v) => v.id === expense.vehicleExpense?.vehicleId) : undefined
-          const expenseType = expense.vehicleExpense?.expenseType
-          const VehicleIcon =
-            vehicle && expenseType
-              ? getExpenseTypeIcon(vehicle.expenseTypeIcons?.[expenseType] ?? DEFAULT_EXPENSE_TYPE_ICON[expenseType])
-              : null
+          const vehicleIcon = resolveVehicleExpenseIcon(expense, vehicles)
           return (
             <TableRow key={expense.id}>
               <TableCell className="pl-10 font-medium">
                 <span className="flex items-center gap-1.5">
                   {expense.name}
-                  {VehicleIcon && <VehicleIcon aria-label="Vehicle expense" className="size-3.5 shrink-0 text-muted-foreground" />}
+                  {vehicleIcon && (
+                    <vehicleIcon.Icon aria-label="Vehicle expense" className="size-3.5 shrink-0" style={{ color: vehicleIcon.color }} />
+                  )}
                   {expense.recurringId && <Repeat aria-label="Recurring" className="size-3 shrink-0 text-muted-foreground" />}
                   {showNotes && expense.notes && <NoteIndicator notes={expense.notes} />}
                 </span>
