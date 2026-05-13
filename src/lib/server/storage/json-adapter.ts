@@ -11,6 +11,8 @@ const DEFAULT_CONFIG: Config = {
   supportedCurrencies: [],
   startPage: 'dashboard',
   exchangeProvider: 'frankfurter',
+  showTags: true,
+  showNotes: true,
 }
 
 export class JsonAdapter implements StorageAdapter {
@@ -70,6 +72,8 @@ export class JsonAdapter implements StorageAdapter {
       startPage: stored.startPage ?? DEFAULT_CONFIG.startPage,
       exchangeProvider: stored.exchangeProvider ?? DEFAULT_CONFIG.exchangeProvider,
       exchangeApiKey: stored.exchangeApiKey,
+      showTags: stored.showTags ?? DEFAULT_CONFIG.showTags,
+      showNotes: stored.showNotes ?? DEFAULT_CONFIG.showNotes,
     }
 
     if (needsWrite) await this.saveConfig(config)

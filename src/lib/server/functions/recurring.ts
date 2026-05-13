@@ -55,6 +55,7 @@ export const materializeRecurring = createServerFn({ method: 'POST' }).handler(a
           currency: template.currency,
           categoryId: template.categoryId,
           tags: template.tags,
+          notes: template.notes,
           date,
           recurringId: template.id,
         })
