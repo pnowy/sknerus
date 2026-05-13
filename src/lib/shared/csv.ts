@@ -5,11 +5,10 @@ import type { Category, Expense } from './types/expense'
 
 export function exportToCSV(expenses: Array<Expense>, categories: Array<Category>): void {
   const catMap = new Map(categories.map((c) => [c.id, c.name]))
-  const header = 'id,name,amount,currency,category,date,tags'
-  const rows = expenses.map((e) =>
-    [e.id, e.name, e.amount, e.currency, catMap.get(e.categoryId) ?? e.categoryId, e.date, e.tags.join(';')].join(',')
-  )
-  const csv = [header, ...rows].join('\n')
+  const csv = Papa.unparse({
+    fields: ['id', 'name', 'amount', 'currency', 'category', 'date', 'tags'],
+    data: expenses.map((e) => [e.id, e.name, e.amount, e.currency, catMap.get(e.categoryId) ?? e.categoryId, e.date, e.tags.join(';')]),
+  })
   const blob = new Blob([csv], { type: 'text/csv' })
   const url = URL.createObjectURL(blob)
   const a = document.createElement('a')
