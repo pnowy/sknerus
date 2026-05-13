@@ -3,18 +3,30 @@ import { FuelType, VehicleExpenseType, VehicleType } from '@/lib/shared/types/ve
 
 const toZodEnum = <T extends string>(obj: Record<string, T>) => z.enum(Object.values(obj) as [T, ...Array<T>])
 
-const vehicleExpenseSchema = z.object({
-  vehicleId: z.string().min(1),
-  expenseType: toZodEnum(VehicleExpenseType),
-  fuelLiters: z.number().positive('Fuel liters must be positive'),
-  odometerReading: z.number().int().min(0).optional(),
-  fuelLevelPercent: z
-    .number()
-    .int()
-    .min(0)
-    .max(100)
-    .refine((v) => v % 5 === 0, 'Must be a multiple of 5'),
-})
+const vehicleExpenseSchema = z
+  .object({
+    vehicleId: z.string().min(1),
+    expenseType: toZodEnum(VehicleExpenseType),
+    fuelLiters: z.number().positive('Fuel liters must be positive').optional(),
+    odometerReading: z.number().int().min(0).optional(),
+    fuelLevelPercent: z
+      .number()
+      .int()
+      .min(0)
+      .max(100)
+      .refine((v) => v % 5 === 0, 'Must be a multiple of 5')
+      .optional(),
+  })
+  .superRefine((data, ctx) => {
+    if (data.expenseType === VehicleExpenseType.Fuel) {
+      if (data.fuelLiters == null) {
+        ctx.addIssue({ code: 'custom', path: ['fuelLiters'], message: 'Fuel liters is required' })
+      }
+      if (data.fuelLevelPercent == null) {
+        ctx.addIssue({ code: 'custom', path: ['fuelLevelPercent'], message: 'Fuel level is required' })
+      }
+    }
+  })
 
 export const expenseSchema = z.object({
   name: z.string().min(1, 'Name is required'),
@@ -103,7 +115,32 @@ export const vehicleSchema = z.object({
     .string()
     .regex(/^\d{4}-\d{2}-\d{2}$/, 'Invalid date')
     .optional(),
-  expenseTypeNames: z.record(toZodEnum(VehicleExpenseType), z.string()).optional(),
+  oilChangeIntervalKm: z.number().int().positive().optional(),
+  oilChangeIntervalMonths: z.number().int().positive().optional(),
+  expenseTypeNames: z
+    .object(
+      Object.fromEntries(Object.values(VehicleExpenseType).map((v) => [v, z.string().optional()])) as Record<
+        VehicleExpenseType,
+        z.ZodOptional<z.ZodString>
+      >
+    )
+    .optional(),
+  expenseTypeIcons: z
+    .object(
+      Object.fromEntries(Object.values(VehicleExpenseType).map((v) => [v, z.string().optional()])) as Record<
+        VehicleExpenseType,
+        z.ZodOptional<z.ZodString>
+      >
+    )
+    .optional(),
+  expenseTypeColors: z
+    .object(
+      Object.fromEntries(Object.values(VehicleExpenseType).map((v) => [v, z.string().optional()])) as Record<
+        VehicleExpenseType,
+        z.ZodOptional<z.ZodString>
+      >
+    )
+    .optional(),
 })
 
 export const vehicleFormSchema = vehicleSchema.omit({ id: true })
