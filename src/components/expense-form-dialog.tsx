@@ -9,7 +9,8 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Switch } from '@/components/ui/switch'
-import { useCreateExpense, useUpdateExpense } from '@/hooks/use-expenses'
+import { Textarea } from '@/components/ui/textarea'
+import { useConfig, useCreateExpense, useUpdateExpense } from '@/hooks/use-expenses'
 import { type ExpenseFormInput, expenseFormSchema } from '@/lib/schemas'
 import { resolveExchangeRate } from '@/lib/server/functions/exchange-rates'
 import { todayISO } from '@/lib/shared/date-utils'
@@ -39,6 +40,9 @@ export function ExpenseFormDialog({ open, onClose, categories, currency, support
   const isEdit = !!expense
   const createExpense = useCreateExpense()
   const updateExpense = useUpdateExpense()
+  const { data: config } = useConfig()
+  const showTags = config?.showTags ?? true
+  const showNotes = config?.showNotes ?? true
   const isPending = createExpense.isPending || updateExpense.isPending
 
   const availableCurrencies = [currency, ...supportedCurrencies]
@@ -62,6 +66,7 @@ export function ExpenseFormDialog({ open, onClose, categories, currency, support
           categoryId: expense.categoryId,
           date: expense.date,
           tags: expense.tags,
+          notes: expense.notes ?? '',
           isIncome: expense.amount > 0,
         }
       : template
@@ -72,6 +77,7 @@ export function ExpenseFormDialog({ open, onClose, categories, currency, support
             categoryId: template.categoryId,
             date: cloneDateFrom(template.date),
             tags: template.tags,
+            notes: template.notes ?? '',
             isIncome: template.amount > 0,
           }
         : {
@@ -81,6 +87,7 @@ export function ExpenseFormDialog({ open, onClose, categories, currency, support
             categoryId: categories[0]?.id ?? '',
             date: todayISO(),
             tags: [],
+            notes: '',
             isIncome: false,
           },
   })
@@ -131,7 +138,15 @@ export function ExpenseFormDialog({ open, onClose, categories, currency, support
         originalCurrency = selectedCurrency
       }
 
-      const payload = { ...rest, amount: finalAmount, currency, originalAmount, originalCurrency }
+      const trimmedNotes = rest.notes?.trim()
+      const payload = {
+        ...rest,
+        notes: trimmedNotes ? trimmedNotes : undefined,
+        amount: finalAmount,
+        currency,
+        originalAmount,
+        originalCurrency,
+      }
 
       if (isEdit && expense) {
         await updateExpense.mutateAsync({ ...payload, id: expense.id })
@@ -226,14 +241,22 @@ export function ExpenseFormDialog({ open, onClose, categories, currency, support
               <Input id="exp-date" type="date" {...register('date')} />
             </div>
           </div>
-          <div className="space-y-1">
-            <Label>Tags</Label>
-            <Controller
-              control={control}
-              name="tags"
-              render={({ field }) => <TagInput suggestions={allTags} value={field.value} onChange={field.onChange} />}
-            />
-          </div>
+          {showTags && (
+            <div className="space-y-1">
+              <Label>Tags</Label>
+              <Controller
+                control={control}
+                name="tags"
+                render={({ field }) => <TagInput suggestions={allTags} value={field.value} onChange={field.onChange} />}
+              />
+            </div>
+          )}
+          {showNotes && (
+            <div className="space-y-1">
+              <Label htmlFor="exp-notes">Notes</Label>
+              <Textarea id="exp-notes" placeholder="Optional notes" rows={3} {...register('notes')} />
+            </div>
+          )}
           <div className="flex items-center gap-2">
             <Controller
               control={control}

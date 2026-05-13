@@ -1,9 +1,11 @@
 import { ChevronDown, ChevronRight, Copy, Pencil, Repeat, Trash2 } from 'lucide-react'
 import { useMemo, useState } from 'react'
+import { NoteIndicator } from '@/components/note-indicator'
 import { ExpenseCard } from '@/components/table/expense-card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
+import { useConfig } from '@/hooks/use-expenses'
 import { formatCurrency, formatDate } from '@/lib/shared/format'
 import type { Category, Expense } from '@/lib/shared/types/expense'
 import { cn } from '@/lib/utils'
@@ -33,7 +35,10 @@ type CategoryGroup = {
 }
 
 export function GroupedExpenseTable({ expenses, categories, currency, groupSort, onEdit, onDuplicate, onDelete }: Props) {
-  const hasTags = expenses.some((e) => e.tags.length > 0)
+  const { data: config } = useConfig()
+  const showTags = config?.showTags ?? true
+  const showNotes = config?.showNotes ?? true
+  const hasTags = showTags && expenses.some((e) => e.tags.length > 0)
   const [collapsed, setCollapsed] = useState<Set<string>>(new Set())
 
   const groups = useMemo(() => {
@@ -99,6 +104,8 @@ export function GroupedExpenseTable({ expenses, categories, currency, groupSort,
                       key={expense.id}
                       categories={categories}
                       expense={expense}
+                      showTags={showTags}
+                      showNotes={showNotes}
                       onDelete={onDelete}
                       onDuplicate={onDuplicate}
                       onEdit={onEdit}
@@ -132,6 +139,7 @@ export function GroupedExpenseTable({ expenses, categories, currency, groupSort,
                   currency={currency}
                   group={group}
                   hasTags={hasTags}
+                  showNotes={showNotes}
                   isCollapsed={isCollapsed}
                   onDelete={onDelete}
                   onDuplicate={onDuplicate}
@@ -152,6 +160,7 @@ function GroupSection({
   colSpan,
   currency,
   hasTags,
+  showNotes,
   isCollapsed,
   onToggle,
   onEdit,
@@ -162,6 +171,7 @@ function GroupSection({
   colSpan: number
   currency: string
   hasTags: boolean
+  showNotes: boolean
   isCollapsed: boolean
   onToggle: () => void
   onEdit: (e: Expense) => void
@@ -195,6 +205,7 @@ function GroupSection({
               <span className="flex items-center gap-1.5">
                 {expense.name}
                 {expense.recurringId && <Repeat aria-label="Recurring" className="size-3 shrink-0 text-muted-foreground" />}
+                {showNotes && expense.notes && <NoteIndicator notes={expense.notes} />}
               </span>
             </TableCell>
             {hasTags && (
