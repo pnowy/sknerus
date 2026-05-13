@@ -1,4 +1,16 @@
-import { addDays, addMonths, addWeeks, format, getDay, getDaysInMonth, isAfter, isBefore, parseISO, setDate } from 'date-fns'
+import {
+  addDays,
+  addMonths,
+  addWeeks,
+  differenceInCalendarDays,
+  format,
+  getDay,
+  getDaysInMonth,
+  isAfter,
+  isBefore,
+  parseISO,
+  setDate,
+} from 'date-fns'
 import type { Expense, RecurringExpense } from '@/lib/shared/types/expense'
 import { RangeScope } from '@/lib/shared/types/range-scope'
 
@@ -22,6 +34,10 @@ export function filterExpensesByMonth(expenses: Array<Expense>, year: number, mo
 
 export function todayISO(): string {
   return format(new Date(), 'yyyy-MM-dd')
+}
+
+export function daysUntil(isoDate: string): number {
+  return differenceInCalendarDays(parseISO(isoDate), new Date())
 }
 
 export function computeDateRange(scope: RangeScope, offset: number, fiscalStartDay: number): { from: Date; to: Date } {

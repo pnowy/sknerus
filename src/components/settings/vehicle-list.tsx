@@ -2,13 +2,13 @@ import { BarChart2, Pencil, Trash2 } from 'lucide-react'
 import { useState } from 'react'
 import { toast } from 'sonner'
 import { VehicleFormDialog } from '@/components/settings/vehicle-form-dialog'
-import { VehicleFuelHistoryDialog } from '@/components/settings/vehicle-fuel-history-dialog'
+import { VehicleStatsDialog } from '@/components/settings/vehicle-stats-dialog'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { useDeleteVehicle } from '@/hooks/use-vehicles'
 import type { Expense } from '@/lib/shared/types/expense'
 import type { Vehicle } from '@/lib/shared/types/vehicle'
-import { calcFuelConsumption, daysUntilExpiry } from '@/lib/shared/vehicle-utils'
+import { calcFuelConsumption, type ExpirySeverity, expiryStatus, type OilChangeStatus, oilChangeStatus } from '@/lib/shared/vehicle-utils'
 import { cn } from '@/lib/utils'
 
 type Props = {
@@ -17,24 +17,22 @@ type Props = {
   currency: string
 }
 
+function severityClass(s: ExpirySeverity): string {
+  return s === 'crit' ? 'text-destructive' : s === 'warn' ? 'text-yellow-500' : 'text-muted-foreground'
+}
+
 function ExpiryInfo({ label, isoDate }: { label: string; isoDate: string }) {
-  const days = daysUntilExpiry(isoDate)
-
-  let timeText: string
-  if (days < 0) {
-    const abs = Math.abs(days)
-    timeText = `expired ${abs > 30 ? `${Math.floor(abs / 30)}mo` : `${abs}d`} ago`
-  } else if (days > 30) {
-    timeText = `${Math.floor(days / 30)}mo left`
-  } else {
-    timeText = `${days}d left`
-  }
-
+  const { severity, text } = expiryStatus(isoDate)
   return (
-    <span className={cn('text-xs', days < 0 || days <= 7 ? 'text-destructive' : days <= 30 ? 'text-yellow-500' : 'text-muted-foreground')}>
-      {label}: {timeText}
+    <span className={cn('text-xs', severityClass(severity))}>
+      {label}: {text}
     </span>
   )
+}
+
+function OilChangeInfo({ status }: { status: OilChangeStatus | null }) {
+  if (!status) return null
+  return <span className={cn('text-xs', severityClass(status.severity))}>Oil change: {status.parts.join(' · ')}</span>
 }
 
 export function VehicleList({ vehicles, expenses, currency }: Props) {
@@ -57,6 +55,7 @@ export function VehicleList({ vehicles, expenses, currency }: Props) {
       {vehicles.length === 0 && <p className="text-muted-foreground text-sm">No vehicles added yet.</p>}
       {vehicles.map((v) => {
         const consumption = calcFuelConsumption(v, expenses)
+        const oilStatus = oilChangeStatus(v, expenses)
         return (
           <div key={v.id} className="flex items-start justify-between gap-3 rounded-lg border p-3">
             <div className="min-w-0 space-y-1">
@@ -72,10 +71,11 @@ export function VehicleList({ vehicles, expenses, currency }: Props) {
                   {consumption != null ? `${consumption} L/100km` : '— L/100km'}
                 </button>
               </p>
-              {(v.insuranceExpiry || v.technicalInspectionExpiry) && (
+              {(v.insuranceExpiry || v.technicalInspectionExpiry || oilStatus) && (
                 <div className="flex flex-wrap gap-x-3 gap-y-0.5">
                   {v.insuranceExpiry && <ExpiryInfo label="Insurance" isoDate={v.insuranceExpiry} />}
                   {v.technicalInspectionExpiry && <ExpiryInfo label="Inspection" isoDate={v.technicalInspectionExpiry} />}
+                  <OilChangeInfo status={oilStatus} />
                 </div>
               )}
             </div>
@@ -99,12 +99,7 @@ export function VehicleList({ vehicles, expenses, currency }: Props) {
       {addOpen && <VehicleFormDialog onClose={() => setAddOpen(false)} />}
       {editingVehicle && <VehicleFormDialog vehicle={editingVehicle} onClose={() => setEditingVehicle(null)} />}
       {historyVehicle && (
-        <VehicleFuelHistoryDialog
-          currency={currency}
-          expenses={expenses}
-          vehicle={historyVehicle}
-          onClose={() => setHistoryVehicle(null)}
-        />
+        <VehicleStatsDialog currency={currency} expenses={expenses} vehicle={historyVehicle} onClose={() => setHistoryVehicle(null)} />
       )}
     </div>
   )

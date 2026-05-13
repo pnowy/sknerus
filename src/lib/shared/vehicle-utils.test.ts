@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 import type { Expense } from './types/expense'
 import type { Vehicle } from './types/vehicle'
 import { FuelType, VehicleExpenseType, VehicleType } from './types/vehicle'
-import { calcFuelConsumption, daysUntilExpiry } from './vehicle-utils'
+import { calcFuelConsumption } from './vehicle-utils'
 
 function makeVehicle(overrides: Partial<Vehicle> = {}): Vehicle {
   return {
@@ -69,7 +69,11 @@ describe('calcFuelConsumption', () => {
       // baseline: 15L at 0km, full — subsequent: 9.41L at 115km, full
       // burned = 17 + 9.41 - 17 = 9.41 / 115 * 100 = 8.18 L/100km
       const vehicle = makeVehicle({ fuelTankSize: 17 })
-      const expenses = [makeFuelExpense(15, 0, 100, 'veh_test', '2024-01-01'), makeFuelExpense(9.41, 115, 100, 'veh_test', '2024-02-01')]
+      // biome-ignore format: easier to read
+      const expenses = [
+          makeFuelExpense(15, 0, 100, 'veh_test', '2024-01-01'),
+          makeFuelExpense(9.41, 115, 100, 'veh_test', '2024-02-01')
+      ]
       expect(calcFuelConsumption(vehicle, expenses)).toBe(8.18)
     })
   })
@@ -79,7 +83,11 @@ describe('calcFuelConsumption', () => {
       // baseline: 30L at 0km, full — subsequent: 20L at 300km, 50% (25L remaining)
       // burned = 50 + 20 - 25 = 45 / 300 * 100 = 15.00 L/100km
       const vehicle = makeVehicle({ fuelTankSize: 50 })
-      const expenses = [makeFuelExpense(30, 0, 100, 'veh_test', '2024-01-01'), makeFuelExpense(20, 300, 50, 'veh_test', '2024-02-01')]
+      // biome-ignore format: easier to read
+      const expenses = [
+          makeFuelExpense(30, 0, 100, 'veh_test', '2024-01-01'),
+          makeFuelExpense(20, 300, 50, 'veh_test', '2024-02-01')
+      ]
       expect(calcFuelConsumption(vehicle, expenses)).toBe(15)
     })
   })
@@ -182,22 +190,6 @@ describe('calcFuelConsumption', () => {
       const vehicle = makeVehicle({ fuelTankSize: 17 })
       const expenses = [makeFuelExpense(5, 0, 100, 'veh_test', '2024-01-01'), makeFuelExpense(10, 300, 100, 'veh_test', '2024-02-01')]
       expect(calcFuelConsumption(vehicle, expenses)).toBe(3.33)
-    })
-  })
-})
-
-describe('daysUntilExpiry', () => {
-  describe('when the date is in the future', () => {
-    it('should return a positive number', () => {
-      const future = new Date(Date.now() + 10 * 86_400_000).toISOString().slice(0, 10)
-      expect(daysUntilExpiry(future)).toBeGreaterThan(0)
-    })
-  })
-
-  describe('when the date is in the past', () => {
-    it('should return a negative number', () => {
-      const past = new Date(Date.now() - 10 * 86_400_000).toISOString().slice(0, 10)
-      expect(daysUntilExpiry(past)).toBeLessThan(0)
     })
   })
 })

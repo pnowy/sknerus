@@ -1,4 +1,5 @@
 import { addMonths, format, parseISO } from 'date-fns'
+import { daysUntil } from './date-utils'
 import type { Expense } from './types/expense'
 import type { Vehicle } from './types/vehicle'
 import { VehicleExpenseType } from './types/vehicle'
@@ -54,8 +55,56 @@ export function calcFuelBurned(vehicle: Vehicle, expenses: Array<Expense>): numb
   return calcFuelStats(vehicle, expenses)?.burned ?? null
 }
 
-export function daysUntilExpiry(isoDate: string): number {
-  return Math.ceil((new Date(isoDate).getTime() - Date.now()) / 86_400_000)
+export type ExpirySeverity = 'ok' | 'warn' | 'crit'
+
+function daysSeverity(days: number): ExpirySeverity {
+  if (days < 0 || days <= 7) return 'crit'
+  if (days <= 30) return 'warn'
+  return 'ok'
+}
+
+function kmSeverity(km: number): ExpirySeverity {
+  if (km < 0) return 'crit'
+  if (km <= 500) return 'warn'
+  return 'ok'
+}
+
+function worstSeverity(...severities: Array<ExpirySeverity>): ExpirySeverity {
+  if (severities.includes('crit')) return 'crit'
+  if (severities.includes('warn')) return 'warn'
+  return 'ok'
+}
+
+function formatDays(days: number): string {
+  if (days < 0) {
+    const abs = Math.abs(days)
+    return `expired ${abs > 30 ? `${Math.floor(abs / 30)}mo` : `${abs}d`} ago`
+  }
+  if (days > 30) return `${Math.floor(days / 30)}mo left`
+  return `${days}d left`
+}
+
+function formatKm(km: number): string {
+  return km < 0 ? `overdue by ${Math.abs(km).toLocaleString()} km` : `${km.toLocaleString()} km left`
+}
+
+export type ExpiryStatus = { severity: ExpirySeverity; text: string }
+
+export function expiryStatus(isoDate: string): ExpiryStatus {
+  const days = daysUntil(isoDate)
+  return { severity: daysSeverity(days), text: formatDays(days) }
+}
+
+export type OilChangeStatus = { severity: ExpirySeverity; parts: Array<string> }
+
+export function oilChangeStatus(vehicle: Vehicle, expenses: Array<Expense>): OilChangeStatus | null {
+  const isoDate = nextOilChangeDate(vehicle, expenses)
+  const km = kmUntilNextOilChange(vehicle, expenses)
+  if (!isoDate && km == null) return null
+  const days = isoDate ? daysUntil(isoDate) : null
+  const severity = worstSeverity(days != null ? daysSeverity(days) : 'ok', km != null ? kmSeverity(km) : 'ok')
+  const parts = [days != null && formatDays(days), km != null && formatKm(km)].filter(Boolean) as Array<string>
+  return { severity, parts }
 }
 
 function latestOilChange(vehicle: Vehicle, expenses: Array<Expense>): Expense | null {
