@@ -36,6 +36,6 @@ export type VehicleExpense = {
   vehicleId: string
   expenseType: VehicleExpenseType
   fuelLiters: number
-  vehicleDistance?: number
+  odometerReading?: number
   fuelLevelPercent: number
 }

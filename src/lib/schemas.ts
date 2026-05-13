@@ -7,7 +7,7 @@ const vehicleExpenseSchema = z.object({
   vehicleId: z.string().min(1),
   expenseType: toZodEnum(VehicleExpenseType),
   fuelLiters: z.number().positive('Fuel liters must be positive'),
-  vehicleDistance: z.number().int().min(0).optional(),
+  odometerReading: z.number().int().min(0).optional(),
   fuelLevelPercent: z
     .number()
     .int()
