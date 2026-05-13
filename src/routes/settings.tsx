@@ -262,6 +262,9 @@ function SettingsPage() {
             </div>
           </CardContent>
         </Card>
+        <p className="pt-2 text-center text-muted-foreground text-xs">
+          Version <span className="font-mono">{__APP_VERSION__}</span>
+        </p>
       </div>
     </AppLayout>
   )

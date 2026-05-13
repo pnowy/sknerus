@@ -1,0 +1,62 @@
+.idea
+.claude
+.DS_Store
+README.md
+.gitignore
+
+# Server-specific excludes (mirror of former server/.dockerignore, re-rooted)
+logs
+**/*.log
+**/npm-debug.log*
+**/yarn-debug.log*
+**/yarn-error.log*
+**/lerna-debug.log*
+**/.pnpm-debug.log*
+
+# Diagnostic reports
+**/report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
+
+# Runtime data
+**/pids
+**/*.pid
+**/*.seed
+**/*.pid.lock
+
+# Coverage
+**/lib-cov
+**/coverage
+**/*.lcov
+**/.nyc_output
+
+# Dependency directories
+**/node_modules
+**/jspm_packages
+
+# TypeScript / tool caches
+**/*.tsbuildinfo
+**/.npm
+**/.eslintcache
+**/.stylelintcache
+**/.rpt2_cache
+**/.rts2_cache_cjs
+**/.rts2_cache_es
+**/.rts2_cache_umd
+**/.node_repl_history
+**/*.tgz
+**/.cache
+**/.temp
+**/.parcel-cache
+**/.serverless
+**/.dynamodb
+**/.tern-port
+**/.vscode-test
+
+# Env files
+**/.env
+**/.env*.local
+
+# TanStack Start build artifacts
+**/.nitro
+**/.output
+**/.tanstack
+**/dist

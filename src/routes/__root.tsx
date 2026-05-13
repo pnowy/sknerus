@@ -11,7 +11,6 @@ import { Toaster } from '@/components/ui/sonner'
 import { materializeRecurring } from '@/lib/server/functions/recurring'
 import { DashboardTab } from '@/lib/shared/types/dashboard-tab'
 import { RangeScope } from '@/lib/shared/types/range-scope'
-
 import appCss from '@/styles/styles.css?url'
 
 export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()({
