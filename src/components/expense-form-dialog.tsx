@@ -18,7 +18,7 @@ import { todayISO } from '@/lib/shared/date-utils'
 import { formatCurrency } from '@/lib/shared/format'
 import type { Category, Expense } from '@/lib/shared/types/expense'
 import type { Vehicle } from '@/lib/shared/types/vehicle'
-import { VehicleExpenseType } from '@/lib/shared/types/vehicle'
+import { VEHICLE_EXPENSE_TYPE_LABELS, VehicleExpenseType } from '@/lib/shared/types/vehicle'
 
 function cloneDateFrom(templateDate: string): string {
   const now = new Date()
@@ -296,28 +296,58 @@ export function ExpenseFormDialog({
               <Select
                 value={watchedVehicleExpense?.expenseType ?? ''}
                 onValueChange={(val) => {
-                  if (val === VehicleExpenseType.Fuel) {
+                  if (!val) {
+                    setValue('vehicleExpense', undefined)
+                    return
+                  }
+                  const type = val as VehicleExpenseType
+                  if (type === VehicleExpenseType.Fuel) {
                     setValue('vehicleExpense', {
                       vehicleId: boundVehicle.id,
                       expenseType: VehicleExpenseType.Fuel,
                       fuelLiters: 0,
                       fuelLevelPercent: 100,
                     })
-                    const defaultName = boundVehicle.expenseTypeNames?.[VehicleExpenseType.Fuel]
-                    if (defaultName && !getValues('name')) setValue('name', defaultName)
                   } else {
-                    setValue('vehicleExpense', undefined)
+                    setValue('vehicleExpense', { vehicleId: boundVehicle.id, expenseType: type })
                   }
+                  const defaultName = boundVehicle.expenseTypeNames?.[type]
+                  if (defaultName && !getValues('name')) setValue('name', defaultName)
                 }}
               >
                 <SelectTrigger>
-                  <SelectValue placeholder="General expense">{(v: string) => (v === 'fuel' ? 'Fuel' : 'General expense')}</SelectValue>
+                  <SelectValue placeholder="General expense">
+                    {(v: string) => (v ? (VEHICLE_EXPENSE_TYPE_LABELS[v as VehicleExpenseType] ?? v) : 'General expense')}
+                  </SelectValue>
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="">General expense</SelectItem>
-                  <SelectItem value="fuel">Fuel</SelectItem>
+                  {(Object.entries(VEHICLE_EXPENSE_TYPE_LABELS) as Array<[VehicleExpenseType, string]>).map(([value, label]) => (
+                    <SelectItem key={value} value={value}>
+                      {label}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
+            </div>
+          )}
+          {boundVehicle && watchedVehicleExpense?.expenseType === VehicleExpenseType.OilChange && (
+            <div className="space-y-3 rounded-lg border p-3">
+              <div className="space-y-1">
+                <Label htmlFor="exp-oil-odo">Odometer (km, optional)</Label>
+                <Input
+                  id="exp-oil-odo"
+                  min="0"
+                  step="1"
+                  type="number"
+                  {...register('vehicleExpense.odometerReading', {
+                    setValueAs: (v) => (v === '' || v === null || Number.isNaN(Number(v)) ? undefined : Number(v)),
+                  })}
+                />
+                <p className="text-muted-foreground text-xs">
+                  Recorded at oil change — used to track distance and time until the next one.
+                </p>
+              </div>
             </div>
           )}
           {boundVehicle && watchedVehicleExpense?.expenseType === VehicleExpenseType.Fuel && (
