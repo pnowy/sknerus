@@ -1,17 +1,20 @@
-export enum VehicleType {
-  Car = 'car',
-  Motorcycle = 'motorcycle',
-}
+export const VehicleType = {
+  Car: 'car',
+  Motorcycle: 'motorcycle',
+} as const
+export type VehicleType = (typeof VehicleType)[keyof typeof VehicleType]
 
-export enum FuelType {
-  Gasoline = 'gasoline',
-  Diesel = 'diesel',
-  Lpg = 'lpg',
-}
+export const FuelType = {
+  Gasoline: 'gasoline',
+  Diesel: 'diesel',
+  Lpg: 'lpg',
+} as const
+export type FuelType = (typeof FuelType)[keyof typeof FuelType]
 
-export enum VehicleExpenseType {
-  Fuel = 'fuel',
-}
+export const VehicleExpenseType = {
+  Fuel: 'fuel',
+} as const
+export type VehicleExpenseType = (typeof VehicleExpenseType)[keyof typeof VehicleExpenseType]
 
 export type VehicleExpenseTypeNames = Record<VehicleExpenseType, string>
 

@@ -66,9 +66,23 @@ IDs follow `<prefix>_<ULID>` convention (`exp_`, `cat_`, `rec_`).
 - Array type syntax: `Array<T>` not `T[]` (Biome `useConsistentArrayType` rule)
 - Tailwind classes must be sorted (Biome `useSortedClasses`, auto-fixed by `pnpm check`)
 
+## Enum conventions
+
+Never use TypeScript `enum` keyword — it emits a JavaScript IIFE at runtime and is non-erasable syntax. Use `as const` objects with a derived union type instead:
+
+```ts
+export const VehicleType = {
+  Car: 'car',
+  Motorcycle: 'motorcycle',
+} as const
+export type VehicleType = (typeof VehicleType)[keyof typeof VehicleType]
+```
+
+Usage is identical to enums: `VehicleType.Car`, `field: VehicleType`, comparisons all work the same.
+
 ## Zod rules
 
-- Use `z.enum(...)` — `z.nativeEnum` is deprecated in Zod v4. To use a TypeScript enum with Zod: `z.enum(Object.values(MyEnum) as [MyEnum, ...Array<MyEnum>])`
+- Use `z.enum(...)` — `z.nativeEnum` is deprecated in Zod v4. Use the `toZodEnum` helper defined in `src/lib/schemas.ts`: `toZodEnum(VehicleType)`
 
 ## Known workarounds
 
