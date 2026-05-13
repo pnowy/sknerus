@@ -13,7 +13,7 @@ const vehicleExpenseSchema = z.object({
     .int()
     .min(0)
     .max(100)
-    .refine((v) => v % 10 === 0, 'Must be a multiple of 10'),
+    .refine((v) => v % 5 === 0, 'Must be a multiple of 5'),
 })
 
 export const expenseSchema = z.object({

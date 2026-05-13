@@ -36,6 +36,13 @@ export function VehicleFuelHistoryDialog({ vehicle, expenses, currency, onClose 
   const totalBurned = calcFuelBurned(vehicle, expenses)
   const avgConsumption = calcFuelConsumption(vehicle, expenses)
 
+  const latestFuelLevel = fuelEntries[0]?.vehicleExpense?.fuelLevelPercent ?? null
+  const currentTankEstimate = latestFuelLevel != null ? vehicle.fuelTankSize * (latestFuelLevel / 100) : null
+  const estimatedRange =
+    currentTankEstimate != null && avgConsumption != null && avgConsumption > 0
+      ? Math.round((currentTankEstimate / avgConsumption) * 100)
+      : null
+
   return (
     <Dialog open onOpenChange={(o) => !o && onClose()}>
       <DialogContent className="flex max-h-[85vh] flex-col sm:max-w-2xl">
@@ -84,9 +91,16 @@ export function VehicleFuelHistoryDialog({ vehicle, expenses, currency, onClose 
             <div className="flex justify-between text-sm">
               <span className="text-muted-foreground">
                 {fuelEntries.length} fill-ups · {totalLiters.toFixed(2)} L total
+                {currentTankEstimate != null && ` · ~${currentTankEstimate.toFixed(1)}L in tank`}
               </span>
               <span className="font-medium">{formatCurrency(totalCost, currency)}</span>
             </div>
+            {estimatedRange != null && (
+              <p className="text-muted-foreground text-xs">
+                Based on past consumption, estimated range with current tank:{' '}
+                <span className="font-medium text-foreground">~{estimatedRange.toLocaleString()} km</span>
+              </p>
+            )}
           </>
         )}
       </DialogContent>

@@ -9,6 +9,7 @@ import { useDeleteVehicle } from '@/hooks/use-vehicles'
 import type { Expense } from '@/lib/shared/types/expense'
 import type { Vehicle } from '@/lib/shared/types/vehicle'
 import { calcFuelConsumption, daysUntilExpiry } from '@/lib/shared/vehicle-utils'
+import { cn } from '@/lib/utils'
 
 type Props = {
   vehicles: Array<Vehicle>
@@ -16,11 +17,24 @@ type Props = {
   currency: string
 }
 
-function ExpiryBadge({ label, isoDate }: { label: string; isoDate: string }) {
+function ExpiryInfo({ label, isoDate }: { label: string; isoDate: string }) {
   const days = daysUntilExpiry(isoDate)
-  if (days > 30) return null
-  const text = days < 0 ? `${label} expired ${Math.abs(days)}d ago` : `${label} in ${days}d`
-  return <Badge variant={days < 0 ? 'destructive' : 'outline'}>{text}</Badge>
+
+  let timeText: string
+  if (days < 0) {
+    const abs = Math.abs(days)
+    timeText = `expired ${abs > 30 ? `${Math.floor(abs / 30)}mo` : `${abs}d`} ago`
+  } else if (days > 30) {
+    timeText = `${Math.floor(days / 30)}mo left`
+  } else {
+    timeText = `${days}d left`
+  }
+
+  return (
+    <span className={cn('text-xs', days < 0 || days <= 7 ? 'text-destructive' : days <= 30 ? 'text-yellow-500' : 'text-muted-foreground')}>
+      {label}: {timeText}
+    </span>
+  )
 }
 
 export function VehicleList({ vehicles, expenses, currency }: Props) {
@@ -58,10 +72,12 @@ export function VehicleList({ vehicles, expenses, currency }: Props) {
                   {consumption != null ? `${consumption} L/100km` : '— L/100km'}
                 </button>
               </p>
-              <div className="flex flex-wrap gap-1">
-                {v.insuranceExpiry && <ExpiryBadge label="Insurance" isoDate={v.insuranceExpiry} />}
-                {v.technicalInspectionExpiry && <ExpiryBadge label="Inspection" isoDate={v.technicalInspectionExpiry} />}
-              </div>
+              {(v.insuranceExpiry || v.technicalInspectionExpiry) && (
+                <div className="flex flex-wrap gap-x-3 gap-y-0.5">
+                  {v.insuranceExpiry && <ExpiryInfo label="Insurance" isoDate={v.insuranceExpiry} />}
+                  {v.technicalInspectionExpiry && <ExpiryInfo label="Inspection" isoDate={v.technicalInspectionExpiry} />}
+                </div>
+              )}
             </div>
             <div className="flex shrink-0 gap-1">
               <Button size="icon" variant="ghost" onClick={() => setHistoryVehicle(v)}>
