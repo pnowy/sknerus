@@ -18,6 +18,8 @@ import {
   Zap,
 } from 'lucide-react'
 import type { ComponentType, SVGProps } from 'react'
+import type { Expense } from '@/lib/shared/types/expense'
+import type { Vehicle } from '@/lib/shared/types/vehicle'
 import { VehicleExpenseType } from '@/lib/shared/types/vehicle'
 
 export type VehicleExpenseIcon = ComponentType<SVGProps<SVGSVGElement>>
@@ -81,4 +83,17 @@ export const DEFAULT_EXPENSE_TYPE_COLOR: Record<VehicleExpenseType, string> = {
 export function getExpenseTypeIcon(name: string | undefined): VehicleExpenseIcon | null {
   if (!name) return null
   return VEHICLE_EXPENSE_ICONS[name] ?? null
+}
+
+export type ResolvedVehicleIcon = { Icon: VehicleExpenseIcon; color: string }
+
+export function resolveVehicleExpenseIcon(expense: Expense, vehicles: Array<Vehicle> | undefined): ResolvedVehicleIcon | null {
+  const ve = expense.vehicleExpense
+  if (!ve) return null
+  const vehicle = vehicles?.find((v) => v.id === ve.vehicleId)
+  if (!vehicle) return null
+  const Icon = getExpenseTypeIcon(vehicle.expenseTypeIcons?.[ve.expenseType] ?? DEFAULT_EXPENSE_TYPE_ICON[ve.expenseType])
+  if (!Icon) return null
+  const color = vehicle.expenseTypeColors?.[ve.expenseType] ?? DEFAULT_EXPENSE_TYPE_COLOR[ve.expenseType]
+  return { Icon, color }
 }
