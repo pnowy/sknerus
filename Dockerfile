@@ -8,7 +8,8 @@ ENV NODE_ENV="production"
 # Throw-away build stage to reduce size of final image
 FROM base AS build
 
-# Install pnpm
+# Install git (needed to resolve build version) and pnpm
+RUN apt-get update && apt-get install -y --no-install-recommends git && rm -rf /var/lib/apt/lists/*
 RUN npm install -g pnpm@11.1.2
 
 # Install node modules
@@ -18,8 +19,6 @@ RUN pnpm install --frozen-lockfile
 # Copy application code
 COPY . .
 
-# Copy .git so we can resolve the build version
-COPY .git ./.git
 
 ARG APP_VERSION=""
 RUN APP_VERSION="${APP_VERSION:-$(git describe --tags --exact-match 2>/dev/null || git rev-parse --short HEAD 2>/dev/null || echo dev)}" && echo "APP_VERSION=${APP_VERSION}" > /tmp/app_version.env
