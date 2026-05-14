@@ -197,3 +197,21 @@ export function generateMonthBuckets(from: Date, to: Date): Array<{ label: strin
   }
   return buckets
 }
+
+/**
+ * Returns week-ending dates (inclusive) covering [fromISO, today].
+ * Each bucket is one week long; the first bucket ends 7 days after fromISO.
+ */
+export function generateWeekEndings(fromISO: string, today: Date = new Date()): Array<string> {
+  const start = parseISO(fromISO)
+  const endings: Array<string> = []
+  let cur = addWeeks(start, 1)
+  while (!isAfter(cur, today)) {
+    endings.push(format(cur, 'yyyy-MM-dd'))
+    cur = addWeeks(cur, 1)
+  }
+  if (endings.length === 0 || endings[endings.length - 1] !== format(today, 'yyyy-MM-dd')) {
+    endings.push(format(today, 'yyyy-MM-dd'))
+  }
+  return endings
+}
