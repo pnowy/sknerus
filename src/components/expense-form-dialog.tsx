@@ -8,6 +8,7 @@ import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { Slider } from '@/components/ui/slider'
 import { Switch } from '@/components/ui/switch'
 import { Textarea } from '@/components/ui/textarea'
 import { useConfig, useCreateExpense, useUpdateExpense } from '@/hooks/use-expenses'
@@ -16,6 +17,8 @@ import { resolveExchangeRate } from '@/lib/server/functions/exchange-rates'
 import { todayISO } from '@/lib/shared/date-utils'
 import { formatCurrency } from '@/lib/shared/format'
 import type { Category, Expense } from '@/lib/shared/types/expense'
+import type { Vehicle } from '@/lib/shared/types/vehicle'
+import { VEHICLE_EXPENSE_TYPE_LABELS, VehicleExpenseType } from '@/lib/shared/types/vehicle'
 
 function cloneDateFrom(templateDate: string): string {
   const now = new Date()
@@ -34,9 +37,20 @@ type Props = {
   allTags: Array<string>
   expense?: Expense
   template?: Expense
+  vehicles?: Array<Vehicle>
 }
 
-export function ExpenseFormDialog({ open, onClose, categories, currency, supportedCurrencies, allTags, expense, template }: Props) {
+export function ExpenseFormDialog({
+  open,
+  onClose,
+  categories,
+  currency,
+  supportedCurrencies,
+  allTags,
+  expense,
+  template,
+  vehicles,
+}: Props) {
   const isEdit = !!expense
   const createExpense = useCreateExpense()
   const updateExpense = useUpdateExpense()
@@ -54,6 +68,8 @@ export function ExpenseFormDialog({ open, onClose, categories, currency, support
     handleSubmit,
     reset,
     watch,
+    setValue,
+    getValues,
     formState: { errors },
   } = useForm<ExpenseFormInput>({
     // biome-ignore lint/suspicious/noExplicitAny: https://github.com/react-hook-form/resolvers/issues/842
@@ -68,6 +84,7 @@ export function ExpenseFormDialog({ open, onClose, categories, currency, support
           tags: expense.tags,
           notes: expense.notes ?? '',
           isIncome: expense.amount > 0,
+          vehicleExpense: expense.vehicleExpense,
         }
       : template
         ? {
@@ -95,6 +112,9 @@ export function ExpenseFormDialog({ open, onClose, categories, currency, support
   const watchedAmount = watch('amount')
   const watchedDate = watch('date')
   const watchedCurrency = watch('currency')
+  const watchedCategoryId = watch('categoryId')
+
+  const boundVehicle = vehicles?.find((v) => categories.find((c) => c.id === watchedCategoryId)?.vehicleId === v.id) ?? null
 
   const [convertedPreview, setConvertedPreview] = useState<number | null>(null)
   const [previewLoading, setPreviewLoading] = useState(false)
@@ -117,6 +137,19 @@ export function ExpenseFormDialog({ open, onClose, categories, currency, support
     }, 600)
     return () => clearTimeout(t)
   }, [watchedAmount, watchedDate, watchedCurrency, currency])
+
+  const watchedVehicleExpense = watch('vehicleExpense')
+
+  // biome-ignore lint/correctness/useExhaustiveDependencies: intentionally reacting only to vehicle ID change, not object reference
+  useEffect(() => {
+    if (boundVehicle) {
+      if (getValues('vehicleExpense')?.vehicleId !== boundVehicle.id) {
+        setValue('vehicleExpense', undefined)
+      }
+    } else {
+      setValue('vehicleExpense', undefined)
+    }
+  }, [boundVehicle?.id, setValue, getValues])
 
   function handleClose() {
     reset()
@@ -165,7 +198,7 @@ export function ExpenseFormDialog({ open, onClose, categories, currency, support
 
   return (
     <Dialog open={open} onOpenChange={(o) => !o && handleClose()}>
-      <DialogContent>
+      <DialogContent className="sm:max-w-2xl">
         <DialogHeader>
           <DialogTitle>{isEdit ? 'Edit Expense' : 'Add Expense'}</DialogTitle>
         </DialogHeader>
@@ -255,6 +288,123 @@ export function ExpenseFormDialog({ open, onClose, categories, currency, support
             <div className="space-y-1">
               <Label htmlFor="exp-notes">Notes</Label>
               <Textarea id="exp-notes" placeholder="Optional notes" rows={3} {...register('notes')} />
+            </div>
+          )}
+          {boundVehicle && (
+            <div className="space-y-1">
+              <Label>Vehicle expense type</Label>
+              <Select
+                value={watchedVehicleExpense?.expenseType ?? ''}
+                onValueChange={(val) => {
+                  if (!val) {
+                    setValue('vehicleExpense', undefined)
+                    return
+                  }
+                  const type = val as VehicleExpenseType
+                  if (type === VehicleExpenseType.Fuel) {
+                    setValue('vehicleExpense', {
+                      vehicleId: boundVehicle.id,
+                      expenseType: VehicleExpenseType.Fuel,
+                      fuelLiters: 0,
+                      fuelLevelPercent: 100,
+                    })
+                  } else {
+                    setValue('vehicleExpense', { vehicleId: boundVehicle.id, expenseType: type })
+                  }
+                  const defaultName = boundVehicle.expenseTypeNames?.[type]
+                  if (defaultName && !getValues('name')) setValue('name', defaultName)
+                }}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="General expense">
+                    {(v: string) => (v ? (VEHICLE_EXPENSE_TYPE_LABELS[v as VehicleExpenseType] ?? v) : 'General expense')}
+                  </SelectValue>
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="">General expense</SelectItem>
+                  {(Object.entries(VEHICLE_EXPENSE_TYPE_LABELS) as Array<[VehicleExpenseType, string]>).map(([value, label]) => (
+                    <SelectItem key={value} value={value}>
+                      {label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          )}
+          {boundVehicle && watchedVehicleExpense?.expenseType === VehicleExpenseType.OilChange && (
+            <div className="space-y-3 rounded-lg border p-3">
+              <div className="space-y-1">
+                <Label htmlFor="exp-oil-odo">Odometer (km)</Label>
+                <Input
+                  id="exp-oil-odo"
+                  min="0"
+                  step="1"
+                  type="number"
+                  {...register('vehicleExpense.odometerReading', {
+                    setValueAs: (v) => (v === '' || v === null || Number.isNaN(Number(v)) ? undefined : Number(v)),
+                  })}
+                />
+                {errors.vehicleExpense?.odometerReading && (
+                  <p className="text-destructive text-xs">{errors.vehicleExpense.odometerReading.message}</p>
+                )}
+                <p className="text-muted-foreground text-xs">
+                  Recorded at oil change — used to track distance and time until the next one.
+                </p>
+              </div>
+            </div>
+          )}
+          {boundVehicle && watchedVehicleExpense?.expenseType === VehicleExpenseType.Fuel && (
+            <div className="space-y-3 rounded-lg border p-3">
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                <div className="space-y-1">
+                  <Label htmlFor="exp-fuel-liters">Fuel (liters)</Label>
+                  <Input
+                    id="exp-fuel-liters"
+                    min="0.01"
+                    step="0.01"
+                    type="number"
+                    {...register('vehicleExpense.fuelLiters', { valueAsNumber: true })}
+                  />
+                  {errors.vehicleExpense?.fuelLiters && (
+                    <p className="text-destructive text-xs">{errors.vehicleExpense.fuelLiters.message}</p>
+                  )}
+                </div>
+                <div className="space-y-1">
+                  <Label htmlFor="exp-distance">Odometer (km, optional)</Label>
+                  <Input
+                    id="exp-distance"
+                    min="0"
+                    step="1"
+                    type="number"
+                    {...register('vehicleExpense.odometerReading', {
+                      setValueAs: (v) => (v === '' || v === null || Number.isNaN(Number(v)) ? undefined : Number(v)),
+                    })}
+                  />
+                </div>
+                <div className="col-span-full space-y-2">
+                  <div className="flex items-center justify-between">
+                    <Label>Fuel level after</Label>
+                    <span className="font-medium text-sm">
+                      {watchedVehicleExpense?.fuelLevelPercent ?? 100}%{' '}
+                      <span className="font-normal text-muted-foreground">
+                        (~{((boundVehicle.fuelTankSize * (watchedVehicleExpense?.fuelLevelPercent ?? 100)) / 100).toFixed(1)}L)
+                      </span>
+                    </span>
+                  </div>
+                  <Controller
+                    control={control}
+                    name="vehicleExpense.fuelLevelPercent"
+                    render={({ field }) => (
+                      <Slider min={0} max={100} step={5} value={field.value ?? 100} onValueChange={(v) => field.onChange(v)} />
+                    )}
+                  />
+                  <div className="flex justify-between text-muted-foreground text-xs">
+                    <span>0%</span>
+                    <span>50%</span>
+                    <span>100%</span>
+                  </div>
+                </div>
+              </div>
             </div>
           )}
           <div className="flex items-center gap-2">

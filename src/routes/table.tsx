@@ -14,8 +14,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Switch } from '@/components/ui/switch'
 import { useDateRange } from '@/hooks/use-date-range'
 import { useConfig, useDeleteExpense, useExpenses } from '@/hooks/use-expenses'
+import { useVehicles } from '@/hooks/use-vehicles'
 import { getConfig } from '@/lib/server/functions/config'
 import { getExpenses } from '@/lib/server/functions/expenses'
+import { getVehicles } from '@/lib/server/functions/vehicles'
 import { filterExpensesByRange } from '@/lib/shared/date-utils'
 import type { Expense } from '@/lib/shared/types/expense'
 
@@ -24,6 +26,7 @@ export const Route = createFileRoute('/table')({
     Promise.all([
       queryClient.ensureQueryData({ queryKey: ['expenses'], queryFn: () => getExpenses() }),
       queryClient.ensureQueryData({ queryKey: ['config'], queryFn: () => getConfig() }),
+      queryClient.ensureQueryData({ queryKey: ['vehicles'], queryFn: () => getVehicles() }),
     ]),
   component: TablePage,
 })
@@ -31,6 +34,7 @@ export const Route = createFileRoute('/table')({
 function TablePage() {
   const { data: allExpenses = [] } = useExpenses()
   const { data: config } = useConfig()
+  const { data: vehicles = [] } = useVehicles()
   const deleteExpense = useDeleteExpense()
   const [editingExpense, setEditingExpense] = useState<Expense | null>(null)
   const [duplicatingExpense, setDuplicatingExpense] = useState<Expense | null>(null)
@@ -56,9 +60,11 @@ function TablePage() {
   }
 
   const currency = config?.currency ?? 'USD'
+  const vehicleTrackingEnabled = config?.features?.vehicleExpenseTracking
   const tableProps = {
     categories: config?.categories ?? [],
     expenses: displayedExpenses,
+    vehicles: vehicleTrackingEnabled ? vehicles : undefined,
     onEdit: setEditingExpense,
     onDuplicate: setDuplicatingExpense,
     onDelete: handleDelete,
@@ -123,6 +129,7 @@ function TablePage() {
         supportedCurrencies={config?.supportedCurrencies ?? []}
         expense={editingExpense ?? undefined}
         template={duplicatingExpense ?? undefined}
+        vehicles={vehicleTrackingEnabled ? vehicles : undefined}
         open={addOpen || !!editingExpense || !!duplicatingExpense}
         onClose={() => {
           setAddOpen(false)

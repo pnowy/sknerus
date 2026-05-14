@@ -11,3 +11,7 @@ export function genCategoryId() {
 export function genRecurringId() {
   return `rec_${ulid()}`
 }
+
+export function genVehicleId() {
+  return `veh_${ulid()}`
+}

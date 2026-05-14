@@ -1,4 +1,16 @@
-import { addDays, addMonths, addWeeks, format, getDay, getDaysInMonth, isAfter, isBefore, parseISO, setDate } from 'date-fns'
+import {
+  addDays,
+  addMonths,
+  addWeeks,
+  differenceInCalendarDays,
+  format,
+  getDay,
+  getDaysInMonth,
+  isAfter,
+  isBefore,
+  parseISO,
+  setDate,
+} from 'date-fns'
 import type { Expense, RecurringExpense } from '@/lib/shared/types/expense'
 import { RangeScope } from '@/lib/shared/types/range-scope'
 
@@ -22,6 +34,10 @@ export function filterExpensesByMonth(expenses: Array<Expense>, year: number, mo
 
 export function todayISO(): string {
   return format(new Date(), 'yyyy-MM-dd')
+}
+
+export function daysUntil(isoDate: string): number {
+  return differenceInCalendarDays(parseISO(isoDate), new Date())
 }
 
 export function computeDateRange(scope: RangeScope, offset: number, fiscalStartDay: number): { from: Date; to: Date } {
@@ -180,4 +196,22 @@ export function generateMonthBuckets(from: Date, to: Date): Array<{ label: strin
     cur = addMonths(cur, 1)
   }
   return buckets
+}
+
+/**
+ * Returns week-ending dates (inclusive) covering [fromISO, today].
+ * Each bucket is one week long; the first bucket ends 7 days after fromISO.
+ */
+export function generateWeekEndings(fromISO: string, today: Date = new Date()): Array<string> {
+  const start = parseISO(fromISO)
+  const endings: Array<string> = []
+  let cur = addWeeks(start, 1)
+  while (!isAfter(cur, today)) {
+    endings.push(format(cur, 'yyyy-MM-dd'))
+    cur = addWeeks(cur, 1)
+  }
+  if (endings.length === 0 || endings[endings.length - 1] !== format(today, 'yyyy-MM-dd')) {
+    endings.push(format(today, 'yyyy-MM-dd'))
+  }
+  return endings
 }

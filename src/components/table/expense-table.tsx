@@ -7,6 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Table, TableBody, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { useConfig } from '@/hooks/use-expenses'
 import type { Category, Expense } from '@/lib/shared/types/expense'
+import type { Vehicle } from '@/lib/shared/types/vehicle'
 
 type SortField = 'name' | 'category' | 'amount' | 'date'
 type SortDir = 'asc' | 'desc'
@@ -21,12 +22,13 @@ const SORT_OPTIONS: Array<{ value: SortField; label: string }> = [
 type Props = {
   expenses: Array<Expense>
   categories: Array<Category>
+  vehicles?: Array<Vehicle>
   onEdit: (e: Expense) => void
   onDuplicate: (e: Expense) => void
   onDelete: (id: string) => void
 }
 
-export function ExpenseTable({ expenses, categories, onEdit, onDuplicate, onDelete }: Props) {
+export function ExpenseTable({ expenses, categories, vehicles, onEdit, onDuplicate, onDelete }: Props) {
   const [sortField, setSortField] = useState<SortField>('date')
   const [sortDir, setSortDir] = useState<SortDir>('desc')
   const { data: config } = useConfig()
@@ -89,6 +91,7 @@ export function ExpenseTable({ expenses, categories, onEdit, onDuplicate, onDele
             expense={expense}
             showTags={showTags}
             showNotes={showNotes}
+            vehicles={vehicles}
             onDelete={onDelete}
             onDuplicate={onDuplicate}
             onEdit={onEdit}
@@ -122,6 +125,7 @@ export function ExpenseTable({ expenses, categories, onEdit, onDuplicate, onDele
                 key={expense.id}
                 categories={categories}
                 expense={expense}
+                vehicles={vehicles}
                 hasTags={hasTags}
                 showNotes={showNotes}
                 onDelete={onDelete}

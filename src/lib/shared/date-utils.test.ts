@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import type { Expense, RecurringExpense } from '@/lib/shared/types/expense'
-import { computeOccurrences, filterExpensesByMonth, getMonthRange } from './date-utils'
+import { computeOccurrences, daysUntil, filterExpensesByMonth, getMonthRange } from './date-utils'
 
 function toStr(d: Date) {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
@@ -270,6 +270,22 @@ describe('computeOccurrences', () => {
     it('should advance to the first Monday when startDate is not a Monday', () => {
       const dates = computeOccurrences({ ...baseRecurring, frequency: 'weekly', dayOfWeek: 1, startDate: '2024-04-03' }, '2024-04-22')
       expect(dates).toEqual(['2024-04-08', '2024-04-15', '2024-04-22'])
+    })
+  })
+})
+
+describe('daysUntil', () => {
+  describe('when the date is in the future', () => {
+    it('should return a positive number', () => {
+      const future = new Date(Date.now() + 10 * 86_400_000).toISOString().slice(0, 10)
+      expect(daysUntil(future)).toBeGreaterThan(0)
+    })
+  })
+
+  describe('when the date is in the past', () => {
+    it('should return a negative number', () => {
+      const past = new Date(Date.now() - 10 * 86_400_000).toISOString().slice(0, 10)
+      expect(daysUntil(past)).toBeLessThan(0)
     })
   })
 })

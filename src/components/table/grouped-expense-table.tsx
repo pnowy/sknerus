@@ -8,6 +8,8 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { useConfig } from '@/hooks/use-expenses'
 import { formatCurrency, formatDate } from '@/lib/shared/format'
 import type { Category, Expense } from '@/lib/shared/types/expense'
+import type { Vehicle } from '@/lib/shared/types/vehicle'
+import { resolveVehicleExpenseIcon } from '@/lib/shared/vehicle-icons'
 import { cn } from '@/lib/utils'
 
 export const GROUP_SORT_OPTIONS = [
@@ -21,6 +23,7 @@ export type GroupSort = (typeof GROUP_SORT_OPTIONS)[number]['value']
 type Props = {
   expenses: Array<Expense>
   categories: Array<Category>
+  vehicles?: Array<Vehicle>
   currency: string
   groupSort: GroupSort
   onEdit: (e: Expense) => void
@@ -34,7 +37,7 @@ type CategoryGroup = {
   total: number
 }
 
-export function GroupedExpenseTable({ expenses, categories, currency, groupSort, onEdit, onDuplicate, onDelete }: Props) {
+export function GroupedExpenseTable({ expenses, categories, vehicles, currency, groupSort, onEdit, onDuplicate, onDelete }: Props) {
   const { data: config } = useConfig()
   const showTags = config?.showTags ?? true
   const showNotes = config?.showNotes ?? true
@@ -106,6 +109,7 @@ export function GroupedExpenseTable({ expenses, categories, currency, groupSort,
                       expense={expense}
                       showTags={showTags}
                       showNotes={showNotes}
+                      vehicles={vehicles}
                       onDelete={onDelete}
                       onDuplicate={onDuplicate}
                       onEdit={onEdit}
@@ -141,6 +145,7 @@ export function GroupedExpenseTable({ expenses, categories, currency, groupSort,
                   hasTags={hasTags}
                   showNotes={showNotes}
                   isCollapsed={isCollapsed}
+                  vehicles={vehicles}
                   onDelete={onDelete}
                   onDuplicate={onDuplicate}
                   onEdit={onEdit}
@@ -162,6 +167,7 @@ function GroupSection({
   hasTags,
   showNotes,
   isCollapsed,
+  vehicles,
   onToggle,
   onEdit,
   onDuplicate,
@@ -173,6 +179,7 @@ function GroupSection({
   hasTags: boolean
   showNotes: boolean
   isCollapsed: boolean
+  vehicles?: Array<Vehicle>
   onToggle: () => void
   onEdit: (e: Expense) => void
   onDuplicate: (e: Expense) => void
@@ -199,56 +206,62 @@ function GroupSection({
         </TableCell>
       </TableRow>
       {!isCollapsed &&
-        group.expenses.map((expense) => (
-          <TableRow key={expense.id}>
-            <TableCell className="pl-10 font-medium">
-              <span className="flex items-center gap-1.5">
-                {expense.name}
-                {expense.recurringId && <Repeat aria-label="Recurring" className="size-3 shrink-0 text-muted-foreground" />}
-                {showNotes && expense.notes && <NoteIndicator notes={expense.notes} />}
-              </span>
-            </TableCell>
-            {hasTags && (
+        group.expenses.map((expense) => {
+          const vehicleIcon = resolveVehicleExpenseIcon(expense, vehicles)
+          return (
+            <TableRow key={expense.id}>
+              <TableCell className="pl-10 font-medium">
+                <span className="flex items-center gap-1.5">
+                  {expense.name}
+                  {vehicleIcon && (
+                    <vehicleIcon.Icon aria-label="Vehicle expense" className="size-3.5 shrink-0" style={{ color: vehicleIcon.color }} />
+                  )}
+                  {expense.recurringId && <Repeat aria-label="Recurring" className="size-3 shrink-0 text-muted-foreground" />}
+                  {showNotes && expense.notes && <NoteIndicator notes={expense.notes} />}
+                </span>
+              </TableCell>
+              {hasTags && (
+                <TableCell>
+                  <div className="flex flex-wrap gap-1">
+                    {expense.tags.map((t) => (
+                      <Badge key={t} variant="secondary" className="text-xs">
+                        {t}
+                      </Badge>
+                    ))}
+                  </div>
+                </TableCell>
+              )}
+              <TableCell className={cn('tabular-nums', expense.amount > 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-foreground')}>
+                <span className="flex flex-col">
+                  <span>
+                    {expense.amount > 0 ? '+' : ''}
+                    {formatCurrency(Math.abs(expense.amount), expense.currency)}
+                  </span>
+                  {expense.originalCurrency && expense.originalAmount !== undefined && (
+                    <span className="text-muted-foreground text-xs tabular-nums">
+                      {expense.originalAmount > 0 ? '+' : ''}
+                      {formatCurrency(Math.abs(expense.originalAmount), expense.originalCurrency)}
+                    </span>
+                  )}
+                </span>
+              </TableCell>
+              <TableCell className="text-muted-foreground">{formatDate(expense.date)}</TableCell>
               <TableCell>
-                <div className="flex flex-wrap gap-1">
-                  {expense.tags.map((t) => (
-                    <Badge key={t} variant="secondary" className="text-xs">
-                      {t}
-                    </Badge>
-                  ))}
+                <div className="flex items-center gap-1">
+                  <Button size="icon-sm" variant="ghost" onClick={() => onEdit(expense)}>
+                    <Pencil className="size-3.5" />
+                  </Button>
+                  <Button size="icon-sm" variant="ghost" onClick={() => onDuplicate(expense)}>
+                    <Copy className="size-3.5" />
+                  </Button>
+                  <Button size="icon-sm" variant="ghost" onClick={() => onDelete(expense.id)}>
+                    <Trash2 className="size-3.5 text-destructive" />
+                  </Button>
                 </div>
               </TableCell>
-            )}
-            <TableCell className={cn('tabular-nums', expense.amount > 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-foreground')}>
-              <span className="flex flex-col">
-                <span>
-                  {expense.amount > 0 ? '+' : ''}
-                  {formatCurrency(Math.abs(expense.amount), expense.currency)}
-                </span>
-                {expense.originalCurrency && expense.originalAmount !== undefined && (
-                  <span className="text-muted-foreground text-xs tabular-nums">
-                    {expense.originalAmount > 0 ? '+' : ''}
-                    {formatCurrency(Math.abs(expense.originalAmount), expense.originalCurrency)}
-                  </span>
-                )}
-              </span>
-            </TableCell>
-            <TableCell className="text-muted-foreground">{formatDate(expense.date)}</TableCell>
-            <TableCell>
-              <div className="flex items-center gap-1">
-                <Button size="icon-sm" variant="ghost" onClick={() => onEdit(expense)}>
-                  <Pencil className="size-3.5" />
-                </Button>
-                <Button size="icon-sm" variant="ghost" onClick={() => onDuplicate(expense)}>
-                  <Copy className="size-3.5" />
-                </Button>
-                <Button size="icon-sm" variant="ghost" onClick={() => onDelete(expense.id)}>
-                  <Trash2 className="size-3.5 text-destructive" />
-                </Button>
-              </div>
-            </TableCell>
-          </TableRow>
-        ))}
+            </TableRow>
+          )
+        })}
     </>
   )
 }

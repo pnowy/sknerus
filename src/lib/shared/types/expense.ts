@@ -1,3 +1,5 @@
+import type { VehicleExpense } from '@/lib/shared/types/vehicle.ts'
+
 export type Expense = {
   id: string
   name: string
@@ -11,6 +13,7 @@ export type Expense = {
   recurringId?: string
   originalAmount?: number
   originalCurrency?: string
+  vehicleExpense?: VehicleExpense
 }
 
 export type RecurringExpense = {
@@ -34,6 +37,11 @@ export type Category = {
   id: string
   name: string
   color: string
+  vehicleId?: string
+}
+
+export type AppFeatures = {
+  vehicleExpenseTracking?: boolean
 }
 
 export type Config = {
@@ -46,6 +54,7 @@ export type Config = {
   exchangeApiKey?: string
   showTags: boolean
   showNotes: boolean
+  features?: AppFeatures
 }
 
 type CurrencyCode = string

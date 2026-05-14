@@ -1,5 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { useTheme } from 'next-themes'
+import { useState } from 'react'
 import { toast } from 'sonner'
 import { AppLayout } from '@/components/layout/app-layout'
 import { CategoryList } from '@/components/settings/category-list'
@@ -8,15 +9,19 @@ import { ExchangeProviderSelector } from '@/components/settings/exchange-provide
 import { ImportDialog } from '@/components/settings/import-dialog'
 import { RecurringList } from '@/components/settings/recurring-list'
 import { SupportedCurrenciesSelector } from '@/components/settings/supported-currencies-selector'
+import { VehicleList } from '@/components/settings/vehicle-list'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Switch } from '@/components/ui/switch'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { useConfig, useExpenses, useRenameCategory, useUpdateConfig } from '@/hooks/use-expenses'
+import { useVehicles } from '@/hooks/use-vehicles'
 import { getConfig } from '@/lib/server/functions/config'
 import { createExpense, getExpenses } from '@/lib/server/functions/expenses'
 import { getRecurring } from '@/lib/server/functions/recurring'
+import { getVehicles } from '@/lib/server/functions/vehicles'
 import { exportToCSV, parseCSV } from '@/lib/shared/csv'
 import { CURRENCIES } from '@/lib/shared/currencies'
 import { StartPage } from '@/lib/shared/types/start-page'
@@ -27,6 +32,7 @@ export const Route = createFileRoute('/settings')({
       queryClient.ensureQueryData({ queryKey: ['expenses'], queryFn: () => getExpenses() }),
       queryClient.ensureQueryData({ queryKey: ['config'], queryFn: () => getConfig() }),
       queryClient.ensureQueryData({ queryKey: ['recurring'], queryFn: () => getRecurring() }),
+      queryClient.ensureQueryData({ queryKey: ['vehicles'], queryFn: () => getVehicles() }),
     ]),
   component: SettingsPage,
 })
@@ -36,9 +42,11 @@ const FISCAL_DAYS = Array.from({ length: 31 }, (_, i) => i + 1)
 function SettingsPage() {
   const { data: config } = useConfig()
   const { data: allExpenses = [] } = useExpenses()
+  const { data: vehicles = [] } = useVehicles()
   const updateConfig = useUpdateConfig()
   const renameCategoryMutation = useRenameCategory()
   const { theme, setTheme } = useTheme()
+  const [activeTab, setActiveTab] = useState('general')
 
   if (!config) return null
   const currentConfig = config
@@ -155,150 +163,248 @@ function SettingsPage() {
     }
   }
 
+  const vehicleTrackingEnabled = config.features?.vehicleExpenseTracking ?? false
+
   return (
     <AppLayout>
-      <div className="space-y-6">
+      <div className="space-y-4">
         <h1 className="hidden font-semibold text-xl sm:block">Settings</h1>
-        <Card>
-          <CardHeader>
-            <CardTitle>Categories</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <CategoryList categories={config.categories} onChange={handleCategoriesChange} onNameChange={handleCategoryRename} />
-          </CardContent>
-        </Card>
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-          <Card>
-            <CardHeader>
-              <CardTitle>Currency</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <CurrencySelector value={config.currency} onChange={handleCurrencyChange} />
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader>
-              <CardTitle>Exchange Rate Provider</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <ExchangeProviderSelector
-                apiKey={config.exchangeApiKey}
-                provider={config.exchangeProvider}
-                onChange={handleExchangeProviderChange}
-              />
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader>
-              <CardTitle>Fiscal Start Day</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <Select value={String(config.startDate)} onValueChange={(v) => v && handleStartDateChange(v)}>
-                <SelectTrigger>
-                  <SelectValue>{(value: string) => `Day ${value}`}</SelectValue>
-                </SelectTrigger>
-                <SelectContent>
-                  {FISCAL_DAYS.map((d) => (
-                    <SelectItem key={d} value={String(d)}>
-                      Day {d}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <p className="mt-1 text-muted-foreground text-xs">Day of month when your budget cycle starts</p>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader>
-              <CardTitle>Start Page</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <Select value={config.startPage} onValueChange={(v) => v && handleStartPageChange(v)}>
-                <SelectTrigger>
-                  <SelectValue>{(value: string) => (value === StartPage.Table ? 'Table' : 'Dashboard')}</SelectValue>
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value={StartPage.Dashboard}>Dashboard</SelectItem>
-                  <SelectItem value={StartPage.Table}>Table</SelectItem>
-                </SelectContent>
-              </Select>
-              <p className="mt-1 text-muted-foreground text-xs">Page shown when you open the app</p>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader>
-              <CardTitle>Theme</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="flex items-center gap-3">
-                <Label>Appearance</Label>
-                <Select value={theme} onValueChange={(v) => v && setTheme(v)}>
-                  <SelectTrigger className="w-36">
-                    <SelectValue>{(value: string) => (value ? `${value.charAt(0).toUpperCase()}${value.slice(1)}` : null)}</SelectValue>
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="light">Light</SelectItem>
-                    <SelectItem value="dark">Dark</SelectItem>
-                    <SelectItem value="system">System</SelectItem>
-                  </SelectContent>
-                </Select>
+        <Tabs value={activeTab} onValueChange={setActiveTab}>
+          <TabsList>
+            <TabsTrigger value="general">General</TabsTrigger>
+            {vehicleTrackingEnabled && <TabsTrigger value="vehicles">Vehicles</TabsTrigger>}
+          </TabsList>
+
+          <TabsContent value="general">
+            <div className="space-y-6 pt-4">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Categories</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <CategoryList categories={config.categories} onChange={handleCategoriesChange} onNameChange={handleCategoryRename} />
+                </CardContent>
+              </Card>
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Currency</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <CurrencySelector value={config.currency} onChange={handleCurrencyChange} />
+                  </CardContent>
+                </Card>
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Exchange Rate Provider</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <ExchangeProviderSelector
+                      apiKey={config.exchangeApiKey}
+                      provider={config.exchangeProvider}
+                      onChange={handleExchangeProviderChange}
+                    />
+                  </CardContent>
+                </Card>
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Fiscal Start Day</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <Select value={String(config.startDate)} onValueChange={(v) => v && handleStartDateChange(v)}>
+                      <SelectTrigger>
+                        <SelectValue>{(value: string) => `Day ${value}`}</SelectValue>
+                      </SelectTrigger>
+                      <SelectContent>
+                        {FISCAL_DAYS.map((d) => (
+                          <SelectItem key={d} value={String(d)}>
+                            Day {d}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <p className="mt-1 text-muted-foreground text-xs">Day of month when your budget cycle starts</p>
+                  </CardContent>
+                </Card>
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Start Page</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <Select value={config.startPage} onValueChange={(v) => v && handleStartPageChange(v)}>
+                      <SelectTrigger>
+                        <SelectValue>{(value: string) => (value === StartPage.Table ? 'Table' : 'Dashboard')}</SelectValue>
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value={StartPage.Dashboard}>Dashboard</SelectItem>
+                        <SelectItem value={StartPage.Table}>Table</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <p className="mt-1 text-muted-foreground text-xs">Page shown when you open the app</p>
+                  </CardContent>
+                </Card>
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Theme</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="flex items-center gap-3">
+                      <Label>Appearance</Label>
+                      <Select value={theme} onValueChange={(v) => v && setTheme(v)}>
+                        <SelectTrigger className="w-36">
+                          <SelectValue>
+                            {(value: string) => (value ? `${value.charAt(0).toUpperCase()}${value.slice(1)}` : null)}
+                          </SelectValue>
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="light">Light</SelectItem>
+                          <SelectItem value="dark">Dark</SelectItem>
+                          <SelectItem value="system">System</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </CardContent>
+                </Card>
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Display</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-between gap-3">
+                        <Label htmlFor="show-tags">Show tags</Label>
+                        <Switch checked={config.showTags} id="show-tags" onCheckedChange={handleShowTagsChange} />
+                      </div>
+                      <div className="flex items-center justify-between gap-3">
+                        <Label htmlFor="show-notes">Show notes</Label>
+                        <Switch checked={config.showNotes} id="show-notes" onCheckedChange={handleShowNotesChange} />
+                      </div>
+                    </div>
+                    <p className="mt-2 text-muted-foreground text-xs">Hide tags or notes from forms and tables</p>
+                  </CardContent>
+                </Card>
               </div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader>
-              <CardTitle>Display</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-3">
-                <div className="flex items-center justify-between gap-3">
-                  <Label htmlFor="show-tags">Show tags</Label>
-                  <Switch checked={config.showTags} id="show-tags" onCheckedChange={handleShowTagsChange} />
-                </div>
-                <div className="flex items-center justify-between gap-3">
-                  <Label htmlFor="show-notes">Show notes</Label>
-                  <Switch checked={config.showNotes} id="show-notes" onCheckedChange={handleShowNotesChange} />
-                </div>
-              </div>
-              <p className="mt-2 text-muted-foreground text-xs">Hide tags or notes from forms and tables</p>
-            </CardContent>
-          </Card>
-        </div>
-        <Card>
-          <CardHeader>
-            <CardTitle>Additional Currencies</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="mb-3 text-muted-foreground text-sm">Select currencies to use when recording expenses.</p>
-            <SupportedCurrenciesSelector
-              allCurrencies={CURRENCIES}
-              defaultCurrency={config.currency}
-              value={config.supportedCurrencies}
-              onChange={handleSupportedCurrenciesChange}
-            />
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader>
-            <CardTitle>Recurring Transactions</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <RecurringList categories={config.categories} currency={config.currency} />
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader>
-            <CardTitle>Data</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="flex flex-wrap gap-3">
-              <Button variant="outline" onClick={handleCsvExport}>
-                Export CSV
-              </Button>
-              <ImportDialog onFileSelected={handleFileImport} />
+              <Card>
+                <CardHeader>
+                  <CardTitle>Additional Currencies</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="mb-3 text-muted-foreground text-sm">Select currencies to use when recording expenses.</p>
+                  <SupportedCurrenciesSelector
+                    allCurrencies={CURRENCIES}
+                    defaultCurrency={config.currency}
+                    value={config.supportedCurrencies}
+                    onChange={handleSupportedCurrenciesChange}
+                  />
+                </CardContent>
+              </Card>
+              <Card>
+                <CardHeader>
+                  <CardTitle>Recurring Transactions</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <RecurringList categories={config.categories} currency={config.currency} />
+                </CardContent>
+              </Card>
+              <Card>
+                <CardHeader>
+                  <CardTitle>Data</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="flex flex-wrap gap-3">
+                    <Button variant="outline" onClick={handleCsvExport}>
+                      Export CSV
+                    </Button>
+                    <ImportDialog onFileSelected={handleFileImport} />
+                  </div>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardHeader>
+                  <CardTitle>Plugins</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="flex items-center gap-3">
+                    <Switch
+                      checked={vehicleTrackingEnabled}
+                      id="vehicle-tracking"
+                      onCheckedChange={async (checked) => {
+                        try {
+                          await updateConfig.mutateAsync({
+                            ...currentConfig,
+                            features: { ...currentConfig.features, vehicleExpenseTracking: checked },
+                          })
+                          if (!checked) setActiveTab('general')
+                          toast.success(checked ? 'Vehicle tracking enabled' : 'Vehicle tracking disabled')
+                        } catch {
+                          toast.error('Failed to update setting')
+                        }
+                      }}
+                    />
+                    <Label htmlFor="vehicle-tracking">Vehicle expense tracking</Label>
+                  </div>
+                </CardContent>
+              </Card>
             </div>
-          </CardContent>
-        </Card>
+          </TabsContent>
+
+          <TabsContent value="vehicles">
+            <div className="space-y-6 pt-4">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Vehicles</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <VehicleList currency={config.currency} expenses={allExpenses} vehicles={vehicles} />
+                </CardContent>
+              </Card>
+              {vehicles.length > 0 && (
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Category → Vehicle</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="mb-3 text-muted-foreground text-sm">
+                      Assign a vehicle to a category to enable fuel tracking for expenses in that category.
+                    </p>
+                    <div className="space-y-2">
+                      {config.categories.map((cat) => (
+                        <div key={cat.id} className="flex items-center gap-3">
+                          <span className="w-32 truncate text-sm">{cat.name}</span>
+                          <Select
+                            value={cat.vehicleId ?? ''}
+                            onValueChange={async (val) => {
+                              const updated = config.categories.map((c) => (c.id === cat.id ? { ...c, vehicleId: val || undefined } : c))
+                              try {
+                                await updateConfig.mutateAsync({ ...currentConfig, categories: updated })
+                              } catch {
+                                toast.error('Failed to update category')
+                              }
+                            }}
+                          >
+                            <SelectTrigger className="w-48">
+                              <SelectValue placeholder="No vehicle">
+                                {(v: string) => vehicles.find((vh) => vh.id === v)?.name ?? 'No vehicle'}
+                              </SelectValue>
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="">No vehicle</SelectItem>
+                              {vehicles.map((v) => (
+                                <SelectItem key={v.id} value={v.id}>
+                                  {v.name}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+            </div>
+          </TabsContent>
+        </Tabs>
         <p className="pt-2 text-center text-muted-foreground text-xs">
           Version <span className="font-mono">{__APP_VERSION__}</span>
         </p>

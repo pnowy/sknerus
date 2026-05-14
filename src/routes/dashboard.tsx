@@ -13,8 +13,10 @@ import { Button } from '@/components/ui/button'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { useDateRange } from '@/hooks/use-date-range'
 import { useConfig, useExpenses } from '@/hooks/use-expenses'
+import { useVehicles } from '@/hooks/use-vehicles'
 import { getConfig } from '@/lib/server/functions/config'
 import { getExpenses } from '@/lib/server/functions/expenses'
+import { getVehicles } from '@/lib/server/functions/vehicles'
 import { filterExpensesByRange } from '@/lib/shared/date-utils'
 import { DashboardTab } from '@/lib/shared/types/dashboard-tab'
 import { RangeScope } from '@/lib/shared/types/range-scope'
@@ -24,6 +26,7 @@ export const Route = createFileRoute('/dashboard')({
     Promise.all([
       queryClient.ensureQueryData({ queryKey: ['expenses'], queryFn: () => getExpenses() }),
       queryClient.ensureQueryData({ queryKey: ['config'], queryFn: () => getConfig() }),
+      queryClient.ensureQueryData({ queryKey: ['vehicles'], queryFn: () => getVehicles() }),
     ]),
   component: DashboardPage,
 })
@@ -31,6 +34,7 @@ export const Route = createFileRoute('/dashboard')({
 function DashboardPage() {
   const { data: allExpenses = [] } = useExpenses()
   const { data: config } = useConfig()
+  const { data: vehicles = [] } = useVehicles()
   const [addOpen, setAddOpen] = useState(false)
   const navigate = useNavigate()
   const search = useRouterState({ select: (s) => s.location.search }) as { tab?: DashboardTab }
@@ -113,6 +117,7 @@ function DashboardPage() {
         categories={categories}
         currency={currency}
         supportedCurrencies={config?.supportedCurrencies ?? []}
+        vehicles={config?.features?.vehicleExpenseTracking ? vehicles : undefined}
         open={addOpen}
         onClose={() => setAddOpen(false)}
       />

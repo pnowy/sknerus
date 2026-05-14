@@ -83,6 +83,25 @@ All dashboard views support flexible time-range navigation: switch between month
 - Toggle visibility of tags and notes fields across the app
 - Manage recurring transactions (view, edit, delete templates)
 - Export and import all expenses
+- Enable optional plugins (see below)
+
+### Plugins
+
+Optional features that extend the core tracker. Toggle them on under **Settings → Plugins** — they stay invisible until you need them, so the app stays focused for users who only want basic expense tracking.
+
+#### Vehicle expense tracking
+
+Track per-vehicle costs alongside your regular expenses. Once enabled, a **Vehicles** tab appears in Settings where you can:
+
+- Register one or more vehicles (car or motorcycle) with engine size, fuel tank size, fuel type, and starting odometer
+- Bind a category to a vehicle so any expense in that category is automatically a vehicle expense
+- Pick an expense type per transaction — Fuel, Insurance, Oil change, Purchase, or Accessories — and customize the name, icon, and color of each type per vehicle (the icon/color shows up next to the expense name in tables and cards)
+- Record fuel fills with liters, odometer reading, and post-fill tank level to compute real-world L/100km consumption
+- Set oil-change intervals in both kilometers and months — the app warns when either threshold is approaching, whichever comes first
+- Track insurance and technical inspection expiry dates with status indicators (ok / warning / critical)
+- Open the **Stats** dialog on a vehicle for a fuel history table and a weekly spend-breakdown chart across all expense types
+
+> Units are metric: kilometers, liters, L/100km. Imperial units (miles, gallons, MPG) are not currently supported — open an issue if you'd like a metric/imperial toggle.
 
 # Screenshots
 
@@ -171,6 +190,7 @@ Everything else is configured from the `/settings` page:
 - **Start Page** — which page loads first: dashboard or table view
 - **Recurring Transactions** — manage recurring income and expense templates
 - **Export / Import** — download all data as CSV or upload a CSV to import transactions. The import modal in the app describes the expected format and supported columns in detail.
+- **Plugins** — enable optional features such as vehicle expense tracking. See the [Plugins](#plugins) section above for details.
 
 ### Data Storage
 
@@ -200,12 +220,13 @@ Sknerus ships with a built-in demo data generator that seeds ~2.5 years of reali
 
 The seed generates:
 
-- **12 categories**: Salary, Groceries, Housing, Utilities, Transport, Health, Entertainment, Kids, Dining Out, Clothing, Education, Subscriptions
+- **13 categories**: Salary, Groceries, Housing, Utilities, Transport, Health, Entertainment, Kids, Dining Out, Clothing, Education, Subscriptions, Motorcycle
 - **Income**: primary salary (with annual raises), partner salary starting a few months in, December bonuses, occasional freelance income
 - **Fixed costs**: rent, internet, streaming subscriptions, gym membership
 - **Variable costs**: groceries (3–4 trips/month), fuel, utilities with seasonal swings (higher in winter), dining out
 - **Seasonal patterns**: clothing peaks in spring/autumn, summer vacation in July, Christmas spending in December, school supplies in August/September
 - **Sporadic entries**: doctor visits, pharmacy, dental, car service, home maintenance
+- **Vehicle plugin enabled** with a Kawasaki Z900 SE motorcycle bought ~14 months ago: purchase, two annual insurance cycles, gear/accessories, ~25 fuel fills with odometer readings (consumption around 6 L/100km), and two oil changes — enough to populate the fuel-history table and the weekly spend-trend chart
 
 Once data exists, the seed is skipped automatically on subsequent starts — safe to leave the flag enabled.
 

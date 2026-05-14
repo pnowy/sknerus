@@ -1,5 +1,7 @@
-import { genCategoryId, genExpenseId } from '@/lib/server/ids.server'
+import { genCategoryId, genExpenseId, genVehicleId } from '@/lib/server/ids.server'
 import type { Category, Config, Expense } from '@/lib/shared/types/expense'
+import type { Vehicle, VehicleExpense } from '@/lib/shared/types/vehicle'
+import { FuelType, VehicleExpenseType, VehicleType } from '@/lib/shared/types/vehicle'
 
 const SEED_START = { year: 2023, month: 1 }
 const now = new Date()
@@ -22,7 +24,8 @@ function randInt(min: number, max: number): number {
   return Math.floor(Math.random() * (max - min + 1)) + min
 }
 
-export function generateDemoData(): { config: Config; expenses: Array<Expense> } {
+export function generateDemoData(): { config: Config; expenses: Array<Expense>; vehicles: Array<Vehicle> } {
+  const motorcycleId = genVehicleId()
   const cats = {
     salary: { id: genCategoryId(), name: 'Salary', color: '#22c55e' },
     groceries: { id: genCategoryId(), name: 'Groceries', color: '#84cc16' },
@@ -36,6 +39,7 @@ export function generateDemoData(): { config: Config; expenses: Array<Expense> }
     clothing: { id: genCategoryId(), name: 'Clothing', color: '#ec4899' },
     education: { id: genCategoryId(), name: 'Education', color: '#6366f1' },
     subscriptions: { id: genCategoryId(), name: 'Subscriptions', color: '#64748b' },
+    motorcycle: { id: genCategoryId(), name: 'Motorcycle', color: '#0ea5e9', vehicleId: motorcycleId },
   } as const satisfies Record<string, Category>
 
   const categories = Object.values(cats)
@@ -52,6 +56,32 @@ export function generateDemoData(): { config: Config; expenses: Array<Expense> }
       date: date(year, month, day),
       tags,
     })
+  }
+
+  const pushVehicle = (
+    name: string,
+    amount: number,
+    year: number,
+    month: number,
+    day: number,
+    vehicleExpense: VehicleExpense,
+    tags: Array<string> = []
+  ): void => {
+    expenses.push({
+      id: genExpenseId(),
+      name,
+      amount,
+      currency: 'USD',
+      categoryId: cats.motorcycle.id,
+      date: date(year, month, day),
+      tags,
+      vehicleExpense,
+    })
+  }
+
+  const offsetMonth = (monthsBack: number): { year: number; month: number } => {
+    const d = new Date(now.getFullYear(), now.getMonth() - monthsBack, 1)
+    return { year: d.getFullYear(), month: d.getMonth() + 1 }
   }
 
   let primarySalary = 5800
@@ -188,6 +218,120 @@ export function generateDemoData(): { config: Config; expenses: Array<Expense> }
     }
   }
 
+  // ── Motorcycle: Kawasaki Z900 SE (bought ~14 months ago, used 2024 model) ──
+  const purchase = offsetMonth(14)
+  const insuranceRenew = offsetMonth(2)
+  const insExpiry = offsetMonth(-10)
+
+  const vehicles: Array<Vehicle> = [
+    {
+      id: motorcycleId,
+      name: 'Kawasaki Z900 SE',
+      type: VehicleType.Motorcycle,
+      odometerAtRegistration: 0,
+      yearOfProduction: 2024,
+      engineSize: 948,
+      fuelTankSize: 17,
+      fuelType: FuelType.Gasoline,
+      insuranceExpiry: date(insExpiry.year, insExpiry.month, 10),
+      oilChangeIntervalKm: 6000,
+      oilChangeIntervalMonths: 6,
+      expenseTypeColors: {
+        [VehicleExpenseType.Fuel]: '#0ea5e9',
+        [VehicleExpenseType.Insurance]: '#10b981',
+        [VehicleExpenseType.OilChange]: '#f59e0b',
+        [VehicleExpenseType.Purchase]: '#8b5cf6',
+        [VehicleExpenseType.Accessories]: '#ec4899',
+      },
+    },
+  ]
+
+  // Purchase (used 2024 SE, low mileage)
+  pushVehicle('Kawasaki Z900 SE — Purchase', -10500, purchase.year, purchase.month, 15, {
+    vehicleId: motorcycleId,
+    expenseType: VehicleExpenseType.Purchase,
+  })
+
+  // Annual insurance (two cycles)
+  pushVehicle('Motorcycle Insurance', -850, purchase.year, purchase.month, 12, {
+    vehicleId: motorcycleId,
+    expenseType: VehicleExpenseType.Insurance,
+  })
+  pushVehicle('Motorcycle Insurance', -875, insuranceRenew.year, insuranceRenew.month, 12, {
+    vehicleId: motorcycleId,
+    expenseType: VehicleExpenseType.Insurance,
+  })
+
+  // Gear / accessories — bought soon after the bike, plus a couple later
+  const acc1 = offsetMonth(14)
+  const acc2 = offsetMonth(13)
+  const acc3 = offsetMonth(11)
+  const acc4 = offsetMonth(7)
+  pushVehicle('Helmet (Shoei NXR2)', -680, acc1.year, acc1.month, 18, {
+    vehicleId: motorcycleId,
+    expenseType: VehicleExpenseType.Accessories,
+  })
+  pushVehicle('Riding jacket (Dainese)', -520, acc2.year, acc2.month, 4, {
+    vehicleId: motorcycleId,
+    expenseType: VehicleExpenseType.Accessories,
+  })
+  pushVehicle('Gloves', -120, acc3.year, acc3.month, 9, {
+    vehicleId: motorcycleId,
+    expenseType: VehicleExpenseType.Accessories,
+  })
+  pushVehicle('Tank bag', -180, acc4.year, acc4.month, 12, {
+    vehicleId: motorcycleId,
+    expenseType: VehicleExpenseType.Accessories,
+  })
+
+  // Fuel history — baseline fill at purchase month, then ride pattern with seasonal weighting.
+  // Z900 SE: ~6.0 L/100km, 17L tank. Active season Apr–Oct.
+  let odometer = 8
+  pushVehicle('Fuel', -19.95, purchase.year, purchase.month, 20, {
+    vehicleId: motorcycleId,
+    expenseType: VehicleExpenseType.Fuel,
+    fuelLiters: 15,
+    odometerReading: odometer,
+    fuelLevelPercent: 100,
+  })
+
+  const fillDaysForMonth = (m: number): Array<number> => {
+    if (m >= 4 && m <= 10) return Math.random() > 0.4 ? [7, 19, 28] : [9, 22]
+    if (m === 3 || m === 11) return [16]
+    return []
+  }
+
+  for (let mb = 13; mb >= 0; mb--) {
+    const { year: y, month: m } = offsetMonth(mb)
+    for (const day of fillDaysForMonth(m)) {
+      const rideKm = randInt(230, 330)
+      odometer += rideKm
+      const liters = Number((rideKm * 0.06 + rand(-0.3, 0.3)).toFixed(2))
+      const price = Number((liters * rand(1.25, 1.42)).toFixed(2))
+      pushVehicle('Fuel', -price, y, m, day, {
+        vehicleId: motorcycleId,
+        expenseType: VehicleExpenseType.Fuel,
+        fuelLiters: liters,
+        odometerReading: odometer,
+        fuelLevelPercent: 100,
+      })
+    }
+  }
+
+  // Oil changes — every ~6000km / 6 months
+  const oil1 = offsetMonth(8)
+  const oil2 = offsetMonth(2)
+  pushVehicle('Oil change', -135, oil1.year, oil1.month, 14, {
+    vehicleId: motorcycleId,
+    expenseType: VehicleExpenseType.OilChange,
+    odometerReading: Math.round(odometer * 0.4),
+  })
+  pushVehicle('Oil change', -145, oil2.year, oil2.month, 8, {
+    vehicleId: motorcycleId,
+    expenseType: VehicleExpenseType.OilChange,
+    odometerReading: Math.round(odometer * 0.85),
+  })
+
   return {
     config: {
       categories,
@@ -198,7 +342,9 @@ export function generateDemoData(): { config: Config; expenses: Array<Expense> }
       exchangeProvider: 'frankfurter',
       showTags: true,
       showNotes: true,
+      features: { vehicleExpenseTracking: true },
     },
     expenses,
+    vehicles,
   }
 }
