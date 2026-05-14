@@ -1,5 +1,5 @@
 import { addMonths, format, parseISO } from 'date-fns'
-import { daysUntil } from './date-utils'
+import { daysUntil, generateWeekEndings } from './date-utils'
 import type { Expense } from './types/expense'
 import type { Vehicle } from './types/vehicle'
 import { VehicleExpenseType } from './types/vehicle'
@@ -112,7 +112,13 @@ function latestOilChange(vehicle: Vehicle, expenses: Array<Expense>): Expense | 
     (e) => e.vehicleExpense?.vehicleId === vehicle.id && e.vehicleExpense.expenseType === VehicleExpenseType.OilChange
   )
   if (entries.length === 0) return null
-  return entries.reduce((best, e) => (e.date > best.date ? e : best))
+  return entries.reduce((best, e) => {
+    if (e.date > best.date) return e
+    if (e.date < best.date) return best
+    const bestOdo = best.vehicleExpense?.odometerReading ?? -1
+    const eOdo = e.vehicleExpense?.odometerReading ?? -1
+    return eOdo > bestOdo ? e : best
+  })
 }
 
 export function nextOilChangeDate(vehicle: Vehicle, expenses: Array<Expense>): string | null {
@@ -128,24 +134,18 @@ export function vehicleSpendBreakdownByWeek(vehicle: Vehicle, expenses: Array<Ex
   const entries = expenses.filter((e) => e.vehicleExpense?.vehicleId === vehicle.id).sort((a, b) => a.date.localeCompare(b.date))
   if (entries.length === 0) return []
 
-  const WEEK_MS = 7 * 86_400_000
-  const firstDate = new Date(entries[0].date)
-  const today = new Date()
-  const weekCount = Math.max(1, Math.ceil((today.getTime() - firstDate.getTime()) / WEEK_MS) + 1)
-
+  const weekEndings = generateWeekEndings(entries[0].date)
   const cumulative: Partial<Record<VehicleExpenseType, number>> = {}
   const rows: Array<VehicleSpendWeekRow> = []
   let idx = 0
 
-  for (let i = 0; i < weekCount; i++) {
-    const weekEnd = new Date(firstDate.getTime() + (i + 1) * WEEK_MS)
-    while (idx < entries.length && new Date(entries[idx].date) <= weekEnd) {
-      const e = entries[idx]
-      const type = e.vehicleExpense?.expenseType
-      if (type) cumulative[type] = (cumulative[type] ?? 0) + Math.abs(e.amount)
+  for (const week of weekEndings) {
+    while (idx < entries.length && entries[idx].date <= week) {
+      const type = entries[idx].vehicleExpense?.expenseType
+      if (type) cumulative[type] = (cumulative[type] ?? 0) + Math.abs(entries[idx].amount)
       idx++
     }
-    rows.push({ week: weekEnd.toISOString().slice(0, 10), ...cumulative })
+    rows.push({ week, ...cumulative })
   }
   return rows
 }

@@ -25,10 +25,10 @@ export function VehicleSpendTrendChart({ vehicle, expenses, currency }: Props) {
   )
   const colorFor = (t: VehicleExpenseType) => vehicle.expenseTypeColors?.[t] ?? DEFAULT_EXPENSE_TYPE_COLOR[t]
 
-  if (rows.length < 2 || activeTypes.length === 0) {
+  if (rows.length < 2 || activeTypes.length < 2) {
     return (
       <div className="flex min-h-48 items-center justify-center text-muted-foreground text-sm">
-        Not enough data yet — log a couple of vehicle expenses across at least two weeks.
+        Not enough data yet — log vehicle expenses of at least two different types across at least two weeks.
       </div>
     )
   }

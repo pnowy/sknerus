@@ -334,7 +334,7 @@ export function ExpenseFormDialog({
           {boundVehicle && watchedVehicleExpense?.expenseType === VehicleExpenseType.OilChange && (
             <div className="space-y-3 rounded-lg border p-3">
               <div className="space-y-1">
-                <Label htmlFor="exp-oil-odo">Odometer (km, optional)</Label>
+                <Label htmlFor="exp-oil-odo">Odometer (km)</Label>
                 <Input
                   id="exp-oil-odo"
                   min="0"
@@ -344,6 +344,9 @@ export function ExpenseFormDialog({
                     setValueAs: (v) => (v === '' || v === null || Number.isNaN(Number(v)) ? undefined : Number(v)),
                   })}
                 />
+                {errors.vehicleExpense?.odometerReading && (
+                  <p className="text-destructive text-xs">{errors.vehicleExpense.odometerReading.message}</p>
+                )}
                 <p className="text-muted-foreground text-xs">
                   Recorded at oil change — used to track distance and time until the next one.
                 </p>

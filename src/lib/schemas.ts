@@ -1,5 +1,10 @@
 import { z } from 'zod'
 import { FuelType, VehicleExpenseType, VehicleType } from '@/lib/shared/types/vehicle'
+import { VEHICLE_EXPENSE_ICONS } from '@/lib/shared/vehicle-icons'
+
+const HEX_COLOR = /^#[0-9a-fA-F]{6}$/
+const iconName = z.enum(Object.keys(VEHICLE_EXPENSE_ICONS) as [string, ...Array<string>])
+const hexColor = z.string().regex(HEX_COLOR, 'Must be a #RRGGBB hex color')
 
 const toZodEnum = <T extends string>(obj: Record<string, T>) => z.enum(Object.values(obj) as [T, ...Array<T>])
 
@@ -25,6 +30,9 @@ const vehicleExpenseSchema = z
       if (data.fuelLevelPercent == null) {
         ctx.addIssue({ code: 'custom', path: ['fuelLevelPercent'], message: 'Fuel level is required' })
       }
+    }
+    if (data.expenseType === VehicleExpenseType.OilChange && data.odometerReading == null) {
+      ctx.addIssue({ code: 'custom', path: ['odometerReading'], message: 'Odometer reading is required' })
     }
   })
 
@@ -127,17 +135,17 @@ export const vehicleSchema = z.object({
     .optional(),
   expenseTypeIcons: z
     .object(
-      Object.fromEntries(Object.values(VehicleExpenseType).map((v) => [v, z.string().optional()])) as Record<
+      Object.fromEntries(Object.values(VehicleExpenseType).map((v) => [v, iconName.optional()])) as Record<
         VehicleExpenseType,
-        z.ZodOptional<z.ZodString>
+        z.ZodOptional<typeof iconName>
       >
     )
     .optional(),
   expenseTypeColors: z
     .object(
-      Object.fromEntries(Object.values(VehicleExpenseType).map((v) => [v, z.string().optional()])) as Record<
+      Object.fromEntries(Object.values(VehicleExpenseType).map((v) => [v, hexColor.optional()])) as Record<
         VehicleExpenseType,
-        z.ZodOptional<z.ZodString>
+        z.ZodOptional<typeof hexColor>
       >
     )
     .optional(),

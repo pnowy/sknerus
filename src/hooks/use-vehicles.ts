@@ -34,6 +34,10 @@ export function useDeleteVehicle() {
   const qc = useQueryClient()
   return useMutation({
     mutationFn: (id: string) => deleteVehicle({ data: { id } }),
-    onSuccess: () => qc.invalidateQueries({ queryKey: vehicleQueryKeys.vehicles }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: vehicleQueryKeys.vehicles })
+      qc.invalidateQueries({ queryKey: ['config'] })
+      qc.invalidateQueries({ queryKey: ['expenses'] })
+    },
   })
 }

@@ -30,7 +30,26 @@ export const updateVehicle = createServerFn({ method: 'POST' })
 export const deleteVehicle = createServerFn({ method: 'POST' })
   .inputValidator(z.object({ id: z.string() }))
   .handler(async ({ data }) => {
-    const vehicles = await storage.getVehicles()
-    await storage.saveVehicles(vehicles.filter((v) => v.id !== data.id))
+    const [vehicles, config, expenses] = await Promise.all([storage.getVehicles(), storage.getConfig(), storage.getExpenses()])
+
+    const nextVehicles = vehicles.filter((v) => v.id !== data.id)
+
+    const nextCategories = config.categories.map((c) => (c.vehicleId === data.id ? { ...c, vehicleId: undefined } : c))
+    const categoriesChanged = nextCategories.some((c, i) => c.vehicleId !== config.categories[i].vehicleId)
+
+    let expensesChanged = false
+    const nextExpenses = expenses.map((e) => {
+      if (e.vehicleExpense?.vehicleId === data.id) {
+        expensesChanged = true
+        const { vehicleExpense: _ignored, ...rest } = e
+        return rest
+      }
+      return e
+    })
+
+    await storage.saveVehicles(nextVehicles)
+    if (categoriesChanged) await storage.saveConfig({ ...config, categories: nextCategories })
+    if (expensesChanged) await storage.saveExpenses(nextExpenses)
+
     return { success: true }
   })

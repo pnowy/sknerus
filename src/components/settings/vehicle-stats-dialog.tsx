@@ -1,6 +1,5 @@
 import { VehicleSpendTrendChart } from '@/components/settings/vehicle-spend-trend-chart'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
-import { ScrollArea } from '@/components/ui/scroll-area'
 import { Separator } from '@/components/ui/separator'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { formatCurrency, formatDate } from '@/lib/shared/format'
@@ -72,27 +71,25 @@ export function VehicleStatsDialog({ vehicle, expenses, currency, onClose }: Pro
             {fuelEntries.length === 0 ? (
               <p className="py-4 text-center text-muted-foreground text-sm">No fuel entries yet.</p>
             ) : (
-              <ScrollArea className="min-h-0 flex-1">
-                <div className="space-y-2 pr-3">
-                  {fuelEntries.map((entry) => {
-                    const ve = entry.vehicleExpense
-                    if (!ve) return null
-                    return (
-                      <div key={entry.id} className="flex items-start justify-between gap-4 rounded-lg border px-3 py-2.5">
-                        <div className="min-w-0 space-y-0.5">
-                          <p className="font-medium text-sm">{formatDate(entry.date)}</p>
-                          <div className="flex flex-wrap gap-x-3 gap-y-0.5 text-muted-foreground text-xs">
-                            <span>+{ve.fuelLiters ?? 0} L</span>
-                            <span>{ve.fuelLevelPercent ?? 0}% after</span>
-                            {ve.odometerReading != null && <span>{ve.odometerReading.toLocaleString()} km distance</span>}
-                          </div>
+              <div className="-mr-2 min-h-0 flex-1 space-y-2 overflow-y-auto pr-2">
+                {fuelEntries.map((entry) => {
+                  const ve = entry.vehicleExpense
+                  if (!ve) return null
+                  return (
+                    <div key={entry.id} className="flex items-start justify-between gap-4 rounded-lg border px-3 py-2.5">
+                      <div className="min-w-0 space-y-0.5">
+                        <p className="font-medium text-sm">{formatDate(entry.date)}</p>
+                        <div className="flex flex-wrap gap-x-3 gap-y-0.5 text-muted-foreground text-xs">
+                          <span>+{ve.fuelLiters ?? 0} L</span>
+                          <span>{ve.fuelLevelPercent ?? 0}% after</span>
+                          {ve.odometerReading != null && <span>{ve.odometerReading.toLocaleString()} km distance</span>}
                         </div>
-                        <p className="shrink-0 font-medium text-sm">{formatCurrency(Math.abs(entry.amount), currency)}</p>
                       </div>
-                    )
-                  })}
-                </div>
-              </ScrollArea>
+                      <p className="shrink-0 font-medium text-sm">{formatCurrency(Math.abs(entry.amount), currency)}</p>
+                    </div>
+                  )
+                })}
+              </div>
             )}
 
             {fuelEntries.length > 0 && (
@@ -107,7 +104,7 @@ export function VehicleStatsDialog({ vehicle, expenses, currency, onClose }: Pro
                 </div>
                 {estimatedRange != null && (
                   <p className="text-muted-foreground text-xs">
-                    Based on past consumption, estimated range with current tank:{' '}
+                    Estimated range from last fill-up (based on past consumption):{' '}
                     <span className="font-medium text-foreground">~{estimatedRange.toLocaleString()} km</span>
                   </p>
                 )}

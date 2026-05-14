@@ -64,6 +64,7 @@ export function VehicleFormDialog({ vehicle, onClose }: Props) {
     register,
     control,
     handleSubmit,
+    watch,
     formState: { errors },
   } = useForm<VehicleFormInput>({
     // biome-ignore lint/suspicious/noExplicitAny: https://github.com/react-hook-form/resolvers/issues/842
@@ -258,6 +259,11 @@ export function VehicleFormDialog({ vehicle, onClose }: Props) {
               {errors.oilChangeIntervalMonths && <p className="text-destructive text-xs">{errors.oilChangeIntervalMonths.message}</p>}
             </div>
           </div>
+          {!watch('oilChangeIntervalKm') && !watch('oilChangeIntervalMonths') && (
+            <p className="text-muted-foreground text-xs">
+              Oil change tracking is disabled — set at least one interval (km or months) to get warnings before the next service.
+            </p>
+          )}
           <div className="space-y-2">
             <Label>Expense type names</Label>
             <p className="text-muted-foreground text-xs">

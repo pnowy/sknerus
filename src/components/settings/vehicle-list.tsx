@@ -5,6 +5,7 @@ import { VehicleFormDialog } from '@/components/settings/vehicle-form-dialog'
 import { VehicleStatsDialog } from '@/components/settings/vehicle-stats-dialog'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { useDeleteVehicle } from '@/hooks/use-vehicles'
 import type { Expense } from '@/lib/shared/types/expense'
 import type { Vehicle } from '@/lib/shared/types/vehicle'
@@ -15,6 +16,10 @@ type Props = {
   vehicles: Array<Vehicle>
   expenses: Array<Expense>
   currency: string
+}
+
+function affectedCounts(vehicle: Vehicle, expenses: Array<Expense>): { expenses: number } {
+  return { expenses: expenses.filter((e) => e.vehicleExpense?.vehicleId === vehicle.id).length }
 }
 
 function severityClass(s: ExpirySeverity): string {
@@ -39,12 +44,16 @@ export function VehicleList({ vehicles, expenses, currency }: Props) {
   const deleteVehicle = useDeleteVehicle()
   const [editingVehicle, setEditingVehicle] = useState<Vehicle | null>(null)
   const [historyVehicle, setHistoryVehicle] = useState<Vehicle | null>(null)
+  const [deletingVehicle, setDeletingVehicle] = useState<Vehicle | null>(null)
   const [addOpen, setAddOpen] = useState(false)
 
-  async function handleDelete(vehicle: Vehicle) {
+  async function confirmDelete() {
+    if (!deletingVehicle) return
+    const name = deletingVehicle.name
     try {
-      await deleteVehicle.mutateAsync(vehicle.id)
-      toast.success(`${vehicle.name} deleted`)
+      await deleteVehicle.mutateAsync(deletingVehicle.id)
+      toast.success(`${name} deleted`)
+      setDeletingVehicle(null)
     } catch {
       toast.error('Failed to delete vehicle')
     }
@@ -86,7 +95,7 @@ export function VehicleList({ vehicles, expenses, currency }: Props) {
               <Button size="icon" variant="ghost" onClick={() => setEditingVehicle(v)}>
                 <Pencil className="size-4" />
               </Button>
-              <Button size="icon" variant="ghost" onClick={() => handleDelete(v)}>
+              <Button size="icon" variant="ghost" onClick={() => setDeletingVehicle(v)}>
                 <Trash2 className="size-4" />
               </Button>
             </div>
@@ -101,6 +110,37 @@ export function VehicleList({ vehicles, expenses, currency }: Props) {
       {historyVehicle && (
         <VehicleStatsDialog currency={currency} expenses={expenses} vehicle={historyVehicle} onClose={() => setHistoryVehicle(null)} />
       )}
+      <Dialog open={!!deletingVehicle} onOpenChange={(o) => !o && setDeletingVehicle(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Delete {deletingVehicle?.name}?</DialogTitle>
+          </DialogHeader>
+          {deletingVehicle && (
+            <div className="space-y-2 text-sm">
+              <p>This vehicle will be removed from settings.</p>
+              {(() => {
+                const counts = affectedCounts(deletingVehicle, expenses)
+                return counts.expenses > 0 ? (
+                  <p className="text-muted-foreground">
+                    {counts.expenses} related expense{counts.expenses === 1 ? '' : 's'} will be kept but unlinked from this vehicle (their
+                    fuel and odometer data will be cleared). Bound categories will be unbound.
+                  </p>
+                ) : (
+                  <p className="text-muted-foreground">Bound categories will be unbound.</p>
+                )
+              })()}
+            </div>
+          )}
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setDeletingVehicle(null)}>
+              Cancel
+            </Button>
+            <Button disabled={deleteVehicle.isPending} variant="destructive" onClick={confirmDelete}>
+              {deleteVehicle.isPending ? 'Deleting…' : 'Delete'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }
