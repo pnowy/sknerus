@@ -9,10 +9,10 @@ ENV NODE_ENV="production"
 FROM base AS build
 
 # Install pnpm
-RUN npm install -g pnpm
+RUN npm install -g pnpm@11.1.2
 
 # Install node modules
-COPY package.json pnpm-lock.yaml ./
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 RUN pnpm install --frozen-lockfile
 
 # Copy application code
