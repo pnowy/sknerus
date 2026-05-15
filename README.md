@@ -105,6 +105,9 @@ Track per-vehicle costs alongside your regular expenses. Once enabled, a **Vehic
 
 # Screenshots
 
+<details>
+<summary>Click to expand screenshots</summary>
+
 | Page                                            | View                                                |
 |-------------------------------------------------|-----------------------------------------------------|
 | Desktop - Dashboard – Breakdown (light)         | ![](./etc/desktop-dashboard-breakdown.png)          |
@@ -117,6 +120,8 @@ Track per-vehicle costs alongside your regular expenses. Once enabled, a **Vehic
 | Desktop - Settings                              | ![](./etc/desktop-settings.png)                     |
 | Desktop - Vehicle Settings                      | ![](./etc/vehicle-settings.png)                     |
 | Desktop - Vehicle Stats                         | ![](./etc/vehicle-stats.png)                        |
+
+</details>
 
 # Installation
 
