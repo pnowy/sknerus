@@ -115,6 +115,8 @@ Track per-vehicle costs alongside your regular expenses. Once enabled, a **Vehic
 | Desktop - Table View                            | ![](./etc/desktop-table-view.png)                   |
 | Desktop - Table View (group by category)        | ![](./etc/desktop-table-grouped.png)                |
 | Desktop - Settings                              | ![](./etc/desktop-settings.png)                     |
+| Desktop - Vehicle Settings                      | ![](./etc/vehicle-settings.png)                     |
+| Desktop - Vehicle Stats                         | ![](./etc/vehicle-stats.png)                        |
 
 # Installation
 

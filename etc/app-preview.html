@@ -190,6 +190,16 @@
     }
     .w-btm img { width: 310px; }
 
+    /* Upper-right behind main: vehicle stats */
+    .w-vehicle {
+      right: 60px;
+      top: 24px;
+      width: 280px;
+      transform: rotate(1.5deg);
+      z-index: 2;
+    }
+    .w-vehicle img { width: 280px; }
+
   </style>
 </head>
 <body>
@@ -208,6 +218,7 @@
         <li><span class="dot"></span>Income &amp; expense tracking</li>
         <li><span class="dot"></span>Recurring transactions</li>
         <li><span class="dot"></span>Multi-currency with auto exchange rates</li>
+        <li><span class="dot"></span>Vehicle expense &amp; fuel tracking (optional plugin)</li>
         <li><span class="dot"></span>Configurable fiscal periods</li>
         <li><span class="dot"></span>Light &amp; dark theme · PWA</li>
         <li><span class="dot"></span>Export / import · self-hosted</li>
@@ -248,6 +259,17 @@
         </div>
         <img src="./desktop-dashboard-breakdown.png" alt="Dashboard – Trends">
         <span class="badge badge-dark">LIGHT</span>
+      </div>
+
+      <!-- Vehicle Stats -->
+      <div class="window w-vehicle">
+        <div class="chrome light-chrome">
+          <div class="btn btn-r"></div>
+          <div class="btn btn-y"></div>
+          <div class="btn btn-g"></div>
+        </div>
+        <img src="./vehicle-stats.png" alt="Vehicle Stats">
+        <span class="badge badge-light">LIGHT</span>
       </div>
 
     </div>
