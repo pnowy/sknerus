@@ -242,7 +242,7 @@ Once data exists, the seed is skipped automatically on subsequent starts — saf
 If Sknerus saves you a few clicks (or a few złoty), consider:
 
 - ⭐ **[Starring the repo](https://github.com/pnowy/sknerus/stargazers)** — it helps others discover the project
-- 🐛 **[Reporting a bug or suggesting a feature](https://github.com/pnowy/sknerus/issues)** — feedback shapes the roadmap
+- 🚀 **[Reporting a bug or suggesting a feature](https://github.com/pnowy/sknerus/issues)** — feedback shapes the roadmap
 - 🛠️ **Opening a PR** — contributions are welcome, big or small
 
 No paid tier, no telemetry, no analytics — just an app I built for myself and shared. A star is the cheapest way to say thanks. 🙏
