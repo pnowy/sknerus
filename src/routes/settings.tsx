@@ -1,3 +1,4 @@
+import { useQueryClient } from '@tanstack/react-query'
 import { createFileRoute } from '@tanstack/react-router'
 import { useTheme } from 'next-themes'
 import { useState } from 'react'
@@ -16,7 +17,7 @@ import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Switch } from '@/components/ui/switch'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { useConfig, useExpenses, useRenameCategory, useUpdateConfig } from '@/hooks/use-expenses'
+import { queryKeys, useConfig, useExpenses, useRenameCategory, useUpdateConfig } from '@/hooks/use-expenses'
 import { useVehicles } from '@/hooks/use-vehicles'
 import { getConfig } from '@/lib/server/functions/config'
 import { createExpense, getExpenses } from '@/lib/server/functions/expenses'
@@ -45,6 +46,7 @@ function SettingsPage() {
   const { data: vehicles = [] } = useVehicles()
   const updateConfig = useUpdateConfig()
   const renameCategoryMutation = useRenameCategory()
+  const queryClient = useQueryClient()
   const { theme, setTheme } = useTheme()
   const [activeTab, setActiveTab] = useState('general')
 
@@ -157,6 +159,7 @@ function SettingsPage() {
         `Imported ${parsed.length} transactions${newCategories.length > 0 ? ` and ${newCategories.length} new categories` : ''}`,
         { id: toastId }
       )
+      await queryClient.invalidateQueries({ queryKey: queryKeys.expenses })
     } catch (err) {
       console.error('Import failed:', err)
       toast.error(`Import failed: ${err instanceof Error ? err.message : String(err)}`, { id: toastId })
