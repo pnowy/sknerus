@@ -1,4 +1,4 @@
-name: Release
+name: Publish
 
 on:
   push:
@@ -13,7 +13,7 @@ env:
 
 jobs:
   build:
-    name: Build and push Docker image
+    name: Build and publish Docker image
     permissions:
       contents: read
       packages: write
@@ -57,7 +57,6 @@ jobs:
           platforms: linux/amd64,linux/arm64
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-
   release:
     name: Create GitHub Release
     if: github.ref_type == 'tag'
