@@ -12,7 +12,7 @@
       height: 875px;
       overflow: hidden;
       font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', Roboto, sans-serif;
-      background: #080d18;
+      background: #f8fafc;
     }
 
     /* ── Background ── */
@@ -20,9 +20,9 @@
       position: absolute;
       inset: 0;
       background:
-        radial-gradient(ellipse 65% 70% at 72% 50%, rgba(20, 90, 160, 0.28) 0%, transparent 65%),
-        radial-gradient(ellipse 35% 45% at 25% 45%, rgba(16, 60, 110, 0.18) 0%, transparent 60%),
-        linear-gradient(155deg, #080d18 0%, #0c1525 55%, #080d18 100%);
+        radial-gradient(ellipse 65% 70% at 72% 50%, rgba(59, 130, 246, 0.08) 0%, transparent 65%),
+        radial-gradient(ellipse 35% 45% at 25% 45%, rgba(37, 99, 235, 0.06) 0%, transparent 60%),
+        linear-gradient(155deg, #f8fafc 0%, #eff6ff 55%, #f8fafc 100%);
     }
 
     /* subtle dot-grid overlay */
@@ -30,7 +30,7 @@
       content: '';
       position: absolute;
       inset: 0;
-      background-image: radial-gradient(circle, rgba(255,255,255,0.035) 1px, transparent 1px);
+      background-image: radial-gradient(circle, rgba(0,0,0,0.04) 1px, transparent 1px);
       background-size: 28px 28px;
     }
 
@@ -67,7 +67,7 @@
     .app-name {
       font-size: 40px;
       font-weight: 700;
-      color: #f0f6fc;
+      color: #0f172a;
       letter-spacing: -1.5px;
       line-height: 1;
     }
@@ -75,7 +75,7 @@
     .tagline {
       font-size: 13.5px;
       line-height: 1.65;
-      color: #6b7a90;
+      color: #475569;
       margin-bottom: 28px;
       max-width: 220px;
     }
@@ -89,7 +89,7 @@
 
     .feats li {
       font-size: 12.5px;
-      color: #8892a4;
+      color: #64748b;
       display: flex;
       align-items: center;
       gap: 9px;
@@ -117,10 +117,10 @@
       border-radius: 11px;
       overflow: hidden;
       box-shadow:
-        0 0 0 1px rgba(255,255,255,0.07),
-        0 2px 4px rgba(0,0,0,0.3),
-        0 20px 50px rgba(0,0,0,0.65),
-        0 50px 100px rgba(0,0,0,0.4);
+        0 0 0 1px rgba(0,0,0,0.08),
+        0 2px 4px rgba(0,0,0,0.1),
+        0 12px 30px rgba(0,0,0,0.15),
+        0 40px 80px rgba(0,0,0,0.1);
     }
 
     .chrome {
@@ -230,7 +230,7 @@
 
       <!-- Light: Breakdown -->
       <div class="window w-top">
-        <div class="chrome light-chrome">
+        <div class="chrome dark-chrome">
           <div class="btn btn-r"></div>
           <div class="btn btn-y"></div>
           <div class="btn btn-g"></div>
@@ -252,7 +252,7 @@
 
       <!-- Dark: Trends (main) -->
       <div class="window w-main">
-        <div class="chrome dark-chrome">
+        <div class="chrome light-chrome">
           <div class="btn btn-r"></div>
           <div class="btn btn-y"></div>
           <div class="btn btn-g"></div>
