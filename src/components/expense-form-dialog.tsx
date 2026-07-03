@@ -96,6 +96,7 @@ export function ExpenseFormDialog({
             tags: template.tags,
             notes: template.notes ?? '',
             isIncome: template.amount > 0,
+            vehicleExpense: template.vehicleExpense,
           }
         : {
             name: '',
