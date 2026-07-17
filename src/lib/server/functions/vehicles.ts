@@ -8,7 +8,7 @@ import type { Vehicle } from '@/lib/shared/types/vehicle'
 export const getVehicles = createServerFn({ method: 'GET' }).handler(() => storage.getVehicles())
 
 export const createVehicle = createServerFn({ method: 'POST' })
-  .inputValidator(vehicleSchema.omit({ id: true }))
+  .validator(vehicleSchema.omit({ id: true }))
   .handler(async ({ data }) => {
     const vehicles = await storage.getVehicles()
     const newVehicle: Vehicle = { ...data, id: genVehicleId() }
@@ -17,7 +17,7 @@ export const createVehicle = createServerFn({ method: 'POST' })
   })
 
 export const updateVehicle = createServerFn({ method: 'POST' })
-  .inputValidator(vehicleSchema)
+  .validator(vehicleSchema)
   .handler(async ({ data }) => {
     const vehicles = await storage.getVehicles()
     const idx = vehicles.findIndex((v) => v.id === data.id)
@@ -28,7 +28,7 @@ export const updateVehicle = createServerFn({ method: 'POST' })
   })
 
 export const deleteVehicle = createServerFn({ method: 'POST' })
-  .inputValidator(z.object({ id: z.string() }))
+  .validator(z.object({ id: z.string() }))
   .handler(async ({ data }) => {
     const [vehicles, config, expenses] = await Promise.all([storage.getVehicles(), storage.getConfig(), storage.getExpenses()])
 

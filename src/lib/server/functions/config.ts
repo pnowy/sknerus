@@ -6,14 +6,14 @@ import { storage } from '@/lib/server/storage'
 export const getConfig = createServerFn({ method: 'GET' }).handler(() => storage.getConfig())
 
 export const updateConfig = createServerFn({ method: 'POST' })
-  .inputValidator(configSchema)
+  .validator(configSchema)
   .handler(async ({ data }) => {
     await storage.saveConfig(data)
     return data
   })
 
 export const renameCategory = createServerFn({ method: 'POST' })
-  .inputValidator(z.object({ id: z.string().min(1), newName: z.string().min(1) }))
+  .validator(z.object({ id: z.string().min(1), newName: z.string().min(1) }))
   .handler(async ({ data: { id, newName } }) => {
     const config = await storage.getConfig()
     await storage.saveConfig({

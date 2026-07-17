@@ -10,7 +10,7 @@ import type { Expense, RecurringExpense } from '@/lib/shared/types/expense'
 export const getRecurring = createServerFn({ method: 'GET' }).handler(() => storage.getRecurring())
 
 export const createRecurring = createServerFn({ method: 'POST' })
-  .inputValidator(recurringExpenseSchema.omit({ id: true }))
+  .validator(recurringExpenseSchema.omit({ id: true }))
   .handler(async ({ data }) => {
     const recurring = await storage.getRecurring()
     const newItem: RecurringExpense = { ...data, id: genRecurringId() }
@@ -19,7 +19,7 @@ export const createRecurring = createServerFn({ method: 'POST' })
   })
 
 export const updateRecurring = createServerFn({ method: 'POST' })
-  .inputValidator(recurringExpenseSchema)
+  .validator(recurringExpenseSchema)
   .handler(async ({ data }) => {
     const recurring = await storage.getRecurring()
     const idx = recurring.findIndex((r) => r.id === data.id)
@@ -30,7 +30,7 @@ export const updateRecurring = createServerFn({ method: 'POST' })
   })
 
 export const deleteRecurring = createServerFn({ method: 'POST' })
-  .inputValidator(z.object({ id: z.string() }))
+  .validator(z.object({ id: z.string() }))
   .handler(async ({ data }) => {
     const recurring = await storage.getRecurring()
     await storage.saveRecurring(recurring.filter((r) => r.id !== data.id))

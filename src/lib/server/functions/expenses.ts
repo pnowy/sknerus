@@ -8,7 +8,7 @@ import type { Expense } from '@/lib/shared/types/expense'
 export const getExpenses = createServerFn({ method: 'GET' }).handler(() => storage.getExpenses())
 
 export const createExpense = createServerFn({ method: 'POST' })
-  .inputValidator(expenseSchema)
+  .validator(expenseSchema)
   .handler(async ({ data }) => {
     const expenses = await storage.getExpenses()
     const newExpense: Expense = { ...data, id: genExpenseId() }
@@ -17,7 +17,7 @@ export const createExpense = createServerFn({ method: 'POST' })
   })
 
 export const updateExpense = createServerFn({ method: 'POST' })
-  .inputValidator(expenseSchema.extend({ id: z.string() }))
+  .validator(expenseSchema.extend({ id: z.string() }))
   .handler(async ({ data }) => {
     const expenses = await storage.getExpenses()
     const idx = expenses.findIndex((e) => e.id === data.id)
@@ -28,7 +28,7 @@ export const updateExpense = createServerFn({ method: 'POST' })
   })
 
 export const deleteExpense = createServerFn({ method: 'POST' })
-  .inputValidator(z.object({ id: z.string() }))
+  .validator(z.object({ id: z.string() }))
   .handler(async ({ data }) => {
     const expenses = await storage.getExpenses()
     await storage.saveExpenses(expenses.filter((e) => e.id !== data.id))

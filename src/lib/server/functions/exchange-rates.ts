@@ -7,7 +7,7 @@ import { storage } from '@/lib/server/storage'
 const log = logger.named('exchange')
 
 export const resolveExchangeRate = createServerFn({ method: 'POST' })
-  .inputValidator(
+  .validator(
     z.object({
       date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
       from: z.string().min(1),
