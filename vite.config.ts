@@ -4,7 +4,6 @@ import { tanstackStart } from '@tanstack/react-start/plugin/vite'
 import viteReact from '@vitejs/plugin-react'
 import { nitro } from 'nitro/vite'
 import { defineConfig } from 'vite'
-import viteTsConfigPaths from 'vite-tsconfig-paths'
 
 const appVersion = process.env.APP_VERSION || 'dev'
 
@@ -12,13 +11,12 @@ const config = defineConfig({
   define: {
     __APP_VERSION__: JSON.stringify(appVersion),
   },
+  resolve: {
+    tsconfigPaths: true,
+  },
   plugins: [
     devtools(),
     nitro(),
-    // this is the plugin that enables path aliases
-    viteTsConfigPaths({
-      projects: ['./tsconfig.json'],
-    }),
     tailwindcss(),
     tanstackStart(),
     viteReact(),
