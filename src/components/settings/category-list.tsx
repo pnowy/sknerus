@@ -40,6 +40,10 @@ export function CategoryList({ categories, onChange, onNameChange }: Props) {
     onChange(categories.map((c) => (c.id === id ? { ...c, color } : c)))
   }
 
+  function handleToggleExcludeFromBudget(id: string, value: boolean) {
+    onChange(categories.map((c) => (c.id === id ? { ...c, excludeFromBudget: value || undefined } : c)))
+  }
+
   function handleAdd() {
     const trimmed = newName.trim()
     if (trimmed && !categories.some((c) => c.name === trimmed)) {
@@ -74,6 +78,7 @@ export function CategoryList({ categories, onChange, onNameChange }: Props) {
                 onColorChange={handleColorChange}
                 onDelete={handleDelete}
                 onNameChange={onNameChange}
+                onToggleExcludeFromBudget={handleToggleExcludeFromBudget}
               />
             ))}
           </div>

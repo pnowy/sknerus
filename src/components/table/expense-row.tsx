@@ -21,7 +21,8 @@ type Props = {
 }
 
 export function ExpenseRow({ expense, categories, vehicles, hasTags, showNotes, onEdit, onDuplicate, onDelete }: Props) {
-  const categoryName = categories.find((c) => c.id === expense.categoryId)?.name ?? expense.categoryId
+  const category = categories.find((c) => c.id === expense.categoryId)
+  const categoryName = category?.name ?? expense.categoryId
   const vehicleIcon = resolveVehicleExpenseIcon(expense, vehicles)
 
   return (
@@ -34,6 +35,15 @@ export function ExpenseRow({ expense, categories, vehicles, hasTags, showNotes, 
           )}
           {expense.recurringId && <Repeat aria-label="Recurring" className="size-3 shrink-0 text-muted-foreground" />}
           {showNotes && expense.notes && <NoteIndicator notes={expense.notes} />}
+          {category?.excludeFromBudget && (
+            <Badge
+              variant="outline"
+              className="shrink-0 text-muted-foreground text-xs"
+              title="Excluded from budget — tracked for vehicle stats only"
+            >
+              Tracking
+            </Badge>
+          )}
         </span>
       </TableCell>
       <TableCell>{categoryName}</TableCell>

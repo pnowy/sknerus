@@ -18,6 +18,7 @@ import { getConfig } from '@/lib/server/functions/config'
 import { getExpenses } from '@/lib/server/functions/expenses'
 import { getVehicles } from '@/lib/server/functions/vehicles'
 import { filterExpensesByRange } from '@/lib/shared/date-utils'
+import { filterBudgetExpenses } from '@/lib/shared/expense-utils'
 import { DashboardTab } from '@/lib/shared/types/dashboard-tab'
 import { RangeScope } from '@/lib/shared/types/range-scope'
 
@@ -47,7 +48,9 @@ function DashboardPage() {
   const { scope, offset, from, to, label, setScope, prev, next, reset, canGoNext, isCurrentPeriod, showArrows } = useDateRange(startDate)
 
   const allTags = useMemo(() => [...new Set(allExpenses.flatMap((e) => e.tags))].sort(), [allExpenses])
-  const periodExpenses = useMemo(() => filterExpensesByRange(allExpenses, from, to), [allExpenses, from, to])
+  // Expenses in budget-excluded categories are tracked for vehicle stats only; keep them out of every budget total.
+  const budgetExpenses = useMemo(() => filterBudgetExpenses(allExpenses, categories), [allExpenses, categories])
+  const periodExpenses = useMemo(() => filterExpensesByRange(budgetExpenses, from, to), [budgetExpenses, from, to])
   const income = useMemo(() => periodExpenses.filter((e) => e.amount > 0).reduce((sum, e) => sum + e.amount, 0), [periodExpenses])
   const expenses = useMemo(() => periodExpenses.filter((e) => e.amount < 0).reduce((sum, e) => sum - e.amount, 0), [periodExpenses])
   const chartData = useMemo(() => {
@@ -102,13 +105,13 @@ function DashboardPage() {
             <ExpenseChart categories={categories} currency={currency} data={chartData} expenses={periodExpenses} />
           </TabsContent>
           <TabsContent value={DashboardTab.Monthly}>
-            <MonthlyChart categories={categories} currency={currency} expenses={allExpenses} from={from} to={to} />
+            <MonthlyChart categories={categories} currency={currency} expenses={budgetExpenses} from={from} to={to} />
           </TabsContent>
           <TabsContent value={DashboardTab.Trends}>
-            <CategoryTrends categories={categories} currency={currency} expenses={allExpenses} from={from} to={to} />
+            <CategoryTrends categories={categories} currency={currency} expenses={budgetExpenses} from={from} to={to} />
           </TabsContent>
           <TabsContent value={DashboardTab.Balance}>
-            <IncomeExpensesChart currency={currency} expenses={allExpenses} from={from} to={to} />
+            <IncomeExpensesChart currency={currency} expenses={budgetExpenses} from={from} to={to} />
           </TabsContent>
         </Tabs>
       </div>

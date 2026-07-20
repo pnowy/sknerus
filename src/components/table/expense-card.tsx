@@ -35,6 +35,15 @@ export function ExpenseCard({ expense, categories, showTags, showNotes, vehicles
           )}
           {expense.recurringId && <Repeat aria-label="Recurring" className="size-3 shrink-0 text-muted-foreground" />}
           {showNotes && expense.notes && <NoteIndicator notes={expense.notes} />}
+          {category?.excludeFromBudget && (
+            <Badge
+              variant="outline"
+              className="shrink-0 text-muted-foreground text-xs"
+              title="Excluded from budget — tracked for vehicle stats only"
+            >
+              Tracking
+            </Badge>
+          )}
         </span>
         <span className="flex flex-col items-end">
           <span className={cn('font-medium text-sm tabular-nums', expense.amount > 0 ? 'text-emerald-600 dark:text-emerald-400' : '')}>

@@ -1,6 +1,17 @@
 import { parseISO } from 'date-fns'
 import { generateMonthBuckets } from '@/lib/shared/date-utils.ts'
-import type { Expense } from '@/lib/shared/types/expense'
+import type { Category, Expense } from '@/lib/shared/types/expense'
+
+/** IDs of categories flagged as excluded from budget totals (tracked for vehicle stats only) */
+export function excludedCategoryIds(categories: Array<Category>): Set<string> {
+  return new Set(categories.filter((c) => c.excludeFromBudget).map((c) => c.id))
+}
+
+/** Drops expenses belonging to budget-excluded categories; returns the input untouched when none are excluded */
+export function filterBudgetExpenses(expenses: Array<Expense>, categories: Array<Category>): Array<Expense> {
+  const excluded = excludedCategoryIds(categories)
+  return excluded.size ? expenses.filter((e) => !excluded.has(e.categoryId)) : expenses
+}
 
 export function aggregateByMonth(
   expenses: Array<Expense>,

@@ -19,6 +19,7 @@ import { getConfig } from '@/lib/server/functions/config'
 import { getExpenses } from '@/lib/server/functions/expenses'
 import { getVehicles } from '@/lib/server/functions/vehicles'
 import { filterExpensesByRange } from '@/lib/shared/date-utils'
+import { excludedCategoryIds } from '@/lib/shared/expense-utils'
 import type { Expense } from '@/lib/shared/types/expense'
 
 export const Route = createFileRoute('/table')({
@@ -41,14 +42,24 @@ function TablePage() {
   const [addOpen, setAddOpen] = useState(false)
   const [grouped, setGrouped] = useState(false)
   const [groupSort, setGroupSort] = useState<GroupSort>('config')
+  const [showExcluded, setShowExcluded] = useState(false)
 
   const startDate = config?.startDate ?? 1
   const { scope, from, to, label, setScope, prev, next, reset, canGoNext, isCurrentPeriod, showArrows } = useDateRange(startDate)
 
-  const displayedExpenses = useMemo(
-    () => filterExpensesByRange(allExpenses, from, to).sort((a, b) => b.date.localeCompare(a.date)),
-    [allExpenses, from, to]
+  const excludedIds = useMemo(() => excludedCategoryIds(config?.categories ?? []), [config?.categories])
+
+  const inRange = useMemo(() => filterExpensesByRange(allExpenses, from, to), [allExpenses, from, to])
+  // Only surface the reveal switch when there is actually something hidden to reveal in this period.
+  const hasExcludedInRange = useMemo(
+    () => excludedIds.size > 0 && inRange.some((e) => excludedIds.has(e.categoryId)),
+    [inRange, excludedIds]
   )
+
+  const displayedExpenses = useMemo(() => {
+    const visible = showExcluded ? inRange : inRange.filter((e) => !excludedIds.has(e.categoryId))
+    return [...visible].sort((a, b) => b.date.localeCompare(a.date))
+  }, [inRange, showExcluded, excludedIds])
 
   async function handleDelete(id: string) {
     try {
@@ -100,6 +111,14 @@ function TablePage() {
                 </Select>
               )}
             </div>
+            {hasExcludedInRange && (
+              <div className="flex items-center gap-2">
+                <Switch checked={showExcluded} id="show-excluded" onCheckedChange={setShowExcluded} />
+                <Label htmlFor="show-excluded" className="text-sm">
+                  Show tracking-only
+                </Label>
+              </div>
+            )}
             <DateRangeNav
               canGoNext={canGoNext}
               isCurrentPeriod={isCurrentPeriod}

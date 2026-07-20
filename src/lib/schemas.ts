@@ -60,6 +60,7 @@ export const categorySchema = z.object({
   name: z.string().min(1),
   color: z.string(),
   vehicleId: z.string().optional(),
+  excludeFromBudget: z.boolean().optional(),
 })
 
 const featuresSchema = z

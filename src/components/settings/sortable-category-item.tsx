@@ -1,21 +1,22 @@
 import { useSortable } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
-import { Dices, GripVertical, Trash2 } from 'lucide-react'
+import { Banknote, BanknoteX, Dices, GripVertical, Trash2 } from 'lucide-react'
 import { useRef, useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 import type { Category } from '@/lib/shared/types/expense'
-import { randomColor } from '@/lib/utils'
+import { cn, randomColor } from '@/lib/utils'
 
 type Props = {
   category: Category
   onDelete: (id: string) => void
   onColorChange: (id: string, color: string) => void
   onNameChange: (id: string, newName: string) => void
+  onToggleExcludeFromBudget: (id: string, value: boolean) => void
 }
 
-export function SortableCategoryItem({ category, onDelete, onColorChange, onNameChange }: Props) {
+export function SortableCategoryItem({ category, onDelete, onColorChange, onNameChange, onToggleExcludeFromBudget }: Props) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: category.id })
   const colorInputRef = useRef<HTMLInputElement>(null)
   const [editing, setEditing] = useState(false)
@@ -110,6 +111,28 @@ export function SortableCategoryItem({ category, onDelete, onColorChange, onName
           {category.name}
         </button>
       )}
+
+      <TooltipProvider>
+        <Tooltip>
+          <TooltipTrigger render={<span />}>
+            <Button
+              aria-label={category.excludeFromBudget ? `Include ${category.name} in budget` : `Exclude ${category.name} from budget`}
+              aria-pressed={category.excludeFromBudget ?? false}
+              className={cn('size-7', category.excludeFromBudget ? 'text-amber-600 dark:text-amber-400' : 'text-muted-foreground')}
+              size="icon-sm"
+              variant="ghost"
+              onClick={() => onToggleExcludeFromBudget(category.id, !category.excludeFromBudget)}
+            >
+              {category.excludeFromBudget ? <BanknoteX className="size-3.5" /> : <Banknote className="size-3.5" />}
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent>
+            {category.excludeFromBudget
+              ? 'Excluded from budget (vehicle tracking only) — click to include'
+              : 'Counted in budget — click to exclude'}
+          </TooltipContent>
+        </Tooltip>
+      </TooltipProvider>
 
       <Button
         aria-label={`Delete ${category.name}`}

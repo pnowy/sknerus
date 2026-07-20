@@ -94,6 +94,15 @@ export function GroupedExpenseTable({ expenses, categories, vehicles, currency, 
                   <span className="inline-block size-3 rounded-sm" style={{ backgroundColor: group.category.color }} />
                   {group.category.name}
                   <span className="font-normal text-muted-foreground">({group.expenses.length})</span>
+                  {group.category.excludeFromBudget && (
+                    <Badge
+                      variant="outline"
+                      className="font-normal text-muted-foreground text-xs"
+                      title="Excluded from budget — tracked for vehicle stats only"
+                    >
+                      Tracking
+                    </Badge>
+                  )}
                 </span>
                 <span className={cn('font-semibold text-sm tabular-nums', group.total > 0 ? 'text-emerald-600 dark:text-emerald-400' : '')}>
                   {group.total > 0 ? '+' : ''}
@@ -197,6 +206,15 @@ function GroupSection({
               <span className="inline-block size-3 rounded-sm" style={{ backgroundColor: group.category.color }} />
               {group.category.name}
               <span className="font-normal text-muted-foreground">({group.expenses.length})</span>
+              {group.category.excludeFromBudget && (
+                <Badge
+                  variant="outline"
+                  className="font-normal text-muted-foreground text-xs"
+                  title="Excluded from budget — tracked for vehicle stats only"
+                >
+                  Tracking
+                </Badge>
+              )}
             </span>
             <span className={cn('font-semibold text-sm tabular-nums', group.total > 0 ? 'text-emerald-600 dark:text-emerald-400' : '')}>
               {group.total > 0 ? '+' : ''}

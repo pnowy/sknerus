@@ -38,6 +38,8 @@ export type Category = {
   name: string
   color: string
   vehicleId?: string
+  /** When true, expenses in this category are excluded from budget totals (tracked for vehicle stats only) */
+  excludeFromBudget?: boolean
 }
 
 export type AppFeatures = {
