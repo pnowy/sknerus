@@ -59,6 +59,7 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
   release:
     name: Create GitHub Release
+    needs: build
     if: github.ref_type == 'tag'
     permissions:
       contents: write
