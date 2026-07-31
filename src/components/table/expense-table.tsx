@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Table, TableBody, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { useConfig } from '@/hooks/use-expenses'
+import { compareExpensesByDate } from '@/lib/shared/expense-utils'
 import type { Category, Expense } from '@/lib/shared/types/expense'
 import type { Vehicle } from '@/lib/shared/types/vehicle'
 
@@ -51,7 +52,7 @@ export function ExpenseTable({ expenses, categories, vehicles, onEdit, onDuplica
     if (sortField === 'amount') cmp = a.amount - b.amount
     else if (sortField === 'name') cmp = a.name.localeCompare(b.name)
     else if (sortField === 'category') cmp = (catNameMap.get(a.categoryId) ?? '').localeCompare(catNameMap.get(b.categoryId) ?? '')
-    else cmp = a.date.localeCompare(b.date)
+    else cmp = compareExpensesByDate(a, b)
     return sortDir === 'asc' ? cmp : -cmp
   })
 

@@ -6,6 +6,7 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { useConfig } from '@/hooks/use-expenses'
+import { compareExpensesByDate } from '@/lib/shared/expense-utils'
 import { formatCurrency, formatDate } from '@/lib/shared/format'
 import type { Category, Expense } from '@/lib/shared/types/expense'
 import type { Vehicle } from '@/lib/shared/types/vehicle'
@@ -56,7 +57,7 @@ export function GroupedExpenseTable({ expenses, categories, vehicles, currency, 
     const result = Array.from(map.entries()).map(
       ([id, items]): CategoryGroup => ({
         category: catMap.get(id) ?? { id, name: id, color: '#888888' },
-        expenses: items.sort((a, b) => b.date.localeCompare(a.date)),
+        expenses: items.sort((a, b) => -compareExpensesByDate(a, b)),
         total: items.reduce((sum, e) => sum + e.amount, 0),
       })
     )

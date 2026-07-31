@@ -1,5 +1,6 @@
 import { addMonths, format, parseISO } from 'date-fns'
 import { daysUntil, generateWeekEndings } from './date-utils'
+import { compareExpensesByDate } from './expense-utils'
 import type { Expense } from './types/expense'
 import type { Vehicle } from './types/vehicle'
 import { VehicleExpenseType } from './types/vehicle'
@@ -12,7 +13,7 @@ function calcFuelStats(vehicle: Vehicle, expenses: Array<Expense>): FuelStats | 
   )
   if (allFuelEntries.length === 0) return null
 
-  const sorted = [...allFuelEntries].sort((a, b) => a.date.localeCompare(b.date))
+  const sorted = [...allFuelEntries].sort((a, b) => compareExpensesByDate(a, b))
 
   // first establish the baseline regardless of odometer state during registration (as fuel tank when we first buy vehicle could have random state)
   const baselineFill = sorted.find((e) => e.vehicleExpense?.fuelLevelPercent === 100 && e.vehicleExpense.odometerReading != null)
@@ -131,7 +132,7 @@ export function nextOilChangeDate(vehicle: Vehicle, expenses: Array<Expense>): s
 export type VehicleSpendWeekRow = { week: string } & Partial<Record<VehicleExpenseType, number>>
 
 export function vehicleSpendBreakdownByWeek(vehicle: Vehicle, expenses: Array<Expense>): Array<VehicleSpendWeekRow> {
-  const entries = expenses.filter((e) => e.vehicleExpense?.vehicleId === vehicle.id).sort((a, b) => a.date.localeCompare(b.date))
+  const entries = expenses.filter((e) => e.vehicleExpense?.vehicleId === vehicle.id).sort((a, b) => compareExpensesByDate(a, b))
   if (entries.length === 0) return []
 
   const weekEndings = generateWeekEndings(entries[0].date)
