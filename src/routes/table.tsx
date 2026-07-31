@@ -19,6 +19,7 @@ import { getConfig } from '@/lib/server/functions/config'
 import { getExpenses } from '@/lib/server/functions/expenses'
 import { getVehicles } from '@/lib/server/functions/vehicles'
 import { filterExpensesByRange } from '@/lib/shared/date-utils'
+import { compareExpensesByDate } from '@/lib/shared/expense-utils'
 import type { Expense } from '@/lib/shared/types/expense'
 
 export const Route = createFileRoute('/table')({
@@ -46,7 +47,7 @@ function TablePage() {
   const { scope, from, to, label, setScope, prev, next, reset, canGoNext, isCurrentPeriod, showArrows } = useDateRange(startDate)
 
   const displayedExpenses = useMemo(
-    () => filterExpensesByRange(allExpenses, from, to).sort((a, b) => b.date.localeCompare(a.date)),
+    () => filterExpensesByRange(allExpenses, from, to).sort((a, b) => -compareExpensesByDate(a, b)),
     [allExpenses, from, to]
   )
 

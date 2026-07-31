@@ -2,6 +2,7 @@ import { Eye, EyeOff, List } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from 'recharts'
 import { Button } from '@/components/ui/button'
+import { compareExpensesByDate } from '@/lib/shared/expense-utils'
 import { formatCurrency, formatDate } from '@/lib/shared/format'
 import type { Category, Expense } from '@/lib/shared/types/expense'
 import { cn } from '@/lib/utils'
@@ -106,7 +107,7 @@ export function ExpenseChart({ data, currency, categories, expenses }: Props) {
           const pct = allTotal > 0 ? ((entry.total / allTotal) * 100).toFixed(1) : '0.0'
           const catId = getCategoryId(entry.category)
           const catExpenses = catId
-            ? expenses.filter((e) => e.categoryId === catId && e.amount < 0).sort((a, b) => b.date.localeCompare(a.date))
+            ? expenses.filter((e) => e.categoryId === catId && e.amount < 0).sort((a, b) => -compareExpensesByDate(a, b))
             : []
 
           return (

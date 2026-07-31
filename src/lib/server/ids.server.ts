@@ -1,4 +1,6 @@
-import { ulid } from 'ulid'
+import { monotonicFactory } from 'ulid'
+
+const ulid = monotonicFactory()
 
 export function genExpenseId() {
   return `exp_${ulid()}`

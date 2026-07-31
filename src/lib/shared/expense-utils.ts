@@ -2,6 +2,15 @@ import { parseISO } from 'date-fns'
 import { generateMonthBuckets } from '@/lib/shared/date-utils.ts'
 import type { Expense } from '@/lib/shared/types/expense'
 
+/**
+ * Orders expenses by date ascending, breaking same-day ties by id.
+ * Ids are `exp_<ULID>`; the ULID suffix is time-sortable and the `exp_` prefix
+ * is constant, so id order reflects creation order. Negate the result for descending.
+ */
+export function compareExpensesByDate(a: Expense, b: Expense): number {
+  return a.date.localeCompare(b.date) || a.id.localeCompare(b.id)
+}
+
 export function aggregateByMonth(
   expenses: Array<Expense>,
   from: Date,
