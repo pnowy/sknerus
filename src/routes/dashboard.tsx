@@ -1,6 +1,7 @@
 import { createFileRoute, useNavigate, useRouterState } from '@tanstack/react-router'
 import { Plus } from 'lucide-react'
 import { useMemo, useState } from 'react'
+import { AddExpenseFab } from '@/components/add-expense-fab'
 import { CashflowCards } from '@/components/dashboard/cashflow-cards'
 import { CategoryTrends } from '@/components/dashboard/category-trends'
 import { ExpenseChart } from '@/components/dashboard/expense-chart'
@@ -19,7 +20,9 @@ import { getExpenses } from '@/lib/server/functions/expenses'
 import { getVehicles } from '@/lib/server/functions/vehicles'
 import { filterExpensesByRange } from '@/lib/shared/date-utils'
 import { DashboardTab } from '@/lib/shared/types/dashboard-tab'
+import { FabPosition } from '@/lib/shared/types/fab-position'
 import { RangeScope } from '@/lib/shared/types/range-scope'
+import { cn } from '@/lib/utils'
 
 export const Route = createFileRoute('/dashboard')({
   loader: ({ context: { queryClient } }) =>
@@ -43,6 +46,7 @@ function DashboardPage() {
   const categories = config?.categories ?? []
   const currency = config?.currency ?? 'USD'
   const startDate = config?.startDate ?? 1
+  const fabPosition = config?.fabPosition ?? FabPosition.Right
 
   const { scope, offset, from, to, label, setScope, prev, next, reset, canGoNext, isCurrentPeriod, showArrows } = useDateRange(startDate)
 
@@ -73,7 +77,7 @@ function DashboardPage() {
         <div className="flex flex-wrap items-center justify-between gap-3">
           <h1 className="hidden font-semibold text-xl sm:block">Dashboard</h1>
           <div className="flex flex-1 flex-col items-center gap-2 sm:flex-none sm:flex-row sm:gap-3">
-            <Button onClick={() => setAddOpen(true)}>
+            <Button className={cn(fabPosition !== FabPosition.Off && 'hidden sm:inline-flex')} onClick={() => setAddOpen(true)}>
               <Plus className="size-4" />
               Add Expense
             </Button>
@@ -121,6 +125,7 @@ function DashboardPage() {
         open={addOpen}
         onClose={() => setAddOpen(false)}
       />
+      <AddExpenseFab position={fabPosition} onClick={() => setAddOpen(true)} />
     </AppLayout>
   )
 }

@@ -2,6 +2,7 @@ import { createFileRoute } from '@tanstack/react-router'
 import { Plus } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import { toast } from 'sonner'
+import { AddExpenseFab } from '@/components/add-expense-fab'
 import { DateRangeNav } from '@/components/date-range-nav'
 import { ExpenseFormDialog } from '@/components/expense-form-dialog'
 import { AppLayout } from '@/components/layout/app-layout'
@@ -21,6 +22,8 @@ import { getVehicles } from '@/lib/server/functions/vehicles'
 import { filterExpensesByRange } from '@/lib/shared/date-utils'
 import { compareExpensesByDate } from '@/lib/shared/expense-utils'
 import type { Expense } from '@/lib/shared/types/expense'
+import { FabPosition } from '@/lib/shared/types/fab-position'
+import { cn } from '@/lib/utils'
 
 export const Route = createFileRoute('/table')({
   loader: ({ context: { queryClient } }) =>
@@ -61,6 +64,7 @@ function TablePage() {
   }
 
   const currency = config?.currency ?? 'USD'
+  const fabPosition = config?.fabPosition ?? FabPosition.Right
   const vehicleTrackingEnabled = config?.features?.vehicleExpenseTracking
   const tableProps = {
     categories: config?.categories ?? [],
@@ -77,7 +81,7 @@ function TablePage() {
         <div className="flex flex-wrap items-center justify-between gap-3">
           <h1 className="hidden font-semibold text-xl sm:block">Transactions</h1>
           <div className="flex flex-1 flex-wrap items-center justify-center gap-4 sm:flex-none sm:justify-end">
-            <Button size="sm" onClick={() => setAddOpen(true)}>
+            <Button className={cn(fabPosition !== FabPosition.Off && 'hidden sm:inline-flex')} size="sm" onClick={() => setAddOpen(true)}>
               <Plus className="size-4" />
               Add Expense
             </Button>
@@ -138,6 +142,7 @@ function TablePage() {
           setDuplicatingExpense(null)
         }}
       />
+      <AddExpenseFab position={fabPosition} onClick={() => setAddOpen(true)} />
     </AppLayout>
   )
 }

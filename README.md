@@ -54,6 +54,7 @@ It is still *not* a budgeting app. No accounts, no complex budgets, no bank sync
 - Export and import — bring your data in from any tool or take it anywhere, also from ExpenseOwl
 - Configurable fiscal month start date (e.g. set to 5 to count from the 5th of each month)
 - Configurable default start page (dashboard or table view)
+- Floating add-expense button on mobile — placed in thumb reach, switchable between bottom right, bottom left, or off
 - Light and dark theme with system-preference detection
 - PWA — installable on desktop and mobile for a native-app feel
 
@@ -80,6 +81,7 @@ All dashboard views support flexible time-range navigation: switch between month
 - Add, rename, reorder, and delete categories (drag-and-drop ordering)
 - Set primary currency and a list of supported currencies for multi-currency entry
 - Configure fiscal month start date and default start page
+- Choose the side of the mobile floating add-expense button (or turn it off)
 - Toggle visibility of tags and notes fields across the app
 - Manage recurring transactions (view, edit, delete templates)
 - Export and import all expenses
@@ -195,6 +197,7 @@ Everything else is configured from the `/settings` page:
 - **Exchange Rate Provider** — choose between Frankfurter (31 major currencies, no setup) or ExchangeRate-API (165 currencies including MVR, THB, etc. — requires a free API key)
 - **Start Date** — day of month that begins a new fiscal period (default: 1st)
 - **Start Page** — which page loads first: dashboard or table view
+- **Mobile Add Button** — position of the floating add-expense button on phones: bottom right (default), bottom left, or off
 - **Recurring Transactions** — manage recurring income and expense templates
 - **Export / Import** — download all data as CSV or upload a CSV to import transactions. The import modal in the app describes the expected format and supported columns in detail.
 - **Plugins** — enable optional features such as vehicle expense tracking. See the [Plugins](#plugins) section above for details.
