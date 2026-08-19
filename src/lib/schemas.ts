@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import { FabPosition } from '@/lib/shared/types/fab-position'
 import { FuelType, VehicleExpenseType, VehicleType } from '@/lib/shared/types/vehicle'
 import { VEHICLE_EXPENSE_ICONS } from '@/lib/shared/vehicle-icons'
 
@@ -78,6 +79,7 @@ export const configSchema = z.object({
   exchangeApiKey: z.string().optional(),
   showTags: z.boolean().default(true),
   showNotes: z.boolean().default(true),
+  fabPosition: toZodEnum(FabPosition).default(FabPosition.Right),
   features: featuresSchema,
 })
 

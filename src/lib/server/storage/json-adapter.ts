@@ -2,6 +2,7 @@ import * as fs from 'node:fs'
 import * as path from 'node:path'
 import { genCategoryId } from '@/lib/server/ids.server'
 import type { Config, ExchangeRate, Expense, RecurringExpense } from '@/lib/shared/types/expense'
+import { FabPosition } from '@/lib/shared/types/fab-position'
 import type { Vehicle } from '@/lib/shared/types/vehicle'
 import type { StorageAdapter } from './types'
 
@@ -14,6 +15,7 @@ const DEFAULT_CONFIG: Config = {
   exchangeProvider: 'frankfurter',
   showTags: true,
   showNotes: true,
+  fabPosition: FabPosition.Right,
   features: { vehicleExpenseTracking: false },
 }
 
@@ -78,6 +80,7 @@ export class JsonAdapter implements StorageAdapter {
       exchangeApiKey: stored.exchangeApiKey,
       showTags: stored.showTags ?? DEFAULT_CONFIG.showTags,
       showNotes: stored.showNotes ?? DEFAULT_CONFIG.showNotes,
+      fabPosition: stored.fabPosition ?? DEFAULT_CONFIG.fabPosition,
       features: { vehicleExpenseTracking: false, ...stored.features },
     }
 

@@ -25,6 +25,7 @@ import { getRecurring } from '@/lib/server/functions/recurring'
 import { getVehicles } from '@/lib/server/functions/vehicles'
 import { exportToCSV, parseCSV } from '@/lib/shared/csv'
 import { CURRENCIES } from '@/lib/shared/currencies'
+import { FabPosition } from '@/lib/shared/types/fab-position'
 import { StartPage } from '@/lib/shared/types/start-page'
 
 export const Route = createFileRoute('/settings')({
@@ -39,6 +40,12 @@ export const Route = createFileRoute('/settings')({
 })
 
 const FISCAL_DAYS = Array.from({ length: 31 }, (_, i) => i + 1)
+
+const FAB_POSITION_OPTIONS = [
+  { value: FabPosition.Right, label: 'Bottom right' },
+  { value: FabPosition.Left, label: 'Bottom left' },
+  { value: FabPosition.Off, label: 'Off' },
+] as const
 
 function SettingsPage() {
   const { data: config } = useConfig()
@@ -108,6 +115,15 @@ function SettingsPage() {
       toast.success(showNotes ? 'Notes enabled' : 'Notes hidden')
     } catch {
       toast.error('Failed to update notes visibility')
+    }
+  }
+
+  async function handleFabPositionChange(fabPosition: FabPosition) {
+    try {
+      await updateConfig.mutateAsync({ ...currentConfig, fabPosition })
+      toast.success('Add button position updated')
+    } catch {
+      toast.error('Failed to update add button position')
     }
   }
 
@@ -284,6 +300,30 @@ function SettingsPage() {
                       </div>
                     </div>
                     <p className="mt-2 text-muted-foreground text-xs">Hide tags or notes from forms and tables</p>
+                  </CardContent>
+                </Card>
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Mobile Add Button</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <Select value={config.fabPosition} onValueChange={(v) => v && handleFabPositionChange(v as FabPosition)}>
+                      <SelectTrigger>
+                        <SelectValue>
+                          {(value: string) => FAB_POSITION_OPTIONS.find((o) => o.value === value)?.label ?? 'Bottom right'}
+                        </SelectValue>
+                      </SelectTrigger>
+                      <SelectContent>
+                        {FAB_POSITION_OPTIONS.map((o) => (
+                          <SelectItem key={o.value} value={o.value}>
+                            {o.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <p className="mt-1 text-muted-foreground text-xs">
+                      Floating add-expense button on phones — pick the side your thumb reaches
+                    </p>
                   </CardContent>
                 </Card>
               </div>

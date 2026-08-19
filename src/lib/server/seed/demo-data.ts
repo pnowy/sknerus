@@ -1,5 +1,6 @@
 import { genCategoryId, genExpenseId, genVehicleId } from '@/lib/server/ids.server'
 import type { Category, Config, Expense } from '@/lib/shared/types/expense'
+import { FabPosition } from '@/lib/shared/types/fab-position'
 import type { Vehicle, VehicleExpense } from '@/lib/shared/types/vehicle'
 import { FuelType, VehicleExpenseType, VehicleType } from '@/lib/shared/types/vehicle'
 
@@ -342,6 +343,7 @@ export function generateDemoData(): { config: Config; expenses: Array<Expense>; 
       exchangeProvider: 'frankfurter',
       showTags: true,
       showNotes: true,
+      fabPosition: FabPosition.Right,
       features: { vehicleExpenseTracking: true },
     },
     expenses,

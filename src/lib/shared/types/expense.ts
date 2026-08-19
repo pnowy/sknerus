@@ -1,3 +1,4 @@
+import type { FabPosition } from '@/lib/shared/types/fab-position'
 import type { VehicleExpense } from '@/lib/shared/types/vehicle.ts'
 
 export type Expense = {
@@ -54,6 +55,7 @@ export type Config = {
   exchangeApiKey?: string
   showTags: boolean
   showNotes: boolean
+  fabPosition: FabPosition
   features?: AppFeatures
 }
 

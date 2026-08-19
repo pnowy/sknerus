@@ -35,7 +35,8 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
           </div>
         </nav>
       </header>
-      <main className="mx-auto w-full max-w-5xl flex-1 px-4 py-6">{children}</main>
+      {/* extra bottom padding on mobile so the floating add button never covers content */}
+      <main className="mx-auto w-full max-w-5xl flex-1 px-4 pt-6 pb-24 sm:pb-6">{children}</main>
     </div>
   )
 }
