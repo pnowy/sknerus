@@ -22,7 +22,17 @@ export const updateExpense = createServerFn({ method: 'POST' })
     const expenses = await storage.getExpenses()
     const idx = expenses.findIndex((e) => e.id === data.id)
     if (idx === -1) throw new Error('Expense not found')
-    expenses[idx] = { ...expenses[idx], ...data }
+    // Optional fields are dropped from the serialized payload when unset, so they
+    // must be reassigned explicitly — a plain spread would keep stale values
+    // (e.g. originalAmount/originalCurrency after switching back to the base currency).
+    expenses[idx] = {
+      ...expenses[idx],
+      ...data,
+      notes: data.notes,
+      originalAmount: data.originalAmount,
+      originalCurrency: data.originalCurrency,
+      vehicleExpense: data.vehicleExpense,
+    }
     await storage.saveExpenses(expenses)
     return data
   })

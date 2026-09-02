@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import type { Expense } from '@/lib/shared/types/expense'
-import { compareExpensesByDate } from './expense-utils'
+import { compareExpensesByDate, getEnteredAmount, getEnteredCurrency } from './expense-utils'
 
 function makeExpense(id: string, date: string): Expense {
   return { id, name: '', amount: -1, currency: 'USD', categoryId: 'cat', date, tags: [] }
@@ -46,6 +46,67 @@ describe('compareExpensesByDate', () => {
       const newDaySecond = makeExpense('exp_01BBBB', '2026-01-02')
       const sorted = [oldDay, newDayFirst, newDaySecond].sort((x, y) => -compareExpensesByDate(x, y))
       expect(sorted.map((e) => e.id)).toEqual(['exp_01BBBB', 'exp_01AAAA', 'exp_01ZZZZ'])
+    })
+  })
+})
+
+describe('getEnteredAmount', () => {
+  describe('when the expense was recorded in the base currency', () => {
+    it('should return the stored amount', () => {
+      const expense: Expense = { ...makeExpense('exp_01AAAA', '2026-01-01'), amount: -100, currency: 'PLN' }
+      expect(getEnteredAmount(expense)).toBe(-100)
+    })
+  })
+
+  describe('when the expense was converted from a foreign currency', () => {
+    it('should return the original amount instead of the converted one', () => {
+      const expense: Expense = {
+        ...makeExpense('exp_01AAAA', '2026-01-01'),
+        amount: -364,
+        currency: 'PLN',
+        originalAmount: -100,
+        originalCurrency: 'USD',
+      }
+      expect(getEnteredAmount(expense)).toBe(-100)
+    })
+  })
+
+  describe('when the original currency is present but the original amount is missing', () => {
+    it('should fall back to the stored amount', () => {
+      const expense: Expense = {
+        ...makeExpense('exp_01AAAA', '2026-01-01'),
+        amount: -364,
+        currency: 'PLN',
+        originalCurrency: 'USD',
+      }
+      expect(getEnteredAmount(expense)).toBe(-364)
+    })
+  })
+
+  describe('when the original amount is zero', () => {
+    it('should return zero rather than falling back to the converted amount', () => {
+      const expense: Expense = {
+        ...makeExpense('exp_01AAAA', '2026-01-01'),
+        amount: -364,
+        currency: 'PLN',
+        originalAmount: 0,
+        originalCurrency: 'USD',
+      }
+      expect(getEnteredAmount(expense)).toBe(0)
+    })
+  })
+})
+
+describe('getEnteredCurrency', () => {
+  describe('when the expense has no original currency', () => {
+    it('should return the stored currency', () => {
+      expect(getEnteredCurrency({ currency: 'PLN' })).toBe('PLN')
+    })
+  })
+
+  describe('when the expense was converted from a foreign currency', () => {
+    it('should return the original currency', () => {
+      expect(getEnteredCurrency({ currency: 'PLN', originalCurrency: 'USD' })).toBe('USD')
     })
   })
 })

@@ -11,6 +11,21 @@ export function compareExpensesByDate(a: Expense, b: Expense): number {
   return a.date.localeCompare(b.date) || a.id.localeCompare(b.id)
 }
 
+/**
+ * Returns the signed amount expressed in the currency the expense was entered in.
+ * For foreign-currency expenses `amount` holds the value converted to the base
+ * currency, so editing must round-trip through `originalAmount`/`originalCurrency`
+ * to avoid re-converting an already converted value.
+ */
+export function getEnteredAmount(expense: Pick<Expense, 'amount' | 'originalAmount' | 'originalCurrency'>): number {
+  return expense.originalCurrency && expense.originalAmount != null ? expense.originalAmount : expense.amount
+}
+
+/** Currency the expense was entered in — the original one when it was converted. */
+export function getEnteredCurrency(expense: Pick<Expense, 'currency' | 'originalCurrency'>): string {
+  return expense.originalCurrency ?? expense.currency
+}
+
 export function aggregateByMonth(
   expenses: Array<Expense>,
   from: Date,

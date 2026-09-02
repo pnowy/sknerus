@@ -15,6 +15,7 @@ import { useConfig, useCreateExpense, useUpdateExpense } from '@/hooks/use-expen
 import { type ExpenseFormInput, expenseFormSchema } from '@/lib/schemas'
 import { resolveExchangeRate } from '@/lib/server/functions/exchange-rates'
 import { todayISO } from '@/lib/shared/date-utils'
+import { getEnteredAmount, getEnteredCurrency } from '@/lib/shared/expense-utils'
 import { formatCurrency } from '@/lib/shared/format'
 import type { Category, Expense } from '@/lib/shared/types/expense'
 import type { Vehicle } from '@/lib/shared/types/vehicle'
@@ -77,8 +78,8 @@ export function ExpenseFormDialog({
     defaultValues: expense
       ? {
           name: expense.name,
-          amount: Math.abs(expense.amount),
-          currency: expense.originalCurrency ?? expense.currency,
+          amount: Math.abs(getEnteredAmount(expense)),
+          currency: getEnteredCurrency(expense),
           categoryId: expense.categoryId,
           date: expense.date,
           tags: expense.tags,
@@ -89,8 +90,8 @@ export function ExpenseFormDialog({
       : template
         ? {
             name: template.name,
-            amount: Math.abs(template.amount),
-            currency: template.originalCurrency ?? template.currency,
+            amount: Math.abs(getEnteredAmount(template)),
+            currency: getEnteredCurrency(template),
             categoryId: template.categoryId,
             date: cloneDateFrom(template.date),
             tags: template.tags,
