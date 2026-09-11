@@ -17,9 +17,10 @@ type Props = {
   currency: string
   categories: Array<Category>
   expenses: Array<Expense>
+  kind?: 'expense' | 'income'
 }
 
-export function ExpenseChart({ data, currency, categories, expenses }: Props) {
+export function ExpenseChart({ data, currency, categories, expenses, kind = 'expense' }: Props) {
   const [hidden, setHidden] = useState<Set<string>>(new Set())
   const [expanded, setExpanded] = useState<string | null>(null)
   const [mounted, setMounted] = useState(false)
@@ -39,7 +40,7 @@ export function ExpenseChart({ data, currency, categories, expenses }: Props) {
   if (data.length === 0) {
     return (
       <div className="flex min-h-48 items-center justify-center rounded-xl border border-black/20 bg-chart-paper text-muted-foreground text-sm shadow-sm dark:border-white/10">
-        No expense data for this period
+        No {kind} data for this period
       </div>
     )
   }
@@ -107,7 +108,9 @@ export function ExpenseChart({ data, currency, categories, expenses }: Props) {
           const pct = allTotal > 0 ? ((entry.total / allTotal) * 100).toFixed(1) : '0.0'
           const catId = getCategoryId(entry.category)
           const catExpenses = catId
-            ? expenses.filter((e) => e.categoryId === catId && e.amount < 0).sort((a, b) => -compareExpensesByDate(a, b))
+            ? expenses
+                .filter((e) => e.categoryId === catId && (kind === 'income' ? e.amount > 0 : e.amount < 0))
+                .sort((a, b) => -compareExpensesByDate(a, b))
             : []
 
           return (
