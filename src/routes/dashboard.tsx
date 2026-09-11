@@ -54,11 +54,21 @@ function DashboardPage() {
   const periodExpenses = useMemo(() => filterExpensesByRange(allExpenses, from, to), [allExpenses, from, to])
   const income = useMemo(() => periodExpenses.filter((e) => e.amount > 0).reduce((sum, e) => sum + e.amount, 0), [periodExpenses])
   const expenses = useMemo(() => periodExpenses.filter((e) => e.amount < 0).reduce((sum, e) => sum - e.amount, 0), [periodExpenses])
-  const chartData = useMemo(() => {
+  const expenseChartData = useMemo(() => {
     const catMap = new Map(categories.map((c) => [c.id, c.name]))
     const map = new Map<string, number>()
     for (const e of periodExpenses.filter((e) => e.amount < 0)) {
       map.set(e.categoryId, (map.get(e.categoryId) ?? 0) - e.amount)
+    }
+    return Array.from(map.entries())
+      .map(([id, total]) => ({ category: catMap.get(id) ?? id, total }))
+      .sort((a, b) => b.total - a.total)
+  }, [periodExpenses, categories])
+  const incomeChartData = useMemo(() => {
+    const catMap = new Map(categories.map((c) => [c.id, c.name]))
+    const map = new Map<string, number>()
+    for (const e of periodExpenses.filter((e) => e.amount > 0)) {
+      map.set(e.categoryId, (map.get(e.categoryId) ?? 0) + e.amount)
     }
     return Array.from(map.entries())
       .map(([id, total]) => ({ category: catMap.get(id) ?? id, total }))
@@ -103,7 +113,22 @@ function DashboardPage() {
             <TabsTrigger value={DashboardTab.Balance}>Income vs Expenses</TabsTrigger>
           </TabsList>
           <TabsContent value={DashboardTab.Breakdown}>
-            <ExpenseChart categories={categories} currency={currency} data={chartData} expenses={periodExpenses} />
+            <div className="space-y-6">
+              <section className="space-y-2">
+                <h2 className="font-semibold text-lg">Expenses by category</h2>
+                <ExpenseChart categories={categories} currency={currency} data={expenseChartData} expenses={periodExpenses} />
+              </section>
+              <section className="space-y-2">
+                <h2 className="font-semibold text-lg">Income by source</h2>
+                <ExpenseChart
+                  categories={categories}
+                  currency={currency}
+                  data={incomeChartData}
+                  expenses={periodExpenses}
+                  kind="income"
+                />
+              </section>
+            </div>
           </TabsContent>
           <TabsContent value={DashboardTab.Monthly}>
             <MonthlyChart categories={categories} currency={currency} expenses={allExpenses} from={from} to={to} />
