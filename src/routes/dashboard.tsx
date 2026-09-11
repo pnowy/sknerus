@@ -120,13 +120,7 @@ function DashboardPage() {
               </section>
               <section className="space-y-2">
                 <h2 className="font-semibold text-lg">Income by source</h2>
-                <ExpenseChart
-                  categories={categories}
-                  currency={currency}
-                  data={incomeChartData}
-                  expenses={periodExpenses}
-                  kind="income"
-                />
+                <ExpenseChart categories={categories} currency={currency} data={incomeChartData} expenses={periodExpenses} kind="income" />
               </section>
             </div>
           </TabsContent>
