@@ -11,6 +11,7 @@ import {
   parseISO,
   setDate,
 } from 'date-fns'
+import { type CustomDateRange, customDateRangeSchema } from '@/lib/shared/search-params'
 import type { Expense, RecurringExpense } from '@/lib/shared/types/expense'
 import { RangeScope } from '@/lib/shared/types/range-scope'
 
@@ -40,7 +41,18 @@ export function daysUntil(isoDate: string): number {
   return differenceInCalendarDays(parseISO(isoDate), new Date())
 }
 
-export function computeDateRange(scope: RangeScope, offset: number, fiscalStartDay: number): { from: Date; to: Date } {
+export function computeDateRange(
+  scope: RangeScope,
+  offset: number,
+  fiscalStartDay: number,
+  customRange?: CustomDateRange
+): { from: Date; to: Date } {
+  if (scope === RangeScope.Custom) {
+    const range = customDateRangeSchema.parse(customRange)
+    // Filtering uses an exclusive upper bound; the selected end date is inclusive.
+    return { from: parseISO(range.from), to: addDays(parseISO(range.to), 1) }
+  }
+
   const now = new Date()
   const thisYear = now.getFullYear()
 
@@ -106,7 +118,12 @@ export function filterExpensesByRange(expenses: Array<Expense>, from: Date, to: 
   })
 }
 
-export function formatRangeLabel(scope: RangeScope, offset: number): string {
+export function formatRangeLabel(scope: RangeScope, offset: number, customRange?: CustomDateRange): string {
+  if (scope === RangeScope.Custom) {
+    const range = customDateRangeSchema.parse(customRange)
+    return `${format(parseISO(range.from), 'MMM d, yyyy')} – ${format(parseISO(range.to), 'MMM d, yyyy')}`
+  }
+
   const now = new Date()
   const thisYear = now.getFullYear()
 
@@ -190,8 +207,7 @@ export function generateMonthBuckets(from: Date, to: Date): Array<{ label: strin
   const fmt = singleYear ? 'MMMM' : 'MMM yyyy'
   const buckets: Array<{ label: string; year: number; month: number }> = []
   let cur = new Date(from.getFullYear(), from.getMonth(), 1)
-  const end = new Date(to.getFullYear(), to.getMonth(), 1)
-  while (cur < end) {
+  while (cur < to) {
     buckets.push({ label: format(cur, fmt), year: cur.getFullYear(), month: cur.getMonth() })
     cur = addMonths(cur, 1)
   }

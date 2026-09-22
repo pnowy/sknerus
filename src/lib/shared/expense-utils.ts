@@ -1,5 +1,5 @@
 import { parseISO } from 'date-fns'
-import { generateMonthBuckets } from '@/lib/shared/date-utils.ts'
+import { filterExpensesByRange, generateMonthBuckets } from '@/lib/shared/date-utils'
 import type { Expense } from '@/lib/shared/types/expense'
 
 /**
@@ -33,11 +33,12 @@ export function aggregateByMonth(
   categoryIds?: Array<string>
 ): Array<{ month: string; [key: string]: number | string }> {
   const buckets = generateMonthBuckets(from, to)
+  const inRange = filterExpensesByRange(expenses, from, to)
   return buckets.map((b) => {
     const entry: { month: string; [key: string]: number | string } = { month: b.label }
     if (categoryIds) for (const id of categoryIds) entry[id] = 0
     else entry.total = 0
-    for (const e of expenses) {
+    for (const e of inRange) {
       if (e.amount >= 0) continue
       const d = parseISO(e.date)
       if (d.getFullYear() !== b.year || d.getMonth() !== b.month) continue
@@ -60,7 +61,7 @@ export function aggregateIncomeExpenses(
 ): Array<{ month: string; income: number; expenses: number }> {
   const buckets = generateMonthBuckets(from, to)
   const result = buckets.map((b) => ({ month: b.label, income: 0, expenses: 0 }))
-  for (const e of expenses) {
+  for (const e of filterExpensesByRange(expenses, from, to)) {
     const d = parseISO(e.date)
     const idx = buckets.findIndex((b) => b.year === d.getFullYear() && b.month === d.getMonth())
     if (idx !== -1) {
@@ -78,10 +79,11 @@ export function aggregateByCategoryAndMonth(
   to: Date
 ): Array<{ month: string; [categoryId: string]: number | string }> {
   const buckets = generateMonthBuckets(from, to)
+  const inRange = filterExpensesByRange(expenses, from, to)
   return buckets.map((b) => {
     const entry: { month: string; [key: string]: number | string } = { month: b.label }
     for (const catId of categoryIds) entry[catId] = 0
-    for (const e of expenses) {
+    for (const e of inRange) {
       if (!categoryIds.includes(e.categoryId)) continue
       const d = parseISO(e.date)
       if (d.getFullYear() === b.year && d.getMonth() === b.month) {

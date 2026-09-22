@@ -67,11 +67,12 @@ The dashboard is the heart of the app, organized into four tabs:
 3. **Monthly** — stacked bar chart of expenses across all months, broken down by category, to spot seasonal patterns.
 4. **Trends** — category-level trend lines across months to see which spending areas are growing or shrinking.
 
-All dashboard views support flexible time-range navigation: switch between monthly, quarterly, and yearly scopes and step forward/backward through time.
+All dashboard views support flexible time-range navigation: switch between monthly, quarterly, and yearly scopes and step forward/backward through time. Choose **Custom** to filter by an exact start and end date (both inclusive). Custom ranges are saved in the URL and preserved when switching dashboard tabs; click the displayed dates to edit them.
 
 ### Table View
 
 - Chronological list of all transactions for the selected period
+- The same preset and custom date ranges as the dashboard
 - Toggle between flat list and grouped-by-category view
 - Inline delete with confirmation
 - Add new expenses directly from the table view
