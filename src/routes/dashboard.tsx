@@ -48,7 +48,8 @@ function DashboardPage() {
   const startDate = config?.startDate ?? 1
   const fabPosition = config?.fabPosition ?? FabPosition.Right
 
-  const { scope, offset, from, to, label, setScope, prev, next, reset, canGoNext, isCurrentPeriod, showArrows } = useDateRange(startDate)
+  const { scope, offset, from, to, label, setScope, setCustomRange, prev, next, reset, canGoNext, isCurrentPeriod, showArrows } =
+    useDateRange(startDate)
 
   const allTags = useMemo(() => [...new Set(allExpenses.flatMap((e) => e.tags))].sort(), [allExpenses])
   const periodExpenses = useMemo(() => filterExpensesByRange(allExpenses, from, to), [allExpenses, from, to])
@@ -75,10 +76,12 @@ function DashboardPage() {
       .sort((a, b) => b.total - a.total)
   }, [periodExpenses, categories])
 
-  function setTab(tab: string) {
-    const scopeForTab = tab === DashboardTab.Breakdown ? RangeScope.Month : RangeScope.Year
-    // biome-ignore lint/suspicious/noExplicitAny: search params validated by root route schema
-    void navigate({ search: (prev: any) => ({ ...prev, tab, scope: scopeForTab, offset: scopeForTab === scope ? offset : 0 }) } as any)
+  function setTab(tab: DashboardTab) {
+    const scopeForTab = scope === RangeScope.Custom ? scope : tab === DashboardTab.Breakdown ? RangeScope.Month : RangeScope.Year
+    void navigate({
+      to: '/dashboard',
+      search: (prev) => ({ ...prev, tab, scope: scopeForTab, offset: scopeForTab === scope ? offset : 0 }),
+    })
   }
 
   return (
@@ -95,17 +98,20 @@ function DashboardPage() {
               canGoNext={canGoNext}
               isCurrentPeriod={isCurrentPeriod}
               label={label}
+              from={from}
+              to={to}
               scope={scope}
               showArrows={showArrows}
               onNext={next}
               onPrev={prev}
               onReset={reset}
               onScopeChange={setScope}
+              onCustomRangeChange={setCustomRange}
             />
           </div>
         </div>
         <CashflowCards currency={currency} expenses={expenses} income={income} />
-        <Tabs value={activeTab} onValueChange={setTab}>
+        <Tabs value={activeTab} onValueChange={(tab) => setTab(tab as DashboardTab)}>
           <TabsList>
             <TabsTrigger value={DashboardTab.Breakdown}>Breakdown</TabsTrigger>
             <TabsTrigger value={DashboardTab.Monthly}>Monthly</TabsTrigger>

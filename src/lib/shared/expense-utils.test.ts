@@ -1,10 +1,73 @@
 import { describe, expect, it } from 'vitest'
+import {
+  aggregateByCategoryAndMonth,
+  aggregateByMonth,
+  aggregateIncomeExpenses,
+  compareExpensesByDate,
+  getEnteredAmount,
+  getEnteredCurrency,
+} from '@/lib/shared/expense-utils'
 import type { Expense } from '@/lib/shared/types/expense'
-import { compareExpensesByDate, getEnteredAmount, getEnteredCurrency } from './expense-utils'
 
 function makeExpense(id: string, date: string): Expense {
   return { id, name: '', amount: -1, currency: 'USD', categoryId: 'cat', date, tags: [] }
 }
+
+describe('chart aggregation', () => {
+  describe('when a range starts and ends mid-month', () => {
+    const from = new Date(2024, 1, 10)
+    const to = new Date(2024, 2, 16)
+    const expenses = [
+      { ...makeExpense('before', '2024-02-09'), amount: -100 },
+      { ...makeExpense('start', '2024-02-10'), amount: -10 },
+      { ...makeExpense('middle', '2024-02-29'), amount: -20 },
+      { ...makeExpense('end', '2024-03-15'), amount: -30 },
+      { ...makeExpense('after', '2024-03-16'), amount: -200 },
+      { ...makeExpense('income', '2024-03-15'), amount: 50, categoryId: 'salary' },
+      { ...makeExpense('income-before', '2024-02-09'), amount: 500 },
+      { ...makeExpense('income-after', '2024-03-16'), amount: 500 },
+    ]
+
+    it('should aggregate only in-range spending for monthly totals', () => {
+      expect(aggregateByMonth(expenses, from, to)).toEqual([
+        { month: 'February', total: 30 },
+        { month: 'March', total: 30 },
+      ])
+    })
+
+    it('should aggregate only in-range spending for stacked category bars', () => {
+      expect(aggregateByMonth(expenses, from, to, ['cat'])).toEqual([
+        { month: 'February', cat: 30 },
+        { month: 'March', cat: 30 },
+      ])
+    })
+
+    it('should aggregate only in-range transactions for category trends', () => {
+      expect(aggregateByCategoryAndMonth(expenses, ['cat', 'salary'], from, to)).toEqual([
+        { month: 'February', cat: 30, salary: 0 },
+        { month: 'March', cat: 30, salary: 50 },
+      ])
+    })
+
+    it('should aggregate only in-range income and expenses for the balance chart', () => {
+      expect(aggregateIncomeExpenses(expenses, from, to)).toEqual([
+        { month: 'February', income: 0, expenses: 30 },
+        { month: 'March', income: 50, expenses: 30 },
+      ])
+    })
+  })
+
+  describe('when a range covers a single day', () => {
+    it('should show that day in every chart instead of omitting the month', () => {
+      const expenses = [makeExpense('before', '2024-02-09'), makeExpense('inside', '2024-02-10'), makeExpense('after', '2024-02-11')]
+      const from = new Date(2024, 1, 10)
+      const to = new Date(2024, 1, 11)
+      expect(aggregateByMonth(expenses, from, to)).toEqual([{ month: 'February', total: 1 }])
+      expect(aggregateByCategoryAndMonth(expenses, ['cat'], from, to)).toEqual([{ month: 'February', cat: 1 }])
+      expect(aggregateIncomeExpenses(expenses, from, to)).toEqual([{ month: 'February', income: 0, expenses: 1 }])
+    })
+  })
+})
 
 describe('compareExpensesByDate', () => {
   describe('when the dates differ', () => {

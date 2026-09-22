@@ -6,19 +6,13 @@ import { createRootRouteWithContext, HeadContent, Scripts } from '@tanstack/reac
 import { TanStackRouterDevtoolsPanel } from '@tanstack/react-router-devtools'
 import { ThemeProvider } from 'next-themes'
 import { useEffect } from 'react'
-import { z } from 'zod'
 import { Toaster } from '@/components/ui/sonner'
 import { materializeRecurring } from '@/lib/server/functions/recurring'
-import { DashboardTab } from '@/lib/shared/types/dashboard-tab'
-import { RangeScope } from '@/lib/shared/types/range-scope'
+import { searchParamsSchema } from '@/lib/shared/search-params'
 import appCss from '@/styles/styles.css?url'
 
 export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()({
-  validateSearch: z.object({
-    scope: z.enum(Object.values(RangeScope) as [RangeScope, ...Array<RangeScope>]).default(RangeScope.Month),
-    offset: z.number().int().default(0),
-    tab: z.enum(Object.values(DashboardTab) as [DashboardTab, ...Array<DashboardTab>]).default(DashboardTab.Breakdown),
-  }),
+  validateSearch: searchParamsSchema,
   loader: () => materializeRecurring(),
   head: () => ({
     meta: [

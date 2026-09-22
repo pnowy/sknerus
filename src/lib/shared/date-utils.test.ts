@@ -1,6 +1,16 @@
-import { describe, expect, it } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
+import {
+  computeDateRange,
+  computeOccurrences,
+  daysUntil,
+  filterExpensesByMonth,
+  filterExpensesByRange,
+  formatRangeLabel,
+  generateMonthBuckets,
+  getMonthRange,
+} from '@/lib/shared/date-utils'
 import type { Expense, RecurringExpense } from '@/lib/shared/types/expense'
-import { computeOccurrences, daysUntil, filterExpensesByMonth, getMonthRange } from './date-utils'
+import { RangeScope } from '@/lib/shared/types/range-scope'
 
 function toStr(d: Date) {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
@@ -18,6 +28,86 @@ const baseRecurring: Omit<RecurringExpense, 'frequency' | 'startDate'> = {
   categoryId: 'cat_test',
   tags: [],
 }
+
+describe('custom date ranges', () => {
+  describe('when a range starts and ends mid-month', () => {
+    it('should include both selected days without applying the fiscal start day or offset', () => {
+      const range = { from: '2024-02-10', to: '2024-03-15' }
+      const { from, to } = computeDateRange(RangeScope.Custom, -5, 20, range)
+      expect(toStr(from)).toBe(range.from)
+      expect(toStr(to)).toBe('2024-03-16')
+      expect(from.getHours()).toBe(0)
+      expect(to.getHours()).toBe(0)
+      const expenses = ['2024-02-09', '2024-02-10', '2024-02-29', '2024-03-15', '2024-03-16'].map(makeExpense)
+      expect(filterExpensesByRange(expenses, from, to).map((e) => e.date)).toEqual(['2024-02-10', '2024-02-29', '2024-03-15'])
+      expect(formatRangeLabel(RangeScope.Custom, 0, range)).toBe('Feb 10, 2024 – Mar 15, 2024')
+    })
+  })
+
+  describe('when the range covers one day', () => {
+    it.each(['2024-02-29', '2024-03-31', '2024-10-27', '2024-12-31'])(
+      'should include %s and advance to the next local midnight',
+      (date) => {
+        const { from, to } = computeDateRange(RangeScope.Custom, 0, 1, { from: date, to: date })
+        const nextDay = new Date(from.getFullYear(), from.getMonth(), from.getDate() + 1)
+        expect(to).toEqual(nextDay)
+        expect(filterExpensesByRange([makeExpense(date), makeExpense(toStr(nextDay))], from, to).map((e) => e.date)).toEqual([date])
+      }
+    )
+  })
+
+  describe('when custom dates are missing', () => {
+    it('should reject the range instead of silently using a preset', () => {
+      expect(() => computeDateRange(RangeScope.Custom, 0, 1)).toThrow()
+      expect(() => formatRangeLabel(RangeScope.Custom, 0)).toThrow()
+    })
+  })
+})
+
+describe('preset date ranges', () => {
+  afterEach(() => vi.useRealTimers())
+
+  describe('when a preset is used after a custom range', () => {
+    it('should preserve fiscal month boundaries and ignore custom dates', () => {
+      vi.useFakeTimers()
+      vi.setSystemTime(new Date(2024, 5, 20))
+      const { from, to } = computeDateRange(RangeScope.Month, -1, 15, { from: '2020-01-01', to: '2020-01-02' })
+      expect(toStr(from)).toBe('2024-05-15')
+      expect(toStr(to)).toBe('2024-06-15')
+      expect(formatRangeLabel(RangeScope.Month, -1)).toBe('May 2024')
+    })
+  })
+})
+
+describe('generateMonthBuckets', () => {
+  describe('when the range contains partial months', () => {
+    it('should include both partial boundary months', () => {
+      expect(generateMonthBuckets(new Date(2024, 1, 10), new Date(2024, 2, 16)).map((b) => b.label)).toEqual(['February', 'March'])
+    })
+
+    it('should include a range entirely within one month', () => {
+      expect(generateMonthBuckets(new Date(2024, 1, 10), new Date(2024, 1, 11)).map((b) => b.label)).toEqual(['February'])
+    })
+  })
+
+  describe('when the upper bound is the first of a month', () => {
+    it('should not add an empty trailing month', () => {
+      expect(generateMonthBuckets(new Date(2024, 1, 10), new Date(2024, 2, 1)).map((b) => b.label)).toEqual(['February'])
+    })
+
+    it('should retain twelve buckets and existing labels for a full calendar year', () => {
+      const buckets = generateMonthBuckets(new Date(2024, 0, 1), new Date(2025, 0, 1))
+      expect(buckets).toHaveLength(12)
+      expect(buckets[11].label).toBe('Dec 2024')
+    })
+  })
+
+  describe('when a range crosses a year boundary', () => {
+    it('should include the year in each label', () => {
+      expect(generateMonthBuckets(new Date(2024, 11, 20), new Date(2025, 0, 11)).map((b) => b.label)).toEqual(['Dec 2024', 'Jan 2025'])
+    })
+  })
+})
 
 describe('getMonthRange', () => {
   describe('when the start day fits in every month', () => {

@@ -47,7 +47,8 @@ function TablePage() {
   const [groupSort, setGroupSort] = useState<GroupSort>('config')
 
   const startDate = config?.startDate ?? 1
-  const { scope, from, to, label, setScope, prev, next, reset, canGoNext, isCurrentPeriod, showArrows } = useDateRange(startDate)
+  const { scope, from, to, label, setScope, setCustomRange, prev, next, reset, canGoNext, isCurrentPeriod, showArrows } =
+    useDateRange(startDate)
 
   const displayedExpenses = useMemo(
     () => filterExpensesByRange(allExpenses, from, to).sort((a, b) => -compareExpensesByDate(a, b)),
@@ -109,12 +110,15 @@ function TablePage() {
               canGoNext={canGoNext}
               isCurrentPeriod={isCurrentPeriod}
               label={label}
+              from={from}
+              to={to}
               scope={scope}
               showArrows={showArrows}
               onNext={next}
               onPrev={prev}
               onReset={reset}
               onScopeChange={setScope}
+              onCustomRangeChange={setCustomRange}
             />
           </div>
         </div>
