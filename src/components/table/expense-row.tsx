@@ -1,5 +1,7 @@
 import { Copy, Pencil, Repeat, Trash2 } from 'lucide-react'
 import { NoteIndicator } from '@/components/note-indicator'
+import { ACTIONS_CELL_CLASS, NAME_TEXT_CLASS, TAGS_CELL_CLASS } from '@/components/table/table-classes'
+import { TruncatedText } from '@/components/truncated-text'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { TableCell, TableRow } from '@/components/ui/table'
@@ -25,10 +27,10 @@ export function ExpenseRow({ expense, categories, vehicles, hasTags, showNotes, 
   const vehicleIcon = resolveVehicleExpenseIcon(expense, vehicles)
 
   return (
-    <TableRow>
+    <TableRow className="group">
       <TableCell className="font-medium">
         <span className="flex items-center gap-1.5">
-          {expense.name}
+          <TruncatedText className={NAME_TEXT_CLASS} text={expense.name} />
           {vehicleIcon && (
             <vehicleIcon.Icon aria-label="Vehicle expense" className="size-3.5 shrink-0" style={{ color: vehicleIcon.color }} />
           )}
@@ -38,7 +40,7 @@ export function ExpenseRow({ expense, categories, vehicles, hasTags, showNotes, 
       </TableCell>
       <TableCell>{categoryName}</TableCell>
       {hasTags && (
-        <TableCell>
+        <TableCell className={TAGS_CELL_CLASS}>
           <div className="flex flex-wrap gap-1">
             {expense.tags.map((t) => (
               <Badge key={t} variant="secondary" className="text-xs">
@@ -63,7 +65,7 @@ export function ExpenseRow({ expense, categories, vehicles, hasTags, showNotes, 
         </span>
       </TableCell>
       <TableCell className="text-muted-foreground">{formatDate(expense.date)}</TableCell>
-      <TableCell>
+      <TableCell className={ACTIONS_CELL_CLASS}>
         <div className="flex items-center gap-1">
           <Button size="icon-sm" variant="ghost" onClick={() => onEdit(expense)}>
             <Pencil className="size-3.5" />

@@ -77,7 +77,7 @@ function TablePage() {
   }
 
   return (
-    <AppLayout>
+    <AppLayout wide>
       <div className="space-y-4">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <h1 className="hidden font-semibold text-xl sm:block">Transactions</h1>

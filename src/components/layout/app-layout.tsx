@@ -8,7 +8,15 @@ const NAV_LINKS = [
   { to: '/settings', label: 'Settings', icon: Settings },
 ] as const
 
-export function AppLayout({ children }: { children: React.ReactNode }) {
+type Props = {
+  children: React.ReactNode
+  // grow beyond the default width (up to max-w-7xl) only when the content needs it, e.g. wide tables
+  wide?: boolean
+}
+
+export function AppLayout({ children, wide = false }: Props) {
+  const width = wide ? 'max-w-7xl sm:w-fit sm:min-w-[min(64rem,100%)]' : 'max-w-5xl'
+
   return (
     <div className="flex min-h-svh flex-col">
       <header className="sticky top-0 z-10 border-border border-b bg-background px-4 py-3">
@@ -36,7 +44,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
         </nav>
       </header>
       {/* extra bottom padding on mobile so the floating add button never covers content */}
-      <main className="mx-auto w-full max-w-5xl flex-1 px-4 pt-6 pb-24 sm:pb-6">{children}</main>
+      <main className={cn('mx-auto w-full flex-1 px-4 pt-6 pb-24 sm:pb-6', width)}>{children}</main>
     </div>
   )
 }

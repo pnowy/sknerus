@@ -2,6 +2,7 @@ import { ArrowUpDown } from 'lucide-react'
 import { useState } from 'react'
 import { ExpenseCard } from '@/components/table/expense-card'
 import { ExpenseRow } from '@/components/table/expense-row'
+import { ACTIONS_CELL_CLASS } from '@/components/table/table-classes'
 import { Button } from '@/components/ui/button'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Table, TableBody, TableHead, TableHeader, TableRow } from '@/components/ui/table'
@@ -103,7 +104,7 @@ export function ExpenseTable({ expenses, categories, vehicles, onEdit, onDuplica
       <div className="hidden overflow-x-auto rounded-md border sm:block">
         <Table>
           <TableHeader>
-            <TableRow>
+            <TableRow className="group">
               <TableHead>
                 <SortButton field="name" label="Name" />
               </TableHead>
@@ -117,7 +118,7 @@ export function ExpenseTable({ expenses, categories, vehicles, onEdit, onDuplica
               <TableHead>
                 <SortButton field="date" label="Date" />
               </TableHead>
-              <TableHead />
+              <TableHead className={ACTIONS_CELL_CLASS} />
             </TableRow>
           </TableHeader>
           <TableBody>
