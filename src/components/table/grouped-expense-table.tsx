@@ -2,6 +2,8 @@ import { ChevronDown, ChevronRight, Copy, Pencil, Repeat, Trash2 } from 'lucide-
 import { useMemo, useState } from 'react'
 import { NoteIndicator } from '@/components/note-indicator'
 import { ExpenseCard } from '@/components/table/expense-card'
+import { ACTIONS_CELL_CLASS, NAME_TEXT_CLASS, TAGS_CELL_CLASS } from '@/components/table/table-classes'
+import { TruncatedText } from '@/components/truncated-text'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
@@ -126,12 +128,12 @@ export function GroupedExpenseTable({ expenses, categories, vehicles, currency, 
       <div className="hidden overflow-x-auto rounded-md border sm:block">
         <Table>
           <TableHeader>
-            <TableRow>
+            <TableRow className="group">
               <TableHead>Name</TableHead>
               {hasTags && <TableHead>Tags</TableHead>}
               <TableHead>Amount</TableHead>
               <TableHead>Date</TableHead>
-              <TableHead />
+              <TableHead className={ACTIONS_CELL_CLASS} />
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -210,10 +212,10 @@ function GroupSection({
         group.expenses.map((expense) => {
           const vehicleIcon = resolveVehicleExpenseIcon(expense, vehicles)
           return (
-            <TableRow key={expense.id}>
+            <TableRow key={expense.id} className="group">
               <TableCell className="pl-10 font-medium">
                 <span className="flex items-center gap-1.5">
-                  {expense.name}
+                  <TruncatedText className={NAME_TEXT_CLASS} text={expense.name} />
                   {vehicleIcon && (
                     <vehicleIcon.Icon aria-label="Vehicle expense" className="size-3.5 shrink-0" style={{ color: vehicleIcon.color }} />
                   )}
@@ -222,7 +224,7 @@ function GroupSection({
                 </span>
               </TableCell>
               {hasTags && (
-                <TableCell>
+                <TableCell className={TAGS_CELL_CLASS}>
                   <div className="flex flex-wrap gap-1">
                     {expense.tags.map((t) => (
                       <Badge key={t} variant="secondary" className="text-xs">
@@ -247,7 +249,7 @@ function GroupSection({
                 </span>
               </TableCell>
               <TableCell className="text-muted-foreground">{formatDate(expense.date)}</TableCell>
-              <TableCell>
+              <TableCell className={ACTIONS_CELL_CLASS}>
                 <div className="flex items-center gap-1">
                   <Button size="icon-sm" variant="ghost" onClick={() => onEdit(expense)}>
                     <Pencil className="size-3.5" />
