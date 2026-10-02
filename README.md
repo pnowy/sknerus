@@ -130,6 +130,8 @@ Track per-vehicle costs alongside your regular expenses. Once enabled, a **Vehic
 
 The recommended way to run Sknerus is with Docker.
 
+Use `ghcr.io/pnowy/sknerus:stable` to follow tagged releases. The `latest` tag follows builds from `main`; version tags are also available to pin a specific release.
+
 ### Docker CLI
 
 ```bash
