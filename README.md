@@ -9,7 +9,7 @@
 </p>
 
 <p align="center">
-<a href="#why-sknerus">Why Sknerus?</a>&nbsp;&bull;&nbsp;<a href="#features">Features</a>&nbsp;&bull;&nbsp;<a href="#screenshots">Screenshots</a><br><a href="#installation">Installation</a>&nbsp;&bull;&nbsp;<a href="#configuration">Configuration</a>&nbsp;&bull;&nbsp;<a href="#demo-data">Demo Data</a>
+<a href="#why-sknerus">Why Sknerus?</a>&nbsp;&bull;&nbsp;<a href="#features">Features</a>&nbsp;&bull;&nbsp;<a href="#quick-showcase">Quick Showcase</a>&nbsp;&bull;&nbsp;<a href="#screenshots">Screenshots</a><br><a href="#installation">Installation</a>&nbsp;&bull;&nbsp;<a href="#configuration">Configuration</a>&nbsp;&bull;&nbsp;<a href="#demo-data">Demo Data</a>
 </p>
 
 <br>
@@ -23,7 +23,7 @@
 </p>
 
 <p align="center">
-  <img src="./etc/sknerus-demo.gif" alt="Sknerus App Preview" width="100%">
+  <img src="./etc/app-preview.png" alt="Sknerus App Preview" width="100%">
 </p>
 
 <br>
@@ -105,6 +105,12 @@ Track per-vehicle costs alongside your regular expenses. Once enabled, a **Vehic
 - Open the **Stats** dialog on a vehicle for a fuel history table and a weekly spend-breakdown chart across all expense types
 
 > Units are metric: kilometers, liters, L/100km. Imperial units (miles, gallons, MPG) are not currently supported — open an issue if you'd like a metric/imperial toggle.
+
+# Quick Showcase
+
+<p align="center">
+  <img src="./etc/sknerus-demo.gif" alt="Sknerus Quick Showcase" width="100%">
+</p>
 
 # Screenshots
 
