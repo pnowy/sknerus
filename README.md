@@ -23,7 +23,7 @@
 </p>
 
 <p align="center">
-  <img src="./etc/app-preview.png" alt="Sknerus App Preview" width="100%">
+  <img src="./etc/sknerus-demo.gif" alt="Sknerus App Preview" width="100%">
 </p>
 
 <br>
