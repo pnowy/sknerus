@@ -9,7 +9,7 @@
 </p>
 
 <p align="center">
-<a href="#why-sknerus">Why Sknerus?</a>&nbsp;&bull;&nbsp;<a href="#features">Features</a>&nbsp;&bull;&nbsp;<a href="#screenshots">Screenshots</a><br><a href="#installation">Installation</a>&nbsp;&bull;&nbsp;<a href="#configuration">Configuration</a>&nbsp;&bull;&nbsp;<a href="#demo-data">Demo Data</a>
+<a href="#why-sknerus">Why Sknerus?</a>&nbsp;&bull;&nbsp;<a href="#quick-showcase">Quick Showcase</a>&nbsp;&bull;&nbsp;<a href="#features">Features</a>&nbsp;&bull;&nbsp;<a href="#screenshots">Screenshots</a><br><a href="#installation">Installation</a>&nbsp;&bull;&nbsp;<a href="#configuration">Configuration</a>&nbsp;&bull;&nbsp;<a href="#demo-data">Demo Data</a>
 </p>
 
 <br>
@@ -41,6 +41,12 @@ Sknerus picks up where ExpenseOwl left off. It keeps the philosophy of **dead si
 - A modern SSR React stack (TanStack Start)
 
 It is still *not* a budgeting app. No accounts, no complex budgets, no bank syncing. Just a fast, honest look at where your money goes.
+
+# Quick Showcase
+
+<p align="center">
+  <img src="./etc/sknerus-demo.gif" alt="Sknerus Quick Showcase" width="100%">
+</p>
 
 # Features
 
