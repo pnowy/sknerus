@@ -1,21 +1,23 @@
 import { useSortable } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
-import { Dices, GripVertical, Trash2 } from 'lucide-react'
+import { Dices, GripVertical, Trash2, TrendingDown, TrendingUp } from 'lucide-react'
 import { useRef, useState } from 'react'
+import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 import type { Category } from '@/lib/shared/types/expense'
-import { randomColor } from '@/lib/utils'
+import { cn, randomColor } from '@/lib/utils'
 
 type Props = {
   category: Category
   onDelete: (id: string) => void
   onColorChange: (id: string, color: string) => void
   onNameChange: (id: string, newName: string) => void
+  onToggleIncome: (id: string) => void
 }
 
-export function SortableCategoryItem({ category, onDelete, onColorChange, onNameChange }: Props) {
+export function SortableCategoryItem({ category, onDelete, onColorChange, onNameChange, onToggleIncome }: Props) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: category.id })
   const colorInputRef = useRef<HTMLInputElement>(null)
   const [editing, setEditing] = useState(false)
@@ -88,6 +90,28 @@ export function SortableCategoryItem({ category, onDelete, onColorChange, onName
         </Tooltip>
       </TooltipProvider>
 
+      <TooltipProvider>
+        <Tooltip>
+          <TooltipTrigger render={<span />}>
+            <Button
+              aria-label={category.isIncome ? `Mark ${category.name} as expense category` : `Mark ${category.name} as income category`}
+              className={cn(
+                'size-7',
+                category.isIncome
+                  ? 'bg-emerald-500/10 text-emerald-600 hover:bg-emerald-500/20 dark:text-emerald-400'
+                  : 'text-muted-foreground'
+              )}
+              size="icon-sm"
+              variant="ghost"
+              onClick={() => onToggleIncome(category.id)}
+            >
+              {category.isIncome ? <TrendingUp className="size-3.5" /> : <TrendingDown className="size-3.5" />}
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent>{category.isIncome ? 'Switch to expense category' : 'Switch to income category'}</TooltipContent>
+        </Tooltip>
+      </TooltipProvider>
+
       {editing ? (
         <Input
           autoFocus
@@ -98,17 +122,24 @@ export function SortableCategoryItem({ category, onDelete, onColorChange, onName
           onKeyDown={handleKeyDown}
         />
       ) : (
-        <button
-          className="flex-1 cursor-text text-left text-sm hover:text-foreground/70"
-          title="Click to rename"
-          type="button"
-          onClick={() => {
-            setDraft(category.name)
-            setEditing(true)
-          }}
-        >
-          {category.name}
-        </button>
+        <div className="flex flex-1 items-center gap-2">
+          <button
+            className="cursor-text text-left text-sm hover:text-foreground/70"
+            title="Click to rename"
+            type="button"
+            onClick={() => {
+              setDraft(category.name)
+              setEditing(true)
+            }}
+          >
+            {category.name}
+          </button>
+          {category.isIncome && (
+            <Badge variant="secondary" className="px-1.5 py-0 text-[10px] text-emerald-600 dark:text-emerald-400">
+              Income
+            </Badge>
+          )}
+        </div>
       )}
 
       <Button

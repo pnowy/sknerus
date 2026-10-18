@@ -39,6 +39,7 @@ export type Category = {
   name: string
   color: string
   vehicleId?: string
+  isIncome?: boolean
 }
 
 export type AppFeatures = {

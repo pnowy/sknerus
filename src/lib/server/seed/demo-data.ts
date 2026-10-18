@@ -28,7 +28,7 @@ function randInt(min: number, max: number): number {
 export function generateDemoData(): { config: Config; expenses: Array<Expense>; vehicles: Array<Vehicle> } {
   const motorcycleId = genVehicleId()
   const cats = {
-    salary: { id: genCategoryId(), name: 'Salary', color: '#22c55e' },
+    salary: { id: genCategoryId(), name: 'Salary', color: '#22c55e', isIncome: true },
     groceries: { id: genCategoryId(), name: 'Groceries', color: '#84cc16' },
     housing: { id: genCategoryId(), name: 'Housing', color: '#3b82f6' },
     utilities: { id: genCategoryId(), name: 'Utilities', color: '#f97316' },

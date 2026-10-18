@@ -4,6 +4,7 @@ import { arrayMove, SortableContext, sortableKeyboardCoordinates, verticalListSo
 import { Plus } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { SortableCategoryItem } from '@/components/settings/sortable-category-item'
+import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import type { Category } from '@/lib/shared/types/expense'
@@ -40,6 +41,10 @@ export function CategoryList({ categories, onChange, onNameChange }: Props) {
     onChange(categories.map((c) => (c.id === id ? { ...c, color } : c)))
   }
 
+  function handleToggleIncome(id: string) {
+    onChange(categories.map((c) => (c.id === id ? { ...c, isIncome: !c.isIncome } : c)))
+  }
+
   function handleAdd() {
     const trimmed = newName.trim()
     if (trimmed && !categories.some((c) => c.name === trimmed)) {
@@ -56,6 +61,11 @@ export function CategoryList({ categories, onChange, onNameChange }: Props) {
           <div key={cat.id} className="flex items-center gap-2 rounded-md border border-border bg-background px-3 py-2">
             <span className="size-5 shrink-0 rounded-full border-2 border-black/20" style={{ backgroundColor: cat.color }} />
             <span className="flex-1 text-sm">{cat.name}</span>
+            {cat.isIncome && (
+              <Badge variant="secondary" className="px-1.5 py-0 text-[10px] text-emerald-600 dark:text-emerald-400">
+                Income
+              </Badge>
+            )}
           </div>
         ))}
       </div>
@@ -74,6 +84,7 @@ export function CategoryList({ categories, onChange, onNameChange }: Props) {
                 onColorChange={handleColorChange}
                 onDelete={handleDelete}
                 onNameChange={onNameChange}
+                onToggleIncome={handleToggleIncome}
               />
             ))}
           </div>
