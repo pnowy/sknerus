@@ -7,6 +7,8 @@ import { SortableCategoryItem } from '@/components/settings/sortable-category-it
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { Switch } from '@/components/ui/switch'
 import type { Category } from '@/lib/shared/types/expense'
 import { randomColor } from '@/lib/utils'
 
@@ -19,6 +21,7 @@ type Props = {
 export function CategoryList({ categories, onChange, onNameChange }: Props) {
   const [mounted, setMounted] = useState(false)
   const [newName, setNewName] = useState('')
+  const [newIsIncome, setNewIsIncome] = useState(false)
 
   useEffect(() => setMounted(true), [])
 
@@ -49,8 +52,9 @@ export function CategoryList({ categories, onChange, onNameChange }: Props) {
     const trimmed = newName.trim()
     if (trimmed && !categories.some((c) => c.name === trimmed)) {
       const id = `cat_${Date.now().toString(36).toUpperCase()}_${Math.random().toString(36).slice(2, 8).toUpperCase()}`
-      onChange([...categories, { id, name: trimmed, color: randomColor() }])
+      onChange([...categories, { id, name: trimmed, color: randomColor(), ...(newIsIncome && { isIncome: true }) }])
       setNewName('')
+      setNewIsIncome(false)
     }
   }
 
@@ -90,13 +94,17 @@ export function CategoryList({ categories, onChange, onNameChange }: Props) {
           </div>
         </SortableContext>
       </DndContext>
-      <div className="flex gap-2">
+      <div className="flex items-center gap-2">
         <Input
           placeholder="New category..."
           value={newName}
           onChange={(e) => setNewName(e.target.value)}
           onKeyDown={(e) => e.key === 'Enter' && handleAdd()}
         />
+        <div className="flex shrink-0 items-center gap-2">
+          <Switch checked={newIsIncome} id="new-category-income" onCheckedChange={setNewIsIncome} />
+          <Label htmlFor="new-category-income">Income</Label>
+        </div>
         <Button variant="outline" onClick={handleAdd}>
           <Plus className="size-4" />
           Add
