@@ -14,7 +14,7 @@ import { Textarea } from '@/components/ui/textarea'
 import { useConfig, useCreateExpense, useUpdateExpense } from '@/hooks/use-expenses'
 import { type ExpenseFormInput, expenseFormSchema } from '@/lib/schemas'
 import { resolveExchangeRate } from '@/lib/server/functions/exchange-rates'
-import { getCategoriesForType, getDefaultCategoryId, resolveCategoryForType } from '@/lib/shared/category-utils'
+import { getDefaultCategoryId, resolveIncomeForCategory } from '@/lib/shared/category-utils'
 import { todayISO } from '@/lib/shared/date-utils'
 import { getEnteredAmount, getEnteredCurrency } from '@/lib/shared/expense-utils'
 import { formatCurrency } from '@/lib/shared/format'
@@ -116,8 +116,6 @@ export function ExpenseFormDialog({
   const watchedDate = watch('date')
   const watchedCurrency = watch('currency')
   const watchedCategoryId = watch('categoryId')
-  const watchedIsIncome = watch('isIncome')
-  const visibleCategories = getCategoriesForType(categories, watchedIsIncome, watchedCategoryId)
 
   const boundVehicle = vehicles?.find((v) => categories.find((c) => c.id === watchedCategoryId)?.vehicleId === v.id) ?? null
 
@@ -257,15 +255,21 @@ export function ExpenseFormDialog({
                 control={control}
                 name="categoryId"
                 render={({ field }) => (
-                  // Remount on type change: Base UI resets the value when the mounted item list no longer contains it
-                  <Select key={watchedIsIncome ? 'income' : 'expense'} value={field.value} onValueChange={field.onChange}>
+                  <Select
+                    value={field.value}
+                    onValueChange={(next) => {
+                      if (!next) return
+                      setValue('isIncome', resolveIncomeForCategory(categories, field.value, next, getValues('isIncome')))
+                      field.onChange(next)
+                    }}
+                  >
                     <SelectTrigger>
                       <SelectValue placeholder="Select category">
                         {(value: string) => categories.find((c) => c.id === value)?.name}
                       </SelectValue>
                     </SelectTrigger>
                     <SelectContent>
-                      {visibleCategories.map((c) => (
+                      {categories.map((c) => (
                         <SelectItem key={c.id} value={c.id}>
                           {c.name}
                         </SelectItem>
@@ -417,17 +421,7 @@ export function ExpenseFormDialog({
             <Controller
               control={control}
               name="isIncome"
-              render={({ field }) => (
-                <Switch
-                  checked={field.value}
-                  id="exp-income"
-                  onCheckedChange={(checked) => {
-                    field.onChange(checked)
-                    const nextCategoryId = resolveCategoryForType(categories, checked, getValues('categoryId'))
-                    if (nextCategoryId) setValue('categoryId', nextCategoryId)
-                  }}
-                />
-              )}
+              render={({ field }) => <Switch checked={field.value} id="exp-income" onCheckedChange={field.onChange} />}
             />
             <Label htmlFor="exp-income">Report as income</Label>
           </div>

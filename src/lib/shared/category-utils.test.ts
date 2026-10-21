@@ -1,42 +1,28 @@
 import { describe, expect, it } from 'vitest'
-import { getCategoriesForType, getDefaultCategoryId, resolveCategoryForType } from '@/lib/shared/category-utils'
+import { getDefaultCategoryId, resolveIncomeForCategory } from '@/lib/shared/category-utils'
 import type { Category } from '@/lib/shared/types/expense'
 
 const salary: Category = { id: 'salary', name: 'Salary', color: '#000', isIncome: true }
 const groceries: Category = { id: 'groceries', name: 'Groceries', color: '#000' }
-const housing: Category = { id: 'housing', name: 'Housing', color: '#000', isIncome: false }
-const categories = [groceries, salary, housing]
+const electricity: Category = { id: 'electricity', name: 'Electricity', color: '#000', isIncome: false }
+const categories = [groceries, salary, electricity]
 
-describe('getCategoriesForType', () => {
-  it('returns only expense categories for expenses', () => {
-    expect(getCategoriesForType(categories, false)).toEqual([groceries, housing])
+describe('resolveIncomeForCategory', () => {
+  it('turns income on when picking an income category', () => {
+    expect(resolveIncomeForCategory(categories, 'groceries', 'salary', false)).toBe(true)
   })
 
-  it('returns only income categories for income', () => {
-    expect(getCategoriesForType(categories, true)).toEqual([salary])
+  it('turns income off when leaving an income category for a regular one', () => {
+    expect(resolveIncomeForCategory(categories, 'salary', 'groceries', true)).toBe(false)
   })
 
-  it('falls back to all categories when none match', () => {
-    expect(getCategoriesForType([groceries, housing], true)).toEqual([groceries, housing])
+  it('keeps a manually set value when switching between regular categories', () => {
+    expect(resolveIncomeForCategory(categories, 'groceries', 'electricity', true)).toBe(true)
+    expect(resolveIncomeForCategory(categories, 'electricity', 'groceries', false)).toBe(false)
   })
 
-  it('keeps the selected category visible even if it does not match', () => {
-    expect(getCategoriesForType(categories, true, 'groceries')).toEqual([groceries, salary])
-  })
-})
-
-describe('resolveCategoryForType', () => {
-  it('keeps current category when it matches the type', () => {
-    expect(resolveCategoryForType(categories, false, 'housing')).toBeUndefined()
-  })
-
-  it('switches to first matching category when current does not match', () => {
-    expect(resolveCategoryForType(categories, true, 'groceries')).toBe('salary')
-    expect(resolveCategoryForType(categories, false, 'salary')).toBe('groceries')
-  })
-
-  it('returns undefined when no category matches', () => {
-    expect(resolveCategoryForType([groceries], true, 'groceries')).toBeUndefined()
+  it('keeps the current value for unknown categories', () => {
+    expect(resolveIncomeForCategory(categories, undefined, 'missing', true)).toBe(true)
   })
 })
 

@@ -11,7 +11,7 @@ import { Switch } from '@/components/ui/switch'
 import { Textarea } from '@/components/ui/textarea'
 import { useConfig, useCreateRecurring, useUpdateRecurring } from '@/hooks/use-expenses'
 import { type RecurringFormInput, recurringFormSchema } from '@/lib/schemas'
-import { getCategoriesForType, getDefaultCategoryId, resolveCategoryForType } from '@/lib/shared/category-utils'
+import { getDefaultCategoryId, resolveIncomeForCategory } from '@/lib/shared/category-utils'
 import { todayISO } from '@/lib/shared/date-utils'
 import type { Category, RecurringExpense } from '@/lib/shared/types/expense'
 
@@ -79,9 +79,6 @@ export function RecurringFormDialog({ categories, currency, allTags, recurring, 
   })
 
   const frequency = useWatch({ control, name: 'frequency' })
-  const watchedIsIncome = useWatch({ control, name: 'isIncome' })
-  const watchedCategoryId = useWatch({ control, name: 'categoryId' })
-  const visibleCategories = getCategoriesForType(categories, watchedIsIncome, watchedCategoryId)
   const isPending = create.isPending || update.isPending
 
   async function onSubmit({ isIncome, amount, endDate, ...rest }: RecurringFormInput) {
@@ -134,15 +131,21 @@ export function RecurringFormDialog({ categories, currency, allTags, recurring, 
                 control={control}
                 name="categoryId"
                 render={({ field }) => (
-                  // Remount on type change: Base UI resets the value when the mounted item list no longer contains it
-                  <Select key={watchedIsIncome ? 'income' : 'expense'} value={field.value} onValueChange={field.onChange}>
+                  <Select
+                    value={field.value}
+                    onValueChange={(next) => {
+                      if (!next) return
+                      setValue('isIncome', resolveIncomeForCategory(categories, field.value, next, getValues('isIncome')))
+                      field.onChange(next)
+                    }}
+                  >
                     <SelectTrigger>
                       <SelectValue placeholder="Select category">
                         {(value: string) => categories.find((c) => c.id === value)?.name}
                       </SelectValue>
                     </SelectTrigger>
                     <SelectContent>
-                      {visibleCategories.map((c) => (
+                      {categories.map((c) => (
                         <SelectItem key={c.id} value={c.id}>
                           {c.name}
                         </SelectItem>
@@ -271,17 +274,7 @@ export function RecurringFormDialog({ categories, currency, allTags, recurring, 
             <Controller
               control={control}
               name="isIncome"
-              render={({ field }) => (
-                <Switch
-                  checked={field.value}
-                  id="rec-income"
-                  onCheckedChange={(checked) => {
-                    field.onChange(checked)
-                    const nextCategoryId = resolveCategoryForType(categories, checked, getValues('categoryId'))
-                    if (nextCategoryId) setValue('categoryId', nextCategoryId)
-                  }}
-                />
-              )}
+              render={({ field }) => <Switch checked={field.value} id="rec-income" onCheckedChange={field.onChange} />}
             />
             <Label htmlFor="rec-income">Report as income</Label>
           </div>

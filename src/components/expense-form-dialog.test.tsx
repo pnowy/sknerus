@@ -19,7 +19,19 @@ afterEach(cleanup)
 const categories: Array<Category> = [
   { id: 'groceries', name: 'Groceries', color: '#000' },
   { id: 'salary', name: 'Salary', color: '#000', isIncome: true },
+  { id: 'electricity', name: 'Electricity', color: '#000' },
 ]
+
+const trigger = () => screen.getByRole('combobox')
+const incomeSwitch = () => screen.getByRole('switch')
+
+async function selectCategory(name: string) {
+  fireEvent.click(trigger())
+  const option = await screen.findByRole('option', { name })
+  fireEvent.pointerDown(option)
+  fireEvent.click(option)
+  await waitFor(() => expect(trigger().textContent).toContain(name))
+}
 
 function renderDialog() {
   render(<ExpenseFormDialog open onClose={vi.fn()} categories={categories} currency="PLN" supportedCurrencies={[]} allTags={[]} />)
@@ -31,24 +43,36 @@ describe('ExpenseFormDialog', () => {
     expect(screen.getByRole('combobox', { name: '' }).textContent).toContain('Groceries')
   })
 
-  it('should show the income category after switching to income', async () => {
+  it('should keep the category when toggling income manually', async () => {
     renderDialog()
-    fireEvent.click(screen.getByRole('switch'))
-    await waitFor(() => expect(screen.getByText('Salary')).toBeTruthy())
-    expect(screen.queryByText('Groceries')).toBeNull()
-  })
-
-  it('should keep the income category visible after the select was focused', async () => {
-    renderDialog()
-    const trigger = () => screen.getByRole('combobox')
-    fireEvent.focus(trigger())
-    await waitFor(() => expect(screen.getAllByRole('option', { hidden: true }).length).toBeGreaterThan(0))
-    fireEvent.click(screen.getByRole('switch'))
-    await waitFor(() => expect(trigger().textContent).toContain('Salary'))
-    await new Promise((r) => setTimeout(r, 50))
-    expect(trigger().textContent).toContain('Salary')
-    fireEvent.click(screen.getByRole('switch'))
+    fireEvent.click(incomeSwitch())
+    await waitFor(() => expect(incomeSwitch().getAttribute('aria-checked')).toBe('true'))
     await new Promise((r) => setTimeout(r, 50))
     expect(trigger().textContent).toContain('Groceries')
+  })
+
+  it('should list all categories regardless of the income switch', async () => {
+    renderDialog()
+    fireEvent.click(incomeSwitch())
+    fireEvent.click(trigger())
+    expect(await screen.findByRole('option', { name: 'Groceries' })).toBeTruthy()
+    expect(screen.getByRole('option', { name: 'Salary' })).toBeTruthy()
+    expect(screen.getByRole('option', { name: 'Electricity' })).toBeTruthy()
+  })
+
+  it('should preset income when picking an income category and allow overriding it', async () => {
+    renderDialog()
+    await selectCategory('Salary')
+    expect(incomeSwitch().getAttribute('aria-checked')).toBe('true')
+    fireEvent.click(incomeSwitch())
+    await waitFor(() => expect(incomeSwitch().getAttribute('aria-checked')).toBe('false'))
+    expect(trigger().textContent).toContain('Salary')
+  })
+
+  it('should keep a manual income switch for mixed categories', async () => {
+    renderDialog()
+    fireEvent.click(incomeSwitch())
+    await selectCategory('Electricity')
+    expect(incomeSwitch().getAttribute('aria-checked')).toBe('true')
   })
 })
