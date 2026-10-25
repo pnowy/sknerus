@@ -12,6 +12,17 @@ export function compareExpensesByDate(a: Expense, b: Expense): number {
 }
 
 /**
+ * Case-insensitive search over name, notes and tags. Every whitespace-separated
+ * word must appear in at least one field, so "anna cake" narrows rather than widens results.
+ */
+export function matchesSearch(expense: Pick<Expense, 'name' | 'notes' | 'tags'>, query: string): boolean {
+  const words = query.toLowerCase().split(/\s+/).filter(Boolean)
+  if (words.length === 0) return true
+  const haystack = [expense.name, expense.notes ?? '', ...expense.tags].join('\n').toLowerCase()
+  return words.every((word) => haystack.includes(word))
+}
+
+/**
  * Returns the signed amount expressed in the currency the expense was entered in.
  * For foreign-currency expenses `amount` holds the value converted to the base
  * currency, so editing must round-trip through `originalAmount`/`originalCurrency`

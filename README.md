@@ -79,6 +79,7 @@ All dashboard views support flexible time-range navigation: switch between month
 
 - Chronological list of all transactions for the selected period
 - The same preset and custom date ranges as the dashboard
+- Optional search (enable **Show search** in Settings → Display): click the search icon to find transactions by name, notes, or tags across your whole history; Esc clears the query, then closes search
 - Toggle between flat list and grouped-by-category view
 - Inline delete with confirmation
 - Add new expenses directly from the table view
@@ -89,7 +90,7 @@ All dashboard views support flexible time-range navigation: switch between month
 - Set primary currency and a list of supported currencies for multi-currency entry
 - Configure fiscal month start date and default start page
 - Choose the side of the mobile floating add-expense button (or turn it off)
-- Toggle visibility of tags and notes fields across the app
+- Toggle visibility of tags and notes fields across the app, and enable transaction search in the table view
 - Manage recurring transactions (view, edit, delete templates)
 - Export and import all expenses
 - Enable optional plugins (see below)

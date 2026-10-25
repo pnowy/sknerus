@@ -6,6 +6,7 @@ import {
   compareExpensesByDate,
   getEnteredAmount,
   getEnteredCurrency,
+  matchesSearch,
 } from '@/lib/shared/expense-utils'
 import type { Expense } from '@/lib/shared/types/expense'
 
@@ -170,6 +171,53 @@ describe('getEnteredCurrency', () => {
   describe('when the expense was converted from a foreign currency', () => {
     it('should return the original currency', () => {
       expect(getEnteredCurrency({ currency: 'PLN', originalCurrency: 'USD' })).toBe('USD')
+    })
+  })
+})
+
+describe('matchesSearch', () => {
+  const expense: Expense = {
+    ...makeExpense('exp_1', '2024-01-01'),
+    name: 'Groceries',
+    notes: 'Birthday cake for Anna',
+    tags: ['party', 'family'],
+  }
+
+  describe('when the query is blank', () => {
+    it('should match every expense', () => {
+      expect(matchesSearch(expense, '   ')).toBe(true)
+    })
+  })
+
+  describe('when the query matches the notes', () => {
+    it('should match case-insensitively', () => {
+      expect(matchesSearch(expense, 'BIRTHDAY')).toBe(true)
+    })
+  })
+
+  describe('when the query matches the name or a tag', () => {
+    it('should match by name', () => {
+      expect(matchesSearch(expense, 'grocer')).toBe(true)
+    })
+
+    it('should match by tag', () => {
+      expect(matchesSearch(expense, 'famil')).toBe(true)
+    })
+  })
+
+  describe('when the query has multiple words', () => {
+    it('should match when every word is found in any field', () => {
+      expect(matchesSearch(expense, 'anna party')).toBe(true)
+    })
+
+    it('should not match when one of the words is missing', () => {
+      expect(matchesSearch(expense, 'anna wedding')).toBe(false)
+    })
+  })
+
+  describe('when the expense has no notes', () => {
+    it('should not match a query absent from other fields', () => {
+      expect(matchesSearch({ ...expense, notes: undefined }, 'cake')).toBe(false)
     })
   })
 })

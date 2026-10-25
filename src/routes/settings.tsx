@@ -118,6 +118,15 @@ function SettingsPage() {
     }
   }
 
+  async function handleShowSearchChange(showSearch: boolean) {
+    try {
+      await updateConfig.mutateAsync({ ...currentConfig, showSearch })
+      toast.success(showSearch ? 'Search enabled' : 'Search hidden')
+    } catch {
+      toast.error('Failed to update search visibility')
+    }
+  }
+
   async function handleFabPositionChange(fabPosition: FabPosition) {
     try {
       await updateConfig.mutateAsync({ ...currentConfig, fabPosition })
@@ -298,8 +307,14 @@ function SettingsPage() {
                         <Label htmlFor="show-notes">Show notes</Label>
                         <Switch checked={config.showNotes} id="show-notes" onCheckedChange={handleShowNotesChange} />
                       </div>
+                      <div className="flex items-center justify-between gap-3">
+                        <Label htmlFor="show-search">Show search</Label>
+                        <Switch checked={config.showSearch} id="show-search" onCheckedChange={handleShowSearchChange} />
+                      </div>
                     </div>
-                    <p className="mt-2 text-muted-foreground text-xs">Hide tags or notes from forms and tables</p>
+                    <p className="mt-2 text-muted-foreground text-xs">
+                      Hide tags or notes from forms and tables, or add transaction search to the table view
+                    </p>
                   </CardContent>
                 </Card>
                 <Card>

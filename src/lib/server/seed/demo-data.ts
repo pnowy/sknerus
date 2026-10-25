@@ -343,6 +343,7 @@ export function generateDemoData(): { config: Config; expenses: Array<Expense>; 
       exchangeProvider: 'frankfurter',
       showTags: true,
       showNotes: true,
+      showSearch: true,
       fabPosition: FabPosition.Right,
       features: { vehicleExpenseTracking: true },
     },
