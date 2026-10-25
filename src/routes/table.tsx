@@ -1,5 +1,5 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { Plus } from 'lucide-react'
+import { Plus, Search } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import { toast } from 'sonner'
 import { AddExpenseFab } from '@/components/add-expense-fab'
@@ -9,6 +9,7 @@ import { AppLayout } from '@/components/layout/app-layout'
 import { EmptyState } from '@/components/table/empty-state'
 import { ExpenseTable } from '@/components/table/expense-table'
 import { GROUP_SORT_OPTIONS, GroupedExpenseTable, type GroupSort } from '@/components/table/grouped-expense-table'
+import { TableSearch } from '@/components/table/table-search'
 import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
@@ -20,7 +21,7 @@ import { getConfig } from '@/lib/server/functions/config'
 import { getExpenses } from '@/lib/server/functions/expenses'
 import { getVehicles } from '@/lib/server/functions/vehicles'
 import { filterExpensesByRange } from '@/lib/shared/date-utils'
-import { compareExpensesByDate } from '@/lib/shared/expense-utils'
+import { compareExpensesByDate, matchesSearch } from '@/lib/shared/expense-utils'
 import type { Expense } from '@/lib/shared/types/expense'
 import { FabPosition } from '@/lib/shared/types/fab-position'
 import { cn } from '@/lib/utils'
@@ -45,15 +46,28 @@ function TablePage() {
   const [addOpen, setAddOpen] = useState(false)
   const [grouped, setGrouped] = useState(false)
   const [groupSort, setGroupSort] = useState<GroupSort>('config')
+  const [search, setSearch] = useState('')
+  const [searchOpen, setSearchOpen] = useState(false)
 
   const startDate = config?.startDate ?? 1
   const { scope, from, to, label, setScope, setCustomRange, prev, next, reset, canGoNext, isCurrentPeriod, showArrows } =
     useDateRange(startDate)
 
+  const searchEnabled = config?.showSearch ?? false
+  const isSearching = searchEnabled && searchOpen && search.trim() !== ''
+  // An active search spans all history so past expenses can be found regardless of the selected period
   const displayedExpenses = useMemo(
-    () => filterExpensesByRange(allExpenses, from, to).sort((a, b) => -compareExpensesByDate(a, b)),
-    [allExpenses, from, to]
+    () =>
+      (isSearching ? allExpenses.filter((e) => matchesSearch(e, search)) : filterExpensesByRange(allExpenses, from, to)).sort(
+        (a, b) => -compareExpensesByDate(a, b)
+      ),
+    [allExpenses, from, to, search, isSearching]
   )
+
+  function closeSearch() {
+    setSearchOpen(false)
+    setSearch('')
+  }
 
   async function handleDelete(id: string) {
     try {
@@ -86,6 +100,17 @@ function TablePage() {
               <Plus className="size-4" />
               Add Expense
             </Button>
+            {searchEnabled && (
+              <Button
+                aria-label={searchOpen ? 'Close search' : 'Search transactions'}
+                aria-pressed={searchOpen}
+                size="icon-sm"
+                variant={searchOpen ? 'secondary' : 'ghost'}
+                onClick={() => (searchOpen ? closeSearch() : setSearchOpen(true))}
+              >
+                <Search className="size-4" />
+              </Button>
+            )}
             <div className="flex items-center gap-2">
               <Switch checked={grouped} id="group-by-cat" onCheckedChange={setGrouped} />
               <Label htmlFor="group-by-cat" className="text-sm">
@@ -106,24 +131,30 @@ function TablePage() {
                 </Select>
               )}
             </div>
-            <DateRangeNav
-              canGoNext={canGoNext}
-              isCurrentPeriod={isCurrentPeriod}
-              label={label}
-              from={from}
-              to={to}
-              scope={scope}
-              showArrows={showArrows}
-              onNext={next}
-              onPrev={prev}
-              onReset={reset}
-              onScopeChange={setScope}
-              onCustomRangeChange={setCustomRange}
-            />
+            {/* search spans all time, so the period nav is shown but inactive while a query is set */}
+            <div className={cn('transition-opacity', isSearching && 'opacity-40')} inert={isSearching}>
+              <DateRangeNav
+                canGoNext={canGoNext}
+                isCurrentPeriod={isCurrentPeriod}
+                label={label}
+                from={from}
+                to={to}
+                scope={scope}
+                showArrows={showArrows}
+                onNext={next}
+                onPrev={prev}
+                onReset={reset}
+                onScopeChange={setScope}
+                onCustomRangeChange={setCustomRange}
+              />
+            </div>
           </div>
         </div>
+        {searchEnabled && searchOpen && (
+          <TableSearch matchCount={isSearching ? displayedExpenses.length : null} onClose={closeSearch} onSearchChange={setSearch} />
+        )}
         {displayedExpenses.length === 0 ? (
-          <EmptyState message="No transactions for this period." />
+          <EmptyState message={isSearching ? 'No transactions match your search.' : 'No transactions for this period.'} />
         ) : grouped ? (
           <GroupedExpenseTable {...tableProps} currency={currency} groupSort={groupSort} />
         ) : (

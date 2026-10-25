@@ -56,6 +56,7 @@ export type Config = {
   exchangeApiKey?: string
   showTags: boolean
   showNotes: boolean
+  showSearch: boolean
   fabPosition: FabPosition
   features?: AppFeatures
 }

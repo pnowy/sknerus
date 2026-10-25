@@ -15,6 +15,7 @@ const DEFAULT_CONFIG: Config = {
   exchangeProvider: 'frankfurter',
   showTags: true,
   showNotes: true,
+  showSearch: false,
   fabPosition: FabPosition.Right,
   features: { vehicleExpenseTracking: false },
 }
@@ -80,6 +81,7 @@ export class JsonAdapter implements StorageAdapter {
       exchangeApiKey: stored.exchangeApiKey,
       showTags: stored.showTags ?? DEFAULT_CONFIG.showTags,
       showNotes: stored.showNotes ?? DEFAULT_CONFIG.showNotes,
+      showSearch: stored.showSearch ?? DEFAULT_CONFIG.showSearch,
       fabPosition: stored.fabPosition ?? DEFAULT_CONFIG.fabPosition,
       features: { vehicleExpenseTracking: false, ...stored.features },
     }

@@ -80,6 +80,7 @@ export const configSchema = z.object({
   exchangeApiKey: z.string().optional(),
   showTags: z.boolean().default(true),
   showNotes: z.boolean().default(true),
+  showSearch: z.boolean().default(false),
   fabPosition: toZodEnum(FabPosition).default(FabPosition.Right),
   features: featuresSchema,
 })

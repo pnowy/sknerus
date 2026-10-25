@@ -46,4 +46,11 @@ describe('categorySchema', () => {
     const result = configSchema.safeParse(config)
     expect(result.success).toBe(true)
   })
+
+  describe('when showSearch is omitted', () => {
+    it('should default search to disabled', () => {
+      const result = configSchema.parse({ categories: [], currency: 'USD', startDate: 1 })
+      expect(result.showSearch).toBe(false)
+    })
+  })
 })
