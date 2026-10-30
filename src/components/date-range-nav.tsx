@@ -79,7 +79,7 @@ export function DateRangeNav({
           {label}
         </Button>
       ) : (
-        <span className="min-w-24 text-center font-medium text-sm sm:min-w-36">{label}</span>
+        <span className="min-w-24 text-center text-sm font-medium sm:min-w-36">{label}</span>
       )}
       {showArrows && (
         <Button disabled={!canGoNext} size="icon" variant="ghost" onClick={onNext}>

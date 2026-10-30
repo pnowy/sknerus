@@ -6,7 +6,7 @@ type Props = {
 
 export function EmptyState({ message }: Props) {
   return (
-    <div className="flex flex-col items-center justify-center gap-3 py-16 text-muted-foreground">
+    <div className="text-muted-foreground flex flex-col items-center justify-center gap-3 py-16">
       <ReceiptText className="size-10 opacity-40" />
       <p className="text-sm">{message}</p>
     </div>

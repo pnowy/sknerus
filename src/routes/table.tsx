@@ -94,7 +94,7 @@ function TablePage() {
     <AppLayout wide>
       <div className="space-y-4">
         <div className="flex flex-wrap items-center justify-between gap-3">
-          <h1 className="hidden font-semibold text-xl sm:block">Transactions</h1>
+          <h1 className="hidden text-xl font-semibold sm:block">Transactions</h1>
           <div className="flex flex-1 flex-wrap items-center justify-center gap-4 sm:flex-none sm:justify-end">
             <Button className={cn(fabPosition !== FabPosition.Off && 'hidden sm:inline-flex')} size="sm" onClick={() => setAddOpen(true)}>
               <Plus className="size-4" />

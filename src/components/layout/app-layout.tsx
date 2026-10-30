@@ -19,11 +19,11 @@ export function AppLayout({ children, wide = false }: Props) {
 
   return (
     <div className="flex min-h-svh flex-col">
-      <header className="sticky top-0 z-10 border-border border-b bg-background px-4 py-3">
+      <header className="border-border bg-background sticky top-0 z-10 border-b px-4 py-3">
         <nav className="mx-auto flex max-w-5xl items-center justify-between">
           <Link to="/" search={(prev) => prev} className="flex items-center gap-2 transition-opacity hover:opacity-80">
             <img alt="Sknerus logo" className="size-9 rounded-full object-cover" src="/logo.png" />
-            <span className="font-semibold text-lg tracking-tight">Sknerus</span>
+            <span className="text-lg font-semibold tracking-tight">Sknerus</span>
           </Link>
           <div className="flex items-center gap-1">
             {NAV_LINKS.map(({ to, label, icon: Icon }) => (
@@ -33,7 +33,7 @@ export function AppLayout({ children, wide = false }: Props) {
                 search={(prev) => prev}
                 activeProps={{ className: 'bg-muted text-foreground' }}
                 className={cn(
-                  'flex items-center gap-1.5 rounded-md px-3 py-1.5 text-muted-foreground text-sm transition-colors hover:text-foreground'
+                  'text-muted-foreground hover:text-foreground flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm transition-colors'
                 )}
               >
                 <Icon className="size-4" />

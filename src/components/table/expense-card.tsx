@@ -26,18 +26,18 @@ export function ExpenseCard({ expense, categories, showTags, showNotes, vehicles
   const vehicleIcon = resolveVehicleExpenseIcon(expense, vehicles)
 
   return (
-    <div className="rounded-lg border bg-card p-3">
+    <div className="bg-card rounded-lg border p-3">
       <div className="flex items-start justify-between gap-2">
-        <span className="flex items-center gap-1.5 font-medium text-sm">
+        <span className="flex items-center gap-1.5 text-sm font-medium">
           {expense.name}
           {vehicleIcon && (
             <vehicleIcon.Icon aria-label="Vehicle expense" className="size-3.5 shrink-0" style={{ color: vehicleIcon.color }} />
           )}
-          {expense.recurringId && <Repeat aria-label="Recurring" className="size-3 shrink-0 text-muted-foreground" />}
+          {expense.recurringId && <Repeat aria-label="Recurring" className="text-muted-foreground size-3 shrink-0" />}
           {showNotes && expense.notes && <NoteIndicator notes={expense.notes} />}
         </span>
         <span className="flex flex-col items-end">
-          <span className={cn('font-medium text-sm tabular-nums', expense.amount > 0 ? 'text-emerald-600 dark:text-emerald-400' : '')}>
+          <span className={cn('text-sm font-medium tabular-nums', expense.amount > 0 ? 'text-emerald-600 dark:text-emerald-400' : '')}>
             {expense.amount > 0 ? '+' : ''}
             {formatCurrency(Math.abs(expense.amount), expense.currency)}
           </span>
@@ -50,7 +50,7 @@ export function ExpenseCard({ expense, categories, showTags, showNotes, vehicles
         </span>
       </div>
       <div className="mt-1 flex items-center justify-between gap-2">
-        <span className="flex items-center gap-1.5 text-muted-foreground text-xs">
+        <span className="text-muted-foreground flex items-center gap-1.5 text-xs">
           {category && <span className="inline-block size-2.5 rounded-sm" style={{ backgroundColor: category.color }} />}
           <span>{categoryName}</span>
           <span>·</span>

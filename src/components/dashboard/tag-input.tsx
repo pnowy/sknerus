@@ -45,7 +45,7 @@ export function TagInput({ value, onChange, suggestions = [], placeholder = 'Add
     <div className="relative">
       <div
         className={cn(
-          'flex min-h-9 flex-wrap gap-1.5 rounded-md border border-input bg-transparent px-3 py-1.5 text-sm focus-within:ring-1 focus-within:ring-ring'
+          'border-input focus-within:ring-ring flex min-h-9 flex-wrap gap-1.5 rounded-md border bg-transparent px-3 py-1.5 text-sm focus-within:ring-1'
         )}
       >
         {value.map((tag) => (
@@ -53,7 +53,7 @@ export function TagInput({ value, onChange, suggestions = [], placeholder = 'Add
             {tag}
             <button
               aria-label={`Remove ${tag}`}
-              className="rounded-full hover:bg-muted"
+              className="hover:bg-muted rounded-full"
               type="button"
               onClick={(e) => {
                 e.stopPropagation()
@@ -79,9 +79,9 @@ export function TagInput({ value, onChange, suggestions = [], placeholder = 'Add
         />
       </div>
       {open && filtered.length > 0 && (
-        <ul className="absolute z-50 mt-1 max-h-40 w-full overflow-auto rounded-md border bg-popover py-1 shadow-md">
+        <ul className="bg-popover absolute z-50 mt-1 max-h-40 w-full overflow-auto rounded-md border py-1 shadow-md">
           {filtered.map((s) => (
-            <li key={s} className="cursor-pointer px-3 py-1.5 text-sm hover:bg-muted" onMouseDown={() => addTag(s)}>
+            <li key={s} className="hover:bg-muted cursor-pointer px-3 py-1.5 text-sm" onMouseDown={() => addTag(s)}>
               {s}
             </li>
           ))}
