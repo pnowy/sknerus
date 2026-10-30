@@ -62,7 +62,7 @@ export function CategoryTrends({ expenses, categories, currency, from, to }: Pro
         })}
       </div>
       {selected.length === 0 ? (
-        <div className="flex min-h-48 items-center justify-center text-muted-foreground text-sm">Select categories to compare</div>
+        <div className="text-muted-foreground flex min-h-48 items-center justify-center text-sm">Select categories to compare</div>
       ) : (
         <div className="h-72 md:h-[380px]">
           {mounted && (

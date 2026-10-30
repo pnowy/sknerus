@@ -17,9 +17,9 @@ type Props = {
 
 function StatCard({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-lg bg-muted/50 px-4 py-3">
+    <div className="bg-muted/50 rounded-lg px-4 py-3">
       <p className="text-muted-foreground text-xs">{label}</p>
-      <p className="mt-0.5 font-semibold text-sm">{value}</p>
+      <p className="mt-0.5 text-sm font-semibold">{value}</p>
     </div>
   )
 }
@@ -69,7 +69,7 @@ export function VehicleStatsDialog({ vehicle, expenses, currency, onClose }: Pro
             <Separator />
 
             {fuelEntries.length === 0 ? (
-              <p className="py-4 text-center text-muted-foreground text-sm">No fuel entries yet.</p>
+              <p className="text-muted-foreground py-4 text-center text-sm">No fuel entries yet.</p>
             ) : (
               <div className="-mr-2 min-h-0 flex-1 space-y-2 overflow-y-auto pr-2">
                 {fuelEntries.map((entry) => {
@@ -78,14 +78,14 @@ export function VehicleStatsDialog({ vehicle, expenses, currency, onClose }: Pro
                   return (
                     <div key={entry.id} className="flex items-start justify-between gap-4 rounded-lg border px-3 py-2.5">
                       <div className="min-w-0 space-y-0.5">
-                        <p className="font-medium text-sm">{formatDate(entry.date)}</p>
-                        <div className="flex flex-wrap gap-x-3 gap-y-0.5 text-muted-foreground text-xs">
+                        <p className="text-sm font-medium">{formatDate(entry.date)}</p>
+                        <div className="text-muted-foreground flex flex-wrap gap-x-3 gap-y-0.5 text-xs">
                           <span>+{ve.fuelLiters ?? 0} L</span>
                           <span>{ve.fuelLevelPercent ?? 0}% after</span>
                           {ve.odometerReading != null && <span>{ve.odometerReading.toLocaleString()} km distance</span>}
                         </div>
                       </div>
-                      <p className="shrink-0 font-medium text-sm">{formatCurrency(Math.abs(entry.amount), currency)}</p>
+                      <p className="shrink-0 text-sm font-medium">{formatCurrency(Math.abs(entry.amount), currency)}</p>
                     </div>
                   )
                 })}
@@ -105,7 +105,7 @@ export function VehicleStatsDialog({ vehicle, expenses, currency, onClose }: Pro
                 {estimatedRange != null && (
                   <p className="text-muted-foreground text-xs">
                     Estimated range from last fill-up (based on past consumption):{' '}
-                    <span className="font-medium text-foreground">~{estimatedRange.toLocaleString()} km</span>
+                    <span className="text-foreground font-medium">~{estimatedRange.toLocaleString()} km</span>
                   </p>
                 )}
               </>

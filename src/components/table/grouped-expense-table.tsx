@@ -89,16 +89,16 @@ export function GroupedExpenseTable({ expenses, categories, vehicles, currency, 
             <div key={group.category.id}>
               <button
                 type="button"
-                className="flex w-full items-center justify-between rounded-lg bg-muted/50 px-3 py-2"
+                className="bg-muted/50 flex w-full items-center justify-between rounded-lg px-3 py-2"
                 onClick={() => toggleGroup(group.category.id)}
               >
-                <span className="flex items-center gap-2 font-semibold text-sm">
+                <span className="flex items-center gap-2 text-sm font-semibold">
                   <Icon className="size-4" />
                   <span className="inline-block size-3 rounded-sm" style={{ backgroundColor: group.category.color }} />
                   {group.category.name}
-                  <span className="font-normal text-muted-foreground">({group.expenses.length})</span>
+                  <span className="text-muted-foreground font-normal">({group.expenses.length})</span>
                 </span>
-                <span className={cn('font-semibold text-sm tabular-nums', group.total > 0 ? 'text-emerald-600 dark:text-emerald-400' : '')}>
+                <span className={cn('text-sm font-semibold tabular-nums', group.total > 0 ? 'text-emerald-600 dark:text-emerald-400' : '')}>
                   {group.total > 0 ? '+' : ''}
                   {formatCurrency(Math.abs(group.total), currency)}
                 </span>
@@ -192,16 +192,16 @@ function GroupSection({
 
   return (
     <>
-      <TableRow className="cursor-pointer bg-muted/50 hover:bg-muted/80" onClick={onToggle}>
+      <TableRow className="bg-muted/50 hover:bg-muted/80 cursor-pointer" onClick={onToggle}>
         <TableCell colSpan={colSpan}>
           <div className="flex items-center justify-between">
-            <span className="flex items-center gap-2 font-semibold text-sm">
+            <span className="flex items-center gap-2 text-sm font-semibold">
               <Icon className="size-4" />
               <span className="inline-block size-3 rounded-sm" style={{ backgroundColor: group.category.color }} />
               {group.category.name}
-              <span className="font-normal text-muted-foreground">({group.expenses.length})</span>
+              <span className="text-muted-foreground font-normal">({group.expenses.length})</span>
             </span>
-            <span className={cn('font-semibold text-sm tabular-nums', group.total > 0 ? 'text-emerald-600 dark:text-emerald-400' : '')}>
+            <span className={cn('text-sm font-semibold tabular-nums', group.total > 0 ? 'text-emerald-600 dark:text-emerald-400' : '')}>
               {group.total > 0 ? '+' : ''}
               {formatCurrency(Math.abs(group.total), currency)}
             </span>
@@ -219,7 +219,7 @@ function GroupSection({
                   {vehicleIcon && (
                     <vehicleIcon.Icon aria-label="Vehicle expense" className="size-3.5 shrink-0" style={{ color: vehicleIcon.color }} />
                   )}
-                  {expense.recurringId && <Repeat aria-label="Recurring" className="size-3 shrink-0 text-muted-foreground" />}
+                  {expense.recurringId && <Repeat aria-label="Recurring" className="text-muted-foreground size-3 shrink-0" />}
                   {showNotes && expense.notes && <NoteIndicator notes={expense.notes} />}
                 </span>
               </TableCell>
@@ -258,7 +258,7 @@ function GroupSection({
                     <Copy className="size-3.5" />
                   </Button>
                   <Button size="icon-sm" variant="ghost" onClick={() => onDelete(expense.id)}>
-                    <Trash2 className="size-3.5 text-destructive" />
+                    <Trash2 className="text-destructive size-3.5" />
                   </Button>
                 </div>
               </TableCell>

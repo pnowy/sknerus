@@ -394,9 +394,9 @@ export function ExpenseFormDialog({
                 <div className="col-span-full space-y-2">
                   <div className="flex items-center justify-between">
                     <Label>Fuel level after</Label>
-                    <span className="font-medium text-sm">
+                    <span className="text-sm font-medium">
                       {watchedVehicleExpense?.fuelLevelPercent ?? 100}%{' '}
-                      <span className="font-normal text-muted-foreground">
+                      <span className="text-muted-foreground font-normal">
                         (~{((boundVehicle.fuelTankSize * (watchedVehicleExpense?.fuelLevelPercent ?? 100)) / 100).toFixed(1)}L)
                       </span>
                     </span>
@@ -408,7 +408,7 @@ export function ExpenseFormDialog({
                       <Slider min={0} max={100} step={5} value={field.value ?? 100} onValueChange={(v) => field.onChange(v)} />
                     )}
                   />
-                  <div className="flex justify-between text-muted-foreground text-xs">
+                  <div className="text-muted-foreground flex justify-between text-xs">
                     <span>0%</span>
                     <span>50%</span>
                     <span>100%</span>

@@ -32,22 +32,22 @@ export function ImportDialog({ onFileSelected }: ImportDialogProps) {
           <div>
             <p className="mb-2 font-medium">Required columns</p>
             <table className="w-full text-left">
-              <tbody className="divide-y divide-border">
+              <tbody className="divide-border divide-y">
                 <tr>
                   <td className="py-1.5 pr-4 font-mono text-xs">name</td>
-                  <td className="py-1.5 text-muted-foreground">Transaction description</td>
+                  <td className="text-muted-foreground py-1.5">Transaction description</td>
                 </tr>
                 <tr>
                   <td className="py-1.5 pr-4 font-mono text-xs">amount</td>
-                  <td className="py-1.5 text-muted-foreground">Signed number — negative for expenses, positive for income</td>
+                  <td className="text-muted-foreground py-1.5">Signed number — negative for expenses, positive for income</td>
                 </tr>
                 <tr>
                   <td className="py-1.5 pr-4 font-mono text-xs">category</td>
-                  <td className="py-1.5 text-muted-foreground">Category name — auto-created if not found</td>
+                  <td className="text-muted-foreground py-1.5">Category name — auto-created if not found</td>
                 </tr>
                 <tr>
                   <td className="py-1.5 pr-4 font-mono text-xs">date</td>
-                  <td className="py-1.5 text-muted-foreground">
+                  <td className="text-muted-foreground py-1.5">
                     <span className="font-mono">YYYY-MM-DD</span> or ISO timestamp
                   </td>
                 </tr>
@@ -57,10 +57,10 @@ export function ImportDialog({ onFileSelected }: ImportDialogProps) {
           <div>
             <p className="mb-2 font-medium">Optional columns</p>
             <table className="w-full text-left">
-              <tbody className="divide-y divide-border">
+              <tbody className="divide-border divide-y">
                 <tr>
                   <td className="py-1.5 pr-4 font-mono text-xs">tags</td>
-                  <td className="py-1.5 text-muted-foreground">
+                  <td className="text-muted-foreground py-1.5">
                     Semicolon-separated, e.g. <span className="font-mono">food;travel</span>
                   </td>
                 </tr>

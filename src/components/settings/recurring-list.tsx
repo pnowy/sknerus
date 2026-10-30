@@ -63,9 +63,9 @@ export function RecurringList({ categories, currency }: Props) {
       {recurring.map((r) => (
         <div key={r.id} className="flex items-center justify-between gap-3 rounded-md border px-3 py-2">
           <div className="flex min-w-0 items-center gap-2">
-            <Repeat className="size-4 shrink-0 text-muted-foreground" />
+            <Repeat className="text-muted-foreground size-4 shrink-0" />
             <div className="min-w-0">
-              <p className="truncate font-medium text-sm">{r.name}</p>
+              <p className="truncate text-sm font-medium">{r.name}</p>
               <p className="text-muted-foreground text-xs">
                 {formatFrequency(r)} · {catMap.get(r.categoryId) ?? r.categoryId}
               </p>
@@ -80,7 +80,7 @@ export function RecurringList({ categories, currency }: Props) {
               <Pencil className="size-3.5" />
             </Button>
             <Button size="icon-sm" variant="ghost" onClick={() => handleDelete(r.id)}>
-              <Trash2 className="size-3.5 text-destructive" />
+              <Trash2 className="text-destructive size-3.5" />
             </Button>
           </div>
         </div>

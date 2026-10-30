@@ -34,7 +34,7 @@ export function ExpenseRow({ expense, categories, vehicles, hasTags, showNotes, 
           {vehicleIcon && (
             <vehicleIcon.Icon aria-label="Vehicle expense" className="size-3.5 shrink-0" style={{ color: vehicleIcon.color }} />
           )}
-          {expense.recurringId && <Repeat aria-label="Recurring" className="size-3 shrink-0 text-muted-foreground" />}
+          {expense.recurringId && <Repeat aria-label="Recurring" className="text-muted-foreground size-3 shrink-0" />}
           {showNotes && expense.notes && <NoteIndicator notes={expense.notes} />}
         </span>
       </TableCell>
@@ -74,7 +74,7 @@ export function ExpenseRow({ expense, categories, vehicles, hasTags, showNotes, 
             <Copy className="size-3.5" />
           </Button>
           <Button size="icon-sm" variant="ghost" onClick={() => onDelete(expense.id)}>
-            <Trash2 className="size-3.5 text-destructive" />
+            <Trash2 className="text-destructive size-3.5" />
           </Button>
         </div>
       </TableCell>

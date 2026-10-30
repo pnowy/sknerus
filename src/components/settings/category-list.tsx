@@ -62,7 +62,7 @@ export function CategoryList({ categories, onChange, onNameChange }: Props) {
     return (
       <div className="space-y-2">
         {categories.map((cat) => (
-          <div key={cat.id} className="flex items-center gap-2 rounded-md border border-border bg-background px-3 py-2">
+          <div key={cat.id} className="border-border bg-background flex items-center gap-2 rounded-md border px-3 py-2">
             <span className="size-5 shrink-0 rounded-full border-2 border-black/20" style={{ backgroundColor: cat.color }} />
             <span className="flex-1 text-sm">{cat.name}</span>
             {cat.isIncome && (

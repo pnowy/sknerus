@@ -196,7 +196,7 @@ function SettingsPage() {
   return (
     <AppLayout>
       <div className="space-y-4">
-        <h1 className="hidden font-semibold text-xl sm:block">Settings</h1>
+        <h1 className="hidden text-xl font-semibold sm:block">Settings</h1>
         <Tabs value={activeTab} onValueChange={setActiveTab}>
           <TabsList>
             <TabsTrigger value="general">General</TabsTrigger>
@@ -251,7 +251,7 @@ function SettingsPage() {
                         ))}
                       </SelectContent>
                     </Select>
-                    <p className="mt-1 text-muted-foreground text-xs">Day of month when your budget cycle starts</p>
+                    <p className="text-muted-foreground mt-1 text-xs">Day of month when your budget cycle starts</p>
                   </CardContent>
                 </Card>
                 <Card>
@@ -268,7 +268,7 @@ function SettingsPage() {
                         <SelectItem value={StartPage.Table}>Table</SelectItem>
                       </SelectContent>
                     </Select>
-                    <p className="mt-1 text-muted-foreground text-xs">Page shown when you open the app</p>
+                    <p className="text-muted-foreground mt-1 text-xs">Page shown when you open the app</p>
                   </CardContent>
                 </Card>
                 <Card>
@@ -312,7 +312,7 @@ function SettingsPage() {
                         <Switch checked={config.showSearch} id="show-search" onCheckedChange={handleShowSearchChange} />
                       </div>
                     </div>
-                    <p className="mt-2 text-muted-foreground text-xs">
+                    <p className="text-muted-foreground mt-2 text-xs">
                       Hide tags or notes from forms and tables, or add transaction search to the table view
                     </p>
                   </CardContent>
@@ -336,7 +336,7 @@ function SettingsPage() {
                         ))}
                       </SelectContent>
                     </Select>
-                    <p className="mt-1 text-muted-foreground text-xs">
+                    <p className="text-muted-foreground mt-1 text-xs">
                       Floating add-expense button on phones — pick the side your thumb reaches
                     </p>
                   </CardContent>
@@ -347,7 +347,7 @@ function SettingsPage() {
                   <CardTitle>Additional Currencies</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p className="mb-3 text-muted-foreground text-sm">Select currencies to use when recording expenses.</p>
+                  <p className="text-muted-foreground mb-3 text-sm">Select currencies to use when recording expenses.</p>
                   <SupportedCurrenciesSelector
                     allCurrencies={CURRENCIES}
                     defaultCurrency={config.currency}
@@ -422,7 +422,7 @@ function SettingsPage() {
                     <CardTitle>Category → Vehicle</CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <p className="mb-3 text-muted-foreground text-sm">
+                    <p className="text-muted-foreground mb-3 text-sm">
                       Assign a vehicle to a category to enable fuel tracking for expenses in that category.
                     </p>
                     <div className="space-y-2">
@@ -463,7 +463,7 @@ function SettingsPage() {
             </div>
           </TabsContent>
         </Tabs>
-        <p className="pt-2 text-center text-muted-foreground text-xs">
+        <p className="text-muted-foreground pt-2 text-center text-xs">
           Version <span className="font-mono">{__APP_VERSION__}</span>
         </p>
       </div>

@@ -33,7 +33,7 @@ export function MonthlyChart({ expenses, categories, currency, from, to }: Props
   const hasData = byCategory ? activeCategories.length > 0 : hasTotal
 
   if (!hasData) {
-    return <div className="flex min-h-48 items-center justify-center text-muted-foreground text-sm">No expense data for this period</div>
+    return <div className="text-muted-foreground flex min-h-48 items-center justify-center text-sm">No expense data for this period</div>
   }
 
   return (

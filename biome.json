@@ -1,5 +1,5 @@
 {
-  "$schema": "https://biomejs.dev/schemas/2.5.12/schema.json",
+  "$schema": "https://biomejs.dev/schemas/2.6.3/schema.json",
   "vcs": {
     "enabled": true,
     "clientKind": "git",
@@ -56,7 +56,8 @@
       "preset": "recommended",
       "correctness": {
         "noUnusedImports": "error",
-        "noUnusedPrivateClassMembers": "error"
+        "noUnusedPrivateClassMembers": "error",
+        "noComponentHookFactories": "off"
       },
       "style": {
         "useConst": "error",
@@ -76,13 +77,9 @@
         "noEmptyBlockStatements": "error"
       },
       "nursery": {
-        "useSortedClasses": {
+        "useTailwindSortedClasses": {
           "fix": "safe",
-          "level": "error",
-          "options": {
-            "attributes": ["class", "className"],
-            "functions": ["cn", "cva", "clsx"]
-          }
+          "level": "error"
         }
       }
     }
@@ -94,5 +91,10 @@
         "organizeImports": "on"
       }
     }
+  },
+  "tailwind": {
+    "attributes": ["class", "className"],
+    "mergeFunctions": ["cn", "clsx"],
+    "variantFunctions": ["cva"]
   }
 }

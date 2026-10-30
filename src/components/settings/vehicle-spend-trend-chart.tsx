@@ -36,7 +36,7 @@ export function VehicleSpendTrendChart({ vehicle, expenses, currency }: Props) {
 
   if (rows.length < 2 || activeTypes.length < 2) {
     return (
-      <div className="flex min-h-48 items-center justify-center text-muted-foreground text-sm">
+      <div className="text-muted-foreground flex min-h-48 items-center justify-center text-sm">
         Not enough data yet — log vehicle expenses of at least two different types across at least two weeks.
       </div>
     )
@@ -55,7 +55,7 @@ export function VehicleSpendTrendChart({ vehicle, expenses, currency }: Props) {
                 if (!active || !payload || payload.length === 0) return null
                 const total = payload.reduce((sum, p) => sum + (Number(p.value) || 0), 0)
                 return (
-                  <div className="rounded-lg px-3 py-2 text-[#f4f4f4] text-xs" style={{ backgroundColor: TOOLTIP_BG }}>
+                  <div className="rounded-lg px-3 py-2 text-xs text-[#f4f4f4]" style={{ backgroundColor: TOOLTIP_BG }}>
                     <p className="mb-1 font-semibold">Week ending {label}</p>
                     {payload.map((p) => {
                       const value = Number(p.value) || 0
@@ -67,7 +67,7 @@ export function VehicleSpendTrendChart({ vehicle, expenses, currency }: Props) {
                         </p>
                       )
                     })}
-                    <p className="mt-1 border-white/20 border-t pt-1 font-semibold">Total: {formatCurrency(total, currency)}</p>
+                    <p className="mt-1 border-t border-white/20 pt-1 font-semibold">Total: {formatCurrency(total, currency)}</p>
                   </div>
                 )
               }}

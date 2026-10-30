@@ -88,7 +88,7 @@ function DashboardPage() {
     <AppLayout>
       <div className="space-y-6">
         <div className="flex flex-wrap items-center justify-between gap-3">
-          <h1 className="hidden font-semibold text-xl sm:block">Dashboard</h1>
+          <h1 className="hidden text-xl font-semibold sm:block">Dashboard</h1>
           <div className="flex flex-1 flex-col items-center gap-2 sm:flex-none sm:flex-row sm:gap-3">
             <Button className={cn(fabPosition !== FabPosition.Off && 'hidden sm:inline-flex')} onClick={() => setAddOpen(true)}>
               <Plus className="size-4" />
@@ -121,11 +121,11 @@ function DashboardPage() {
           <TabsContent value={DashboardTab.Breakdown}>
             <div className="space-y-6">
               <section className="space-y-2">
-                <h2 className="font-semibold text-lg">Expenses by category</h2>
+                <h2 className="text-lg font-semibold">Expenses by category</h2>
                 <ExpenseChart categories={categories} currency={currency} data={expenseChartData} expenses={periodExpenses} />
               </section>
               <section className="space-y-2">
-                <h2 className="font-semibold text-lg">Income by source</h2>
+                <h2 className="text-lg font-semibold">Income by source</h2>
                 <ExpenseChart categories={categories} currency={currency} data={incomeChartData} expenses={periodExpenses} kind="income" />
               </section>
             </div>

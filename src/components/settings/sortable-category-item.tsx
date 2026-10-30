@@ -48,10 +48,10 @@ export function SortableCategoryItem({ category, onDelete, onColorChange, onName
   }
 
   return (
-    <div ref={setNodeRef} className="flex items-center gap-2 rounded-md border border-border bg-background px-3 py-2" style={style}>
+    <div ref={setNodeRef} className="border-border bg-background flex items-center gap-2 rounded-md border px-3 py-2" style={style}>
       <button
         aria-label="Drag to reorder"
-        className="cursor-grab touch-none text-muted-foreground hover:text-foreground"
+        className="text-muted-foreground hover:text-foreground cursor-grab touch-none"
         type="button"
         {...attributes}
         {...listeners}
@@ -78,7 +78,7 @@ export function SortableCategoryItem({ category, onDelete, onColorChange, onName
           <TooltipTrigger render={<span />}>
             <Button
               aria-label="Random color"
-              className="size-7 text-muted-foreground"
+              className="text-muted-foreground size-7"
               size="icon-sm"
               variant="ghost"
               onClick={() => onColorChange(category.id, randomColor())}
@@ -124,7 +124,7 @@ export function SortableCategoryItem({ category, onDelete, onColorChange, onName
       ) : (
         <div className="flex flex-1 items-center gap-2">
           <button
-            className="cursor-text text-left text-sm hover:text-foreground/70"
+            className="hover:text-foreground/70 cursor-text text-left text-sm"
             title="Click to rename"
             type="button"
             onClick={() => {
@@ -149,7 +149,7 @@ export function SortableCategoryItem({ category, onDelete, onColorChange, onName
         variant="ghost"
         onClick={() => onDelete(category.id)}
       >
-        <Trash2 className="size-3.5 text-destructive" />
+        <Trash2 className="text-destructive size-3.5" />
       </Button>
     </div>
   )

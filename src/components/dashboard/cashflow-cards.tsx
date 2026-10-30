@@ -15,30 +15,30 @@ export function CashflowCards({ income, expenses, currency }: Props) {
     <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="font-medium text-muted-foreground text-sm">Income</CardTitle>
+          <CardTitle className="text-muted-foreground text-sm font-medium">Income</CardTitle>
           <TrendingUp className="size-4 text-emerald-500" />
         </CardHeader>
         <CardContent>
-          <p className="font-bold text-2xl text-emerald-600 dark:text-emerald-400">{formatCurrency(income, currency)}</p>
+          <p className="text-2xl font-bold text-emerald-600 dark:text-emerald-400">{formatCurrency(income, currency)}</p>
         </CardContent>
       </Card>
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="font-medium text-muted-foreground text-sm">Expenses</CardTitle>
+          <CardTitle className="text-muted-foreground text-sm font-medium">Expenses</CardTitle>
           <TrendingDown className="size-4 text-red-500" />
         </CardHeader>
         <CardContent>
-          <p className="font-bold text-2xl text-red-600 dark:text-red-400">{formatCurrency(expenses, currency)}</p>
+          <p className="text-2xl font-bold text-red-600 dark:text-red-400">{formatCurrency(expenses, currency)}</p>
         </CardContent>
       </Card>
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="font-medium text-muted-foreground text-sm">Balance</CardTitle>
-          <Wallet className="size-4 text-muted-foreground" />
+          <CardTitle className="text-muted-foreground text-sm font-medium">Balance</CardTitle>
+          <Wallet className="text-muted-foreground size-4" />
         </CardHeader>
         <CardContent>
           <p
-            className={cn('font-bold text-2xl', balance >= 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400')}
+            className={cn('text-2xl font-bold', balance >= 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400')}
           >
             {formatCurrency(balance, currency)}
           </p>

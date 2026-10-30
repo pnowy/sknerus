@@ -28,7 +28,7 @@ export function IncomeExpensesChart({ expenses, currency, from, to }: Props) {
   const hasData = data.some((d) => d.income > 0 || d.expenses > 0)
 
   if (!hasData) {
-    return <div className="flex min-h-48 items-center justify-center text-muted-foreground text-sm">No data for this period</div>
+    return <div className="text-muted-foreground flex min-h-48 items-center justify-center text-sm">No data for this period</div>
   }
 
   const labelMap: Record<string, string> = { income: 'Income', expenses: 'Expenses', balance: 'Cumulative Balance' }
