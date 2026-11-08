@@ -11,7 +11,6 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as DashboardRouteImport } from './routes/dashboard'
-import { Route as LoginRouteImport } from './routes/login'
 import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as TableRouteImport } from './routes/table'
 import { Route as ApiV1CategoriesRouteImport } from './routes/api/v1/categories'
@@ -20,9 +19,6 @@ import { Route as ApiV1ExchangeRateRouteImport } from './routes/api/v1/exchange-
 import { Route as ApiV1ExpensesRouteImport } from './routes/api/v1/expenses'
 import { Route as ApiV1RecurringRouteImport } from './routes/api/v1/recurring'
 import { Route as ApiV1VehiclesRouteImport } from './routes/api/v1/vehicles'
-import { Route as ApiV1AuthLoginRouteImport } from './routes/api/v1/auth.login'
-import { Route as ApiV1AuthLogoutRouteImport } from './routes/api/v1/auth.logout'
-import { Route as ApiV1AuthStatusRouteImport } from './routes/api/v1/auth.status'
 import { Route as ApiV1ExpensesIdRouteImport } from './routes/api/v1/expenses.$id'
 import { Route as ApiV1RecurringIdRouteImport } from './routes/api/v1/recurring.$id'
 import { Route as ApiV1RecurringMaterializeRouteImport } from './routes/api/v1/recurring.materialize'
@@ -37,11 +33,6 @@ const IndexRoute = IndexRouteImport.update({
 const DashboardRoute = DashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const LoginRoute = LoginRouteImport.update({
-  id: '/login',
-  path: '/login',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SettingsRoute = SettingsRouteImport.update({
@@ -84,21 +75,6 @@ const ApiV1VehiclesRoute = ApiV1VehiclesRouteImport.update({
   path: '/api/v1/vehicles',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ApiV1AuthLoginRoute = ApiV1AuthLoginRouteImport.update({
-  id: '/api/v1/auth/login',
-  path: '/api/v1/auth/login',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiV1AuthLogoutRoute = ApiV1AuthLogoutRouteImport.update({
-  id: '/api/v1/auth/logout',
-  path: '/api/v1/auth/logout',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiV1AuthStatusRoute = ApiV1AuthStatusRouteImport.update({
-  id: '/api/v1/auth/status',
-  path: '/api/v1/auth/status',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const ApiV1ExpensesIdRoute = ApiV1ExpensesIdRouteImport.update({
   id: '/$id',
   path: '/$id',
@@ -129,7 +105,6 @@ const ApiV1CategoriesIdRenameRoute = ApiV1CategoriesIdRenameRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRoute
-  '/login': typeof LoginRoute
   '/settings': typeof SettingsRoute
   '/table': typeof TableRoute
   '/api/v1/categories': typeof ApiV1CategoriesRouteWithChildren
@@ -138,9 +113,6 @@ export interface FileRoutesByFullPath {
   '/api/v1/expenses': typeof ApiV1ExpensesRouteWithChildren
   '/api/v1/recurring': typeof ApiV1RecurringRouteWithChildren
   '/api/v1/vehicles': typeof ApiV1VehiclesRouteWithChildren
-  '/api/v1/auth/login': typeof ApiV1AuthLoginRoute
-  '/api/v1/auth/logout': typeof ApiV1AuthLogoutRoute
-  '/api/v1/auth/status': typeof ApiV1AuthStatusRoute
   '/api/v1/expenses/$id': typeof ApiV1ExpensesIdRoute
   '/api/v1/recurring/$id': typeof ApiV1RecurringIdRoute
   '/api/v1/recurring/materialize': typeof ApiV1RecurringMaterializeRoute
@@ -150,7 +122,6 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRoute
-  '/login': typeof LoginRoute
   '/settings': typeof SettingsRoute
   '/table': typeof TableRoute
   '/api/v1/categories': typeof ApiV1CategoriesRouteWithChildren
@@ -159,9 +130,6 @@ export interface FileRoutesByTo {
   '/api/v1/expenses': typeof ApiV1ExpensesRouteWithChildren
   '/api/v1/recurring': typeof ApiV1RecurringRouteWithChildren
   '/api/v1/vehicles': typeof ApiV1VehiclesRouteWithChildren
-  '/api/v1/auth/login': typeof ApiV1AuthLoginRoute
-  '/api/v1/auth/logout': typeof ApiV1AuthLogoutRoute
-  '/api/v1/auth/status': typeof ApiV1AuthStatusRoute
   '/api/v1/expenses/$id': typeof ApiV1ExpensesIdRoute
   '/api/v1/recurring/$id': typeof ApiV1RecurringIdRoute
   '/api/v1/recurring/materialize': typeof ApiV1RecurringMaterializeRoute
@@ -172,7 +140,6 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRoute
-  '/login': typeof LoginRoute
   '/settings': typeof SettingsRoute
   '/table': typeof TableRoute
   '/api/v1/categories': typeof ApiV1CategoriesRouteWithChildren
@@ -181,9 +148,6 @@ export interface FileRoutesById {
   '/api/v1/expenses': typeof ApiV1ExpensesRouteWithChildren
   '/api/v1/recurring': typeof ApiV1RecurringRouteWithChildren
   '/api/v1/vehicles': typeof ApiV1VehiclesRouteWithChildren
-  '/api/v1/auth/login': typeof ApiV1AuthLoginRoute
-  '/api/v1/auth/logout': typeof ApiV1AuthLogoutRoute
-  '/api/v1/auth/status': typeof ApiV1AuthStatusRoute
   '/api/v1/expenses/$id': typeof ApiV1ExpensesIdRoute
   '/api/v1/recurring/$id': typeof ApiV1RecurringIdRoute
   '/api/v1/recurring/materialize': typeof ApiV1RecurringMaterializeRoute
@@ -195,7 +159,6 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/dashboard'
-    | '/login'
     | '/settings'
     | '/table'
     | '/api/v1/categories'
@@ -204,9 +167,6 @@ export interface FileRouteTypes {
     | '/api/v1/expenses'
     | '/api/v1/recurring'
     | '/api/v1/vehicles'
-    | '/api/v1/auth/login'
-    | '/api/v1/auth/logout'
-    | '/api/v1/auth/status'
     | '/api/v1/expenses/$id'
     | '/api/v1/recurring/$id'
     | '/api/v1/recurring/materialize'
@@ -216,7 +176,6 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/dashboard'
-    | '/login'
     | '/settings'
     | '/table'
     | '/api/v1/categories'
@@ -225,9 +184,6 @@ export interface FileRouteTypes {
     | '/api/v1/expenses'
     | '/api/v1/recurring'
     | '/api/v1/vehicles'
-    | '/api/v1/auth/login'
-    | '/api/v1/auth/logout'
-    | '/api/v1/auth/status'
     | '/api/v1/expenses/$id'
     | '/api/v1/recurring/$id'
     | '/api/v1/recurring/materialize'
@@ -237,7 +193,6 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/dashboard'
-    | '/login'
     | '/settings'
     | '/table'
     | '/api/v1/categories'
@@ -246,9 +201,6 @@ export interface FileRouteTypes {
     | '/api/v1/expenses'
     | '/api/v1/recurring'
     | '/api/v1/vehicles'
-    | '/api/v1/auth/login'
-    | '/api/v1/auth/logout'
-    | '/api/v1/auth/status'
     | '/api/v1/expenses/$id'
     | '/api/v1/recurring/$id'
     | '/api/v1/recurring/materialize'
@@ -259,7 +211,6 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   DashboardRoute: typeof DashboardRoute
-  LoginRoute: typeof LoginRoute
   SettingsRoute: typeof SettingsRoute
   TableRoute: typeof TableRoute
   ApiV1CategoriesRoute: typeof ApiV1CategoriesRouteWithChildren
@@ -268,9 +219,6 @@ export interface RootRouteChildren {
   ApiV1ExpensesRoute: typeof ApiV1ExpensesRouteWithChildren
   ApiV1RecurringRoute: typeof ApiV1RecurringRouteWithChildren
   ApiV1VehiclesRoute: typeof ApiV1VehiclesRouteWithChildren
-  ApiV1AuthLoginRoute: typeof ApiV1AuthLoginRoute
-  ApiV1AuthLogoutRoute: typeof ApiV1AuthLogoutRoute
-  ApiV1AuthStatusRoute: typeof ApiV1AuthStatusRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -287,13 +235,6 @@ declare module '@tanstack/react-router' {
       path: '/dashboard'
       fullPath: '/dashboard'
       preLoaderRoute: typeof DashboardRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/login': {
-      id: '/login'
-      path: '/login'
-      fullPath: '/login'
-      preLoaderRoute: typeof LoginRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/settings': {
@@ -350,27 +291,6 @@ declare module '@tanstack/react-router' {
       path: '/api/v1/vehicles'
       fullPath: '/api/v1/vehicles'
       preLoaderRoute: typeof ApiV1VehiclesRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/v1/auth/login': {
-      id: '/api/v1/auth/login'
-      path: '/api/v1/auth/login'
-      fullPath: '/api/v1/auth/login'
-      preLoaderRoute: typeof ApiV1AuthLoginRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/v1/auth/logout': {
-      id: '/api/v1/auth/logout'
-      path: '/api/v1/auth/logout'
-      fullPath: '/api/v1/auth/logout'
-      preLoaderRoute: typeof ApiV1AuthLogoutRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/v1/auth/status': {
-      id: '/api/v1/auth/status'
-      path: '/api/v1/auth/status'
-      fullPath: '/api/v1/auth/status'
-      preLoaderRoute: typeof ApiV1AuthStatusRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/v1/expenses/$id': {
@@ -464,7 +384,6 @@ const ApiV1VehiclesRouteWithChildren = ApiV1VehiclesRoute._addFileChildren(
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   DashboardRoute: DashboardRoute,
-  LoginRoute: LoginRoute,
   SettingsRoute: SettingsRoute,
   TableRoute: TableRoute,
   ApiV1CategoriesRoute: ApiV1CategoriesRouteWithChildren,
@@ -473,9 +392,6 @@ const rootRouteChildren: RootRouteChildren = {
   ApiV1ExpensesRoute: ApiV1ExpensesRouteWithChildren,
   ApiV1RecurringRoute: ApiV1RecurringRouteWithChildren,
   ApiV1VehiclesRoute: ApiV1VehiclesRouteWithChildren,
-  ApiV1AuthLoginRoute: ApiV1AuthLoginRoute,
-  ApiV1AuthLogoutRoute: ApiV1AuthLogoutRoute,
-  ApiV1AuthStatusRoute: ApiV1AuthStatusRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

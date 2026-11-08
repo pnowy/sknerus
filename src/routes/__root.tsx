@@ -13,7 +13,7 @@ import appCss from '@/styles/styles.css?url'
 
 export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()({
   validateSearch: searchParamsSchema,
-  loader: ({ location }) => (location.pathname === '/login' ? undefined : materializeRecurring()),
+  loader: () => materializeRecurring(),
   head: () => ({
     meta: [
       { charSet: 'utf-8' },

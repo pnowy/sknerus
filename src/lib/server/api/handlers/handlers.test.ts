@@ -1,5 +1,4 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { authStatusHandler, loginHandler, logoutHandler } from '@/lib/server/api/handlers/auth'
 import { getCategoriesHandler, getConfigHandler, renameCategoryHandler, updateConfigHandler } from '@/lib/server/api/handlers/config'
 import {
   createExpenseHandler,
@@ -16,7 +15,6 @@ import {
   updateRecurringHandler,
 } from '@/lib/server/api/handlers/recurring'
 import { createVehicleHandler, deleteVehicleHandler, getVehiclesHandler, updateVehicleHandler } from '@/lib/server/api/handlers/vehicles'
-import { SESSION_COOKIE_NAME } from '@/lib/server/auth'
 
 const mocks = vi.hoisted(() => ({
   getExpenses: vi.fn(),
@@ -88,20 +86,9 @@ beforeEach(() => {
   mocks.saveExchangeRates.mockResolvedValue(undefined)
 })
 
-afterEach(() => {
-  vi.resetAllMocks()
-  vi.unstubAllEnvs()
-})
+afterEach(() => vi.resetAllMocks())
 
 describe('REST route handlers', () => {
-  it('reports whether API token authentication is enabled', async () => {
-    vi.stubEnv('API_TOKEN', '')
-    await expect(json(await authStatusHandler())).resolves.toEqual({ authEnabled: false })
-
-    vi.stubEnv('API_TOKEN', 'api-secret')
-    await expect(json(await authStatusHandler())).resolves.toEqual({ authEnabled: true })
-  })
-
   it('lists filtered expenses and creates with configured currency and default tags', async () => {
     expenses = [
       { id: 'exp_1', name: 'Bread', amount: -4, currency: 'PLN', categoryId: 'cat_food', date: '2026-01-03', tags: ['market'] },
@@ -208,18 +195,5 @@ describe('REST route handlers', () => {
     await expect(getVehiclesHandler()).resolves.toHaveProperty('status', 200)
     expect((await updateVehicleHandler(request('/api/v1/vehicles/item', 'PUT', vehicleInput), createdVehicle.id)).status).toBe(200)
     expect((await deleteVehicleHandler(new Request('http://localhost/api/v1/vehicles/item'), createdVehicle.id)).status).toBe(200)
-  })
-
-  it('creates and clears browser sessions when API_TOKEN is configured', async () => {
-    vi.stubEnv('API_TOKEN', 'api-secret')
-    const invalid = await loginHandler(request('/api/v1/auth/login', 'POST', { token: 'wrong' }))
-    const login = await loginHandler(request('/api/v1/auth/login', 'POST', { token: 'api-secret' }))
-    const logout = await logoutHandler(request('/api/v1/auth/logout'))
-
-    expect(invalid.status).toBe(401)
-    expect(login.status).toBe(200)
-    expect(login.headers.get('Set-Cookie')).toContain(`${SESSION_COOKIE_NAME}=`)
-    expect(login.headers.get('Set-Cookie')).toContain('HttpOnly')
-    expect(logout.headers.get('Set-Cookie')).toContain('Max-Age=0')
   })
 })

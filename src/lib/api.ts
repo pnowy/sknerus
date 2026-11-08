@@ -76,15 +76,3 @@ export function resolveExchangeRate(data: { date: string; from: string; to: stri
   const query = new URLSearchParams(data)
   return apiFetch(`${API_PREFIX}/exchange-rate?${query}`)
 }
-
-export function login(token: string): Promise<{ success: true }> {
-  return apiFetch(`${API_PREFIX}/auth/login`, { method: 'POST', body: JSON.stringify({ token }) })
-}
-
-export function logout(): Promise<{ success: true }> {
-  return apiFetch(`${API_PREFIX}/auth/logout`, { method: 'POST' })
-}
-
-export function getAuthStatus(): Promise<{ authEnabled: boolean }> {
-  return apiFetch(`${API_PREFIX}/auth/status`)
-}
