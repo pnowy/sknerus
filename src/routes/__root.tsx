@@ -7,7 +7,7 @@ import { TanStackRouterDevtoolsPanel } from '@tanstack/react-router-devtools'
 import { ThemeProvider } from 'next-themes'
 import { useEffect } from 'react'
 import { Toaster } from '@/components/ui/sonner'
-import { materializeRecurring } from '@/lib/server/functions/recurring'
+import { materializeRecurring } from '@/lib/api'
 import { searchParamsSchema } from '@/lib/shared/search-params'
 import appCss from '@/styles/styles.css?url'
 

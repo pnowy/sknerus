@@ -10,7 +10,7 @@ vi.mock('@/hooks/use-expenses', () => ({
   useUpdateExpense: () => ({ isPending: false, mutateAsync: vi.fn() }),
 }))
 
-vi.mock('@/lib/server/functions/exchange-rates', () => ({
+vi.mock('@/lib/api', () => ({
   resolveExchangeRate: vi.fn(),
 }))
 

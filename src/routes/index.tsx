@@ -1,5 +1,5 @@
 import { createFileRoute, redirect } from '@tanstack/react-router'
-import { getConfig } from '@/lib/server/functions/config'
+import { getConfig } from '@/lib/api'
 import { StartPage } from '@/lib/shared/types/start-page'
 
 export const Route = createFileRoute('/')({

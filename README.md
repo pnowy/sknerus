@@ -197,6 +197,36 @@ All configuration is done either via environment variables (infrastructure-level
 | `LOG_LEVEL`             | `info`    | Log verbosity: `debug`, `info`, `warn`, `error`                                                         |
 | `EXCHANGE_RATE_API_KEY` | _(unset)_ | API key for [ExchangeRate-API](https://www.exchangerate-api.com/) (alternative to setting it in the UI) |
 
+### REST API
+
+The versioned REST API is also used by the web UI and is always available:
+
+```bash
+curl http://localhost:3000/api/v1/expenses
+```
+
+All endpoints are under `/api/v1` and return JSON. Expense amounts are signed (negative for expenses, positive for income); `date` uses `YYYY-MM-DD`.
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `GET` | `/expenses` | List expenses; optional `from`, `to`, `categoryId`, and `tag` query filters |
+| `POST` | `/expenses` | Create an expense; `currency` defaults to the configured currency and `tags` defaults to an empty list |
+| `GET` | `/expenses/:id` | Get one expense |
+| `PUT` | `/expenses/:id` | Replace an expense |
+| `PATCH` | `/expenses/:id` | Update supplied expense fields |
+| `DELETE` | `/expenses/:id` | Delete an expense |
+| `GET` | `/categories` | List categories |
+| `POST` | `/categories/:id/rename` | Rename a category with `{ "newName": "..." }` |
+| `GET`, `PUT` | `/config` | Get or replace app configuration |
+| `GET`, `POST` | `/recurring` | List or create recurring transactions |
+| `PUT`, `DELETE` | `/recurring/:id` | Update or delete a recurring transaction |
+| `POST` | `/recurring/materialize` | Create due recurring expenses |
+| `GET`, `POST` | `/vehicles` | List or create vehicles |
+| `PUT`, `DELETE` | `/vehicles/:id` | Update or delete a vehicle |
+| `GET` | `/exchange-rate?date=YYYY-MM-DD&from=USD&to=PLN` | Resolve an exchange rate |
+
+The API uses the same JSON storage as the web app.
+
 ### In-App Settings
 
 Everything else is configured from the `/settings` page:
@@ -223,7 +253,7 @@ Sknerus uses a simple file-based JSON storage by default. Data is stored in thre
 
 Mount `DATA_DIR` as a persistent volume to retain data across container restarts.
 
-> **Note:** Sknerus does not include authentication. Use a reverse proxy (e.g. Nginx, Caddy, Traefik) with basic auth or SSO in front of it if exposing beyond localhost.
+> **Note:** Sknerus does not include authentication (neither for the web UI nor for the REST API). Use a reverse proxy (e.g. Nginx, Caddy, Traefik) with basic auth or SSO in front of it if exposing beyond localhost.
 
 ### Considered features
 

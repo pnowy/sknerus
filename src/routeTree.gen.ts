@@ -13,6 +13,17 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as TableRouteImport } from './routes/table'
+import { Route as ApiV1CategoriesRouteImport } from './routes/api/v1/categories'
+import { Route as ApiV1ConfigRouteImport } from './routes/api/v1/config'
+import { Route as ApiV1ExchangeRateRouteImport } from './routes/api/v1/exchange-rate'
+import { Route as ApiV1ExpensesRouteImport } from './routes/api/v1/expenses'
+import { Route as ApiV1RecurringRouteImport } from './routes/api/v1/recurring'
+import { Route as ApiV1VehiclesRouteImport } from './routes/api/v1/vehicles'
+import { Route as ApiV1ExpensesIdRouteImport } from './routes/api/v1/expenses.$id'
+import { Route as ApiV1RecurringIdRouteImport } from './routes/api/v1/recurring.$id'
+import { Route as ApiV1RecurringMaterializeRouteImport } from './routes/api/v1/recurring.materialize'
+import { Route as ApiV1VehiclesIdRouteImport } from './routes/api/v1/vehicles.$id'
+import { Route as ApiV1CategoriesIdRenameRouteImport } from './routes/api/v1/categories.$id.rename'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -34,18 +45,96 @@ const TableRoute = TableRouteImport.update({
   path: '/table',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiV1CategoriesRoute = ApiV1CategoriesRouteImport.update({
+  id: '/api/v1/categories',
+  path: '/api/v1/categories',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiV1ConfigRoute = ApiV1ConfigRouteImport.update({
+  id: '/api/v1/config',
+  path: '/api/v1/config',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiV1ExchangeRateRoute = ApiV1ExchangeRateRouteImport.update({
+  id: '/api/v1/exchange-rate',
+  path: '/api/v1/exchange-rate',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiV1ExpensesRoute = ApiV1ExpensesRouteImport.update({
+  id: '/api/v1/expenses',
+  path: '/api/v1/expenses',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiV1RecurringRoute = ApiV1RecurringRouteImport.update({
+  id: '/api/v1/recurring',
+  path: '/api/v1/recurring',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiV1VehiclesRoute = ApiV1VehiclesRouteImport.update({
+  id: '/api/v1/vehicles',
+  path: '/api/v1/vehicles',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiV1ExpensesIdRoute = ApiV1ExpensesIdRouteImport.update({
+  id: '/$id',
+  path: '/$id',
+  getParentRoute: () => ApiV1ExpensesRoute,
+} as any)
+const ApiV1RecurringIdRoute = ApiV1RecurringIdRouteImport.update({
+  id: '/$id',
+  path: '/$id',
+  getParentRoute: () => ApiV1RecurringRoute,
+} as any)
+const ApiV1RecurringMaterializeRoute =
+  ApiV1RecurringMaterializeRouteImport.update({
+    id: '/materialize',
+    path: '/materialize',
+    getParentRoute: () => ApiV1RecurringRoute,
+  } as any)
+const ApiV1VehiclesIdRoute = ApiV1VehiclesIdRouteImport.update({
+  id: '/$id',
+  path: '/$id',
+  getParentRoute: () => ApiV1VehiclesRoute,
+} as any)
+const ApiV1CategoriesIdRenameRoute = ApiV1CategoriesIdRenameRouteImport.update({
+  id: '/$id/rename',
+  path: '/$id/rename',
+  getParentRoute: () => ApiV1CategoriesRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRoute
   '/settings': typeof SettingsRoute
   '/table': typeof TableRoute
+  '/api/v1/categories': typeof ApiV1CategoriesRouteWithChildren
+  '/api/v1/config': typeof ApiV1ConfigRoute
+  '/api/v1/exchange-rate': typeof ApiV1ExchangeRateRoute
+  '/api/v1/expenses': typeof ApiV1ExpensesRouteWithChildren
+  '/api/v1/recurring': typeof ApiV1RecurringRouteWithChildren
+  '/api/v1/vehicles': typeof ApiV1VehiclesRouteWithChildren
+  '/api/v1/expenses/$id': typeof ApiV1ExpensesIdRoute
+  '/api/v1/recurring/$id': typeof ApiV1RecurringIdRoute
+  '/api/v1/recurring/materialize': typeof ApiV1RecurringMaterializeRoute
+  '/api/v1/vehicles/$id': typeof ApiV1VehiclesIdRoute
+  '/api/v1/categories/$id/rename': typeof ApiV1CategoriesIdRenameRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRoute
   '/settings': typeof SettingsRoute
   '/table': typeof TableRoute
+  '/api/v1/categories': typeof ApiV1CategoriesRouteWithChildren
+  '/api/v1/config': typeof ApiV1ConfigRoute
+  '/api/v1/exchange-rate': typeof ApiV1ExchangeRateRoute
+  '/api/v1/expenses': typeof ApiV1ExpensesRouteWithChildren
+  '/api/v1/recurring': typeof ApiV1RecurringRouteWithChildren
+  '/api/v1/vehicles': typeof ApiV1VehiclesRouteWithChildren
+  '/api/v1/expenses/$id': typeof ApiV1ExpensesIdRoute
+  '/api/v1/recurring/$id': typeof ApiV1RecurringIdRoute
+  '/api/v1/recurring/materialize': typeof ApiV1RecurringMaterializeRoute
+  '/api/v1/vehicles/$id': typeof ApiV1VehiclesIdRoute
+  '/api/v1/categories/$id/rename': typeof ApiV1CategoriesIdRenameRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -53,13 +142,70 @@ export interface FileRoutesById {
   '/dashboard': typeof DashboardRoute
   '/settings': typeof SettingsRoute
   '/table': typeof TableRoute
+  '/api/v1/categories': typeof ApiV1CategoriesRouteWithChildren
+  '/api/v1/config': typeof ApiV1ConfigRoute
+  '/api/v1/exchange-rate': typeof ApiV1ExchangeRateRoute
+  '/api/v1/expenses': typeof ApiV1ExpensesRouteWithChildren
+  '/api/v1/recurring': typeof ApiV1RecurringRouteWithChildren
+  '/api/v1/vehicles': typeof ApiV1VehiclesRouteWithChildren
+  '/api/v1/expenses/$id': typeof ApiV1ExpensesIdRoute
+  '/api/v1/recurring/$id': typeof ApiV1RecurringIdRoute
+  '/api/v1/recurring/materialize': typeof ApiV1RecurringMaterializeRoute
+  '/api/v1/vehicles/$id': typeof ApiV1VehiclesIdRoute
+  '/api/v1/categories/$id/rename': typeof ApiV1CategoriesIdRenameRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/dashboard' | '/settings' | '/table'
+  fullPaths:
+    | '/'
+    | '/dashboard'
+    | '/settings'
+    | '/table'
+    | '/api/v1/categories'
+    | '/api/v1/config'
+    | '/api/v1/exchange-rate'
+    | '/api/v1/expenses'
+    | '/api/v1/recurring'
+    | '/api/v1/vehicles'
+    | '/api/v1/expenses/$id'
+    | '/api/v1/recurring/$id'
+    | '/api/v1/recurring/materialize'
+    | '/api/v1/vehicles/$id'
+    | '/api/v1/categories/$id/rename'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/dashboard' | '/settings' | '/table'
-  id: '__root__' | '/' | '/dashboard' | '/settings' | '/table'
+  to:
+    | '/'
+    | '/dashboard'
+    | '/settings'
+    | '/table'
+    | '/api/v1/categories'
+    | '/api/v1/config'
+    | '/api/v1/exchange-rate'
+    | '/api/v1/expenses'
+    | '/api/v1/recurring'
+    | '/api/v1/vehicles'
+    | '/api/v1/expenses/$id'
+    | '/api/v1/recurring/$id'
+    | '/api/v1/recurring/materialize'
+    | '/api/v1/vehicles/$id'
+    | '/api/v1/categories/$id/rename'
+  id:
+    | '__root__'
+    | '/'
+    | '/dashboard'
+    | '/settings'
+    | '/table'
+    | '/api/v1/categories'
+    | '/api/v1/config'
+    | '/api/v1/exchange-rate'
+    | '/api/v1/expenses'
+    | '/api/v1/recurring'
+    | '/api/v1/vehicles'
+    | '/api/v1/expenses/$id'
+    | '/api/v1/recurring/$id'
+    | '/api/v1/recurring/materialize'
+    | '/api/v1/vehicles/$id'
+    | '/api/v1/categories/$id/rename'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -67,6 +213,12 @@ export interface RootRouteChildren {
   DashboardRoute: typeof DashboardRoute
   SettingsRoute: typeof SettingsRoute
   TableRoute: typeof TableRoute
+  ApiV1CategoriesRoute: typeof ApiV1CategoriesRouteWithChildren
+  ApiV1ConfigRoute: typeof ApiV1ConfigRoute
+  ApiV1ExchangeRateRoute: typeof ApiV1ExchangeRateRoute
+  ApiV1ExpensesRoute: typeof ApiV1ExpensesRouteWithChildren
+  ApiV1RecurringRoute: typeof ApiV1RecurringRouteWithChildren
+  ApiV1VehiclesRoute: typeof ApiV1VehiclesRouteWithChildren
 }
 
 declare module '@tanstack/react-router' {
@@ -99,24 +251,158 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof TableRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/v1/categories': {
+      id: '/api/v1/categories'
+      path: '/api/v1/categories'
+      fullPath: '/api/v1/categories'
+      preLoaderRoute: typeof ApiV1CategoriesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/v1/config': {
+      id: '/api/v1/config'
+      path: '/api/v1/config'
+      fullPath: '/api/v1/config'
+      preLoaderRoute: typeof ApiV1ConfigRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/v1/exchange-rate': {
+      id: '/api/v1/exchange-rate'
+      path: '/api/v1/exchange-rate'
+      fullPath: '/api/v1/exchange-rate'
+      preLoaderRoute: typeof ApiV1ExchangeRateRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/v1/expenses': {
+      id: '/api/v1/expenses'
+      path: '/api/v1/expenses'
+      fullPath: '/api/v1/expenses'
+      preLoaderRoute: typeof ApiV1ExpensesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/v1/recurring': {
+      id: '/api/v1/recurring'
+      path: '/api/v1/recurring'
+      fullPath: '/api/v1/recurring'
+      preLoaderRoute: typeof ApiV1RecurringRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/v1/vehicles': {
+      id: '/api/v1/vehicles'
+      path: '/api/v1/vehicles'
+      fullPath: '/api/v1/vehicles'
+      preLoaderRoute: typeof ApiV1VehiclesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/v1/expenses/$id': {
+      id: '/api/v1/expenses/$id'
+      path: '/$id'
+      fullPath: '/api/v1/expenses/$id'
+      preLoaderRoute: typeof ApiV1ExpensesIdRouteImport
+      parentRoute: typeof ApiV1ExpensesRoute
+    }
+    '/api/v1/recurring/$id': {
+      id: '/api/v1/recurring/$id'
+      path: '/$id'
+      fullPath: '/api/v1/recurring/$id'
+      preLoaderRoute: typeof ApiV1RecurringIdRouteImport
+      parentRoute: typeof ApiV1RecurringRoute
+    }
+    '/api/v1/recurring/materialize': {
+      id: '/api/v1/recurring/materialize'
+      path: '/materialize'
+      fullPath: '/api/v1/recurring/materialize'
+      preLoaderRoute: typeof ApiV1RecurringMaterializeRouteImport
+      parentRoute: typeof ApiV1RecurringRoute
+    }
+    '/api/v1/vehicles/$id': {
+      id: '/api/v1/vehicles/$id'
+      path: '/$id'
+      fullPath: '/api/v1/vehicles/$id'
+      preLoaderRoute: typeof ApiV1VehiclesIdRouteImport
+      parentRoute: typeof ApiV1VehiclesRoute
+    }
+    '/api/v1/categories/$id/rename': {
+      id: '/api/v1/categories/$id/rename'
+      path: '/$id/rename'
+      fullPath: '/api/v1/categories/$id/rename'
+      preLoaderRoute: typeof ApiV1CategoriesIdRenameRouteImport
+      parentRoute: typeof ApiV1CategoriesRoute
+    }
   }
 }
+
+interface ApiV1CategoriesRouteChildren {
+  ApiV1CategoriesIdRenameRoute: typeof ApiV1CategoriesIdRenameRoute
+}
+
+const ApiV1CategoriesRouteChildren: ApiV1CategoriesRouteChildren = {
+  ApiV1CategoriesIdRenameRoute: ApiV1CategoriesIdRenameRoute,
+}
+
+const ApiV1CategoriesRouteWithChildren = ApiV1CategoriesRoute._addFileChildren(
+  ApiV1CategoriesRouteChildren,
+)
+
+interface ApiV1ExpensesRouteChildren {
+  ApiV1ExpensesIdRoute: typeof ApiV1ExpensesIdRoute
+}
+
+const ApiV1ExpensesRouteChildren: ApiV1ExpensesRouteChildren = {
+  ApiV1ExpensesIdRoute: ApiV1ExpensesIdRoute,
+}
+
+const ApiV1ExpensesRouteWithChildren = ApiV1ExpensesRoute._addFileChildren(
+  ApiV1ExpensesRouteChildren,
+)
+
+interface ApiV1RecurringRouteChildren {
+  ApiV1RecurringIdRoute: typeof ApiV1RecurringIdRoute
+  ApiV1RecurringMaterializeRoute: typeof ApiV1RecurringMaterializeRoute
+}
+
+const ApiV1RecurringRouteChildren: ApiV1RecurringRouteChildren = {
+  ApiV1RecurringIdRoute: ApiV1RecurringIdRoute,
+  ApiV1RecurringMaterializeRoute: ApiV1RecurringMaterializeRoute,
+}
+
+const ApiV1RecurringRouteWithChildren = ApiV1RecurringRoute._addFileChildren(
+  ApiV1RecurringRouteChildren,
+)
+
+interface ApiV1VehiclesRouteChildren {
+  ApiV1VehiclesIdRoute: typeof ApiV1VehiclesIdRoute
+}
+
+const ApiV1VehiclesRouteChildren: ApiV1VehiclesRouteChildren = {
+  ApiV1VehiclesIdRoute: ApiV1VehiclesIdRoute,
+}
+
+const ApiV1VehiclesRouteWithChildren = ApiV1VehiclesRoute._addFileChildren(
+  ApiV1VehiclesRouteChildren,
+)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   DashboardRoute: DashboardRoute,
   SettingsRoute: SettingsRoute,
   TableRoute: TableRoute,
+  ApiV1CategoriesRoute: ApiV1CategoriesRouteWithChildren,
+  ApiV1ConfigRoute: ApiV1ConfigRoute,
+  ApiV1ExchangeRateRoute: ApiV1ExchangeRateRoute,
+  ApiV1ExpensesRoute: ApiV1ExpensesRouteWithChildren,
+  ApiV1RecurringRoute: ApiV1RecurringRouteWithChildren,
+  ApiV1VehiclesRoute: ApiV1VehiclesRouteWithChildren,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
 
 import type { getRouter } from './router.tsx'
-import type { createStart } from '@tanstack/react-start'
+import type { startInstance } from './start.ts'
 declare module '@tanstack/react-start' {
   interface Register {
     ssr: true
     router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
   }
 }
