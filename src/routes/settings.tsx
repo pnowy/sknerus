@@ -19,10 +19,7 @@ import { Switch } from '@/components/ui/switch'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { queryKeys, useConfig, useExpenses, useRenameCategory, useUpdateConfig } from '@/hooks/use-expenses'
 import { useVehicles } from '@/hooks/use-vehicles'
-import { getConfig } from '@/lib/server/functions/config'
-import { createExpense, getExpenses } from '@/lib/server/functions/expenses'
-import { getRecurring } from '@/lib/server/functions/recurring'
-import { getVehicles } from '@/lib/server/functions/vehicles'
+import { createExpense, getConfig, getExpenses, getRecurring, getVehicles } from '@/lib/api'
 import { exportToCSV, parseCSV } from '@/lib/shared/csv'
 import { CURRENCIES } from '@/lib/shared/currencies'
 import { FabPosition } from '@/lib/shared/types/fab-position'
@@ -178,7 +175,7 @@ function SettingsPage() {
       }
       for (let i = 0; i < parsed.length; i++) {
         toast.loading(`Importing ${i + 1} / ${parsed.length}…`, { id: toastId })
-        await createExpense({ data: parsed[i] })
+        await createExpense(parsed[i])
       }
       toast.success(
         `Imported ${parsed.length} transactions${newCategories.length > 0 ? ` and ${newCategories.length} new categories` : ''}`,

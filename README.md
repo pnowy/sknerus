@@ -196,6 +196,40 @@ All configuration is done either via environment variables (infrastructure-level
 | `SEED_DEMO_DATA`        | _(unset)_ | Set to `true` to seed demo data on first run (see below)                                                |
 | `LOG_LEVEL`             | `info`    | Log verbosity: `debug`, `info`, `warn`, `error`                                                         |
 | `EXCHANGE_RATE_API_KEY` | _(unset)_ | API key for [ExchangeRate-API](https://www.exchangerate-api.com/) (alternative to setting it in the UI) |
+| `API_TOKEN`             | _(unset)_ | Optional shared secret; when set, protects the web UI with a login page and the REST API with bearer auth |
+
+### REST API
+
+The versioned REST API is also used by the web UI and is always available. If `API_TOKEN` is set, API clients must send it as a bearer token:
+
+```bash
+curl -H "Authorization: Bearer $API_TOKEN" http://localhost:3000/api/v1/expenses
+```
+
+All endpoints are under `/api/v1` and return JSON. Expense amounts are signed (negative for expenses, positive for income); `date` uses `YYYY-MM-DD`.
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `GET` | `/expenses` | List expenses; optional `from`, `to`, `categoryId`, and `tag` query filters |
+| `POST` | `/expenses` | Create an expense; `currency` defaults to the configured currency and `tags` defaults to an empty list |
+| `GET` | `/expenses/:id` | Get one expense |
+| `PUT` | `/expenses/:id` | Replace an expense |
+| `PATCH` | `/expenses/:id` | Update supplied expense fields |
+| `DELETE` | `/expenses/:id` | Delete an expense |
+| `GET` | `/categories` | List categories |
+| `POST` | `/categories/:id/rename` | Rename a category with `{ "newName": "..." }` |
+| `GET`, `PUT` | `/config` | Get or replace app configuration |
+| `GET`, `POST` | `/recurring` | List or create recurring transactions |
+| `PUT`, `DELETE` | `/recurring/:id` | Update or delete a recurring transaction |
+| `POST` | `/recurring/materialize` | Create due recurring expenses |
+| `GET`, `POST` | `/vehicles` | List or create vehicles |
+| `PUT`, `DELETE` | `/vehicles/:id` | Update or delete a vehicle |
+| `GET` | `/exchange-rate?date=YYYY-MM-DD&from=USD&to=PLN` | Resolve an exchange rate |
+| `POST` | `/auth/login` | Exchange `{ "token": "..." }` for a browser session cookie |
+| `POST` | `/auth/logout` | Clear the browser session cookie |
+| `GET` | `/auth/status` | Report whether `API_TOKEN` authentication is enabled |
+
+When `API_TOKEN` is unset, the web UI and API are available without authentication. When set, browser users sign in at `/login` and receive an HttpOnly session cookie; the app header provides a **Log out** button to clear that session. External API clients can instead use `Authorization: Bearer $API_TOKEN`. Set a strong token or use a reverse proxy with authentication before exposing the app beyond localhost. The API uses the same JSON storage as the web app.
 
 ### In-App Settings
 
@@ -223,14 +257,13 @@ Sknerus uses a simple file-based JSON storage by default. Data is stored in thre
 
 Mount `DATA_DIR` as a persistent volume to retain data across container restarts.
 
-> **Note:** Sknerus does not include authentication. Use a reverse proxy (e.g. Nginx, Caddy, Traefik) with basic auth or SSO in front of it if exposing beyond localhost.
+> **Note:** By default, the web UI and REST API do not require authentication. Set `API_TOKEN` to require browser sign-in and Bearer authentication for API clients, or use a reverse proxy with authentication before exposing the app beyond localhost.
 
 ### Considered features
 
 There is a bunch o potential features which could be added if there will interest. Some which I consider but don't need them in my use-case:
 
 - extra storage types (SQL Database – PostgreSQL)
-- authentication and authorization
 
 # Demo Data
 

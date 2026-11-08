@@ -1,5 +1,10 @@
+import { useQuery } from '@tanstack/react-query'
 import { Link } from '@tanstack/react-router'
-import { LayoutDashboard, Settings, Table } from 'lucide-react'
+import { LayoutDashboard, LogOut, Settings, Table } from 'lucide-react'
+import { useState } from 'react'
+import { toast } from 'sonner'
+import { Button } from '@/components/ui/button'
+import { getAuthStatus, logout } from '@/lib/api'
 import { cn } from '@/lib/utils'
 
 const NAV_LINKS = [
@@ -15,7 +20,23 @@ type Props = {
 }
 
 export function AppLayout({ children, wide = false }: Props) {
+  const [isLoggingOut, setIsLoggingOut] = useState(false)
+  const { data: authStatus } = useQuery({
+    queryKey: ['auth-status'],
+    queryFn: getAuthStatus,
+  })
   const width = wide ? 'max-w-7xl sm:w-fit sm:min-w-[min(64rem,100%)]' : 'max-w-5xl'
+
+  async function handleLogout() {
+    setIsLoggingOut(true)
+    try {
+      await logout()
+      window.location.assign('/login')
+    } catch {
+      setIsLoggingOut(false)
+      toast.error('Failed to log out')
+    }
+  }
 
   return (
     <div className="flex min-h-svh flex-col">
@@ -40,6 +61,12 @@ export function AppLayout({ children, wide = false }: Props) {
                 <span className="hidden sm:inline">{label}</span>
               </Link>
             ))}
+            {authStatus?.authEnabled && (
+              <Button aria-label="Log out" disabled={isLoggingOut} onClick={handleLogout} size="sm" title="Log out" variant="ghost">
+                <LogOut className="size-4" />
+                <span className="hidden sm:inline">Log out</span>
+              </Button>
+            )}
           </div>
         </nav>
       </header>

@@ -12,8 +12,8 @@ import { Slider } from '@/components/ui/slider'
 import { Switch } from '@/components/ui/switch'
 import { Textarea } from '@/components/ui/textarea'
 import { useConfig, useCreateExpense, useUpdateExpense } from '@/hooks/use-expenses'
+import { resolveExchangeRate } from '@/lib/api'
 import { type ExpenseFormInput, expenseFormSchema } from '@/lib/schemas'
-import { resolveExchangeRate } from '@/lib/server/functions/exchange-rates'
 import { getDefaultCategoryId, resolveIncomeForCategory } from '@/lib/shared/category-utils'
 import { todayISO } from '@/lib/shared/date-utils'
 import { getEnteredAmount, getEnteredCurrency } from '@/lib/shared/expense-utils'
@@ -130,7 +130,7 @@ export function ExpenseFormDialog({
     const t = setTimeout(async () => {
       setPreviewLoading(true)
       try {
-        const rate = await resolveExchangeRate({ data: { date: watchedDate, from: watchedCurrency, to: currency } })
+        const rate = await resolveExchangeRate({ date: watchedDate, from: watchedCurrency, to: currency })
         setConvertedPreview(watchedAmount * rate)
       } catch {
         setConvertedPreview(null)
@@ -168,7 +168,7 @@ export function ExpenseFormDialog({
       let originalCurrency: string | undefined
 
       if (selectedCurrency !== currency) {
-        const rate = await resolveExchangeRate({ data: { date: rest.date, from: selectedCurrency, to: currency } })
+        const rate = await resolveExchangeRate({ date: rest.date, from: selectedCurrency, to: currency })
         finalAmount = signedAmount * rate
         originalAmount = signedAmount
         originalCurrency = selectedCurrency

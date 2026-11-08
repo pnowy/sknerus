@@ -1,8 +1,18 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import {
+  createExpense,
+  createRecurring,
+  deleteExpense,
+  deleteRecurring,
+  getConfig,
+  getExpenses,
+  getRecurring,
+  renameCategory,
+  updateConfig,
+  updateExpense,
+  updateRecurring,
+} from '@/lib/api'
 import type { ExpenseInput } from '@/lib/schemas'
-import { getConfig, renameCategory, updateConfig } from '@/lib/server/functions/config'
-import { createExpense, deleteExpense, getExpenses, updateExpense } from '@/lib/server/functions/expenses'
-import { createRecurring, deleteRecurring, getRecurring, updateRecurring } from '@/lib/server/functions/recurring'
 import type { Config, Expense, RecurringExpense } from '@/lib/shared/types/expense'
 
 export const queryKeys = {
@@ -28,7 +38,7 @@ export function useConfig() {
 export function useCreateExpense() {
   const qc = useQueryClient()
   return useMutation({
-    mutationFn: (data: ExpenseInput) => createExpense({ data }),
+    mutationFn: (data: ExpenseInput) => createExpense(data),
     onSuccess: () => qc.invalidateQueries({ queryKey: queryKeys.expenses }),
   })
 }
@@ -36,7 +46,7 @@ export function useCreateExpense() {
 export function useUpdateExpense() {
   const qc = useQueryClient()
   return useMutation({
-    mutationFn: (data: Expense) => updateExpense({ data }),
+    mutationFn: (data: Expense) => updateExpense(data),
     onSuccess: () => qc.invalidateQueries({ queryKey: queryKeys.expenses }),
   })
 }
@@ -44,7 +54,7 @@ export function useUpdateExpense() {
 export function useDeleteExpense() {
   const qc = useQueryClient()
   return useMutation({
-    mutationFn: (id: string) => deleteExpense({ data: { id } }),
+    mutationFn: (id: string) => deleteExpense(id),
     onSuccess: () => qc.invalidateQueries({ queryKey: queryKeys.expenses }),
   })
 }
@@ -52,7 +62,7 @@ export function useDeleteExpense() {
 export function useUpdateConfig() {
   const qc = useQueryClient()
   return useMutation({
-    mutationFn: (data: Config) => updateConfig({ data }),
+    mutationFn: (data: Config) => updateConfig(data),
     onSuccess: () => qc.invalidateQueries({ queryKey: queryKeys.config }),
   })
 }
@@ -60,7 +70,7 @@ export function useUpdateConfig() {
 export function useRenameCategory() {
   const qc = useQueryClient()
   return useMutation({
-    mutationFn: (data: { id: string; newName: string }) => renameCategory({ data }),
+    mutationFn: (data: { id: string; newName: string }) => renameCategory(data),
     onSuccess: () =>
       Promise.all([qc.invalidateQueries({ queryKey: queryKeys.config }), qc.invalidateQueries({ queryKey: queryKeys.expenses })]),
   })
@@ -76,7 +86,7 @@ export function useRecurring() {
 export function useCreateRecurring() {
   const qc = useQueryClient()
   return useMutation({
-    mutationFn: (data: Omit<RecurringExpense, 'id'>) => createRecurring({ data }),
+    mutationFn: (data: Omit<RecurringExpense, 'id'>) => createRecurring(data),
     onSuccess: () =>
       Promise.all([qc.invalidateQueries({ queryKey: queryKeys.recurring }), qc.invalidateQueries({ queryKey: queryKeys.expenses })]),
   })
@@ -85,7 +95,7 @@ export function useCreateRecurring() {
 export function useUpdateRecurring() {
   const qc = useQueryClient()
   return useMutation({
-    mutationFn: (data: RecurringExpense) => updateRecurring({ data }),
+    mutationFn: (data: RecurringExpense) => updateRecurring(data),
     onSuccess: () => qc.invalidateQueries({ queryKey: queryKeys.recurring }),
   })
 }
@@ -93,7 +103,7 @@ export function useUpdateRecurring() {
 export function useDeleteRecurring() {
   const qc = useQueryClient()
   return useMutation({
-    mutationFn: (id: string) => deleteRecurring({ data: { id } }),
+    mutationFn: (id: string) => deleteRecurring(id),
     onSuccess: () => qc.invalidateQueries({ queryKey: queryKeys.recurring }),
   })
 }
