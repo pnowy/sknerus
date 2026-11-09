@@ -3,4 +3,5 @@ export enum DashboardTab {
   Monthly = 'monthly',
   Trends = 'trends',
   Balance = 'balance',
+  Cashflow = 'cashflow',
 }
