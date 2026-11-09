@@ -72,27 +72,30 @@ export function CashflowSankey({ expenses, categories, currency }: Props) {
   }
 
   return (
-    <div className="bg-chart-paper h-96 rounded-xl border border-black/20 p-4 shadow-sm md:h-[520px] dark:border-white/10">
-      {mounted && (
-        <ResponsiveContainer height="100%" width="100%">
-          <Sankey
-            data={data}
-            link={renderLink as never}
-            node={renderNode as never}
-            nodePadding={28}
-            nodeWidth={12}
-            margin={{ top: 10, right: 130, bottom: 28, left: 10 }}
-            sort={false}
-          >
-            <Tooltip
-              formatter={(value) => formatCurrency(Number(value), currency)}
-              contentStyle={{ backgroundColor: '#1a1a1a', border: 'none', borderRadius: '8px', fontSize: '0.8rem' }}
-              itemStyle={{ color: '#f4f4f4' }}
-              labelStyle={{ color: '#f4f4f4', fontWeight: 600 }}
-            />
-          </Sankey>
-        </ResponsiveContainer>
-      )}
+    <div className="bg-chart-paper overflow-x-auto rounded-xl border border-black/20 p-4 shadow-sm dark:border-white/10">
+      {/* Min width keeps labels readable on phones; the container scrolls horizontally instead. */}
+      <div className="h-96 min-w-[640px] md:h-[520px]">
+        {mounted && (
+          <ResponsiveContainer height="100%" width="100%">
+            <Sankey
+              data={data}
+              link={renderLink as never}
+              node={renderNode as never}
+              nodePadding={28}
+              nodeWidth={12}
+              margin={{ top: 10, right: 130, bottom: 28, left: 10 }}
+              sort={false}
+            >
+              <Tooltip
+                formatter={(value) => formatCurrency(Number(value), currency)}
+                contentStyle={{ backgroundColor: '#1a1a1a', border: 'none', borderRadius: '8px', fontSize: '0.8rem' }}
+                itemStyle={{ color: '#f4f4f4' }}
+                labelStyle={{ color: '#f4f4f4', fontWeight: 600 }}
+              />
+            </Sankey>
+          </ResponsiveContainer>
+        )}
+      </div>
     </div>
   )
 }
