@@ -1,5 +1,4 @@
 import { createIsomorphicFn } from '@tanstack/react-start'
-import { getRequestUrl } from '@tanstack/react-start/server'
 
 export class ApiError extends Error {
   constructor(
@@ -35,8 +34,9 @@ const fetchApi = createIsomorphicFn()
   .server(async (path: string, init?: RequestInit) => {
     const headers = new Headers(init?.headers)
     if (init?.body && !headers.has('Content-Type')) headers.set('Content-Type', 'application/json')
-    const url = new URL(path, getRequestUrl())
-    const response = await fetch(url, { ...init, headers })
+    // In-process dispatch: a network self-fetch to the public URL fails ("fetch failed") behind proxies/Docker
+    const { fetch: nitroFetch } = await import('nitro/app')
+    const response = await nitroFetch(path, { ...init, headers })
     return parseResponse(response)
   })
   .client(async (path: string, init?: RequestInit) => {
