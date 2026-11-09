@@ -54,7 +54,7 @@ It is still *not* a budgeting app. No accounts, no complex budgets, no bank sync
 
 - Add income and expenses with category, date, amount, currency, optional tags, and free-text notes
 - Toggle tags and notes on or off globally from Settings — disabled fields disappear from forms, tables, and cards if you don't use them
-- Custom categories with color coding — reorder, rename, or remove them at any time
+- Custom categories with color coding — reorder, rename, or remove them at any time; mark a category as income to preset the income toggle when adding a transaction
 - Recurring transactions — define a template once, the app materializes entries automatically up to today
 - Multi-currency support: record transactions in any currency, configure supported currencies, and exchange rates are resolved and cached automatically. Two providers available: [Frankfurter](https://www.frankfurter.app/) (31 currencies, no key needed) and [ExchangeRate-API](https://www.exchangerate-api.com/) (165 currencies, free API key required)
 - Export and import — bring your data in from any tool or take it anywhere, also from ExpenseOwl
@@ -66,12 +66,13 @@ It is still *not* a budgeting app. No accounts, no complex budgets, no bank sync
 
 ### Dashboard
 
-The dashboard is the heart of the app, organized into four tabs:
+The dashboard is the heart of the app, organized into five tabs:
 
-1. **Breakdown** — pie chart of spending by category for the selected period, plus cashflow cards showing total income, total expenses, and net balance. Click a category slice to temporarily exclude it from the chart.
-2. **Income vs Expenses** — bar chart comparing income and spending month by month, giving a quick cashflow health view over time.
-3. **Monthly** — stacked bar chart of expenses across all months, broken down by category, to spot seasonal patterns.
-4. **Trends** — category-level trend lines across months to see which spending areas are growing or shrinking.
+1. **Breakdown** — pie charts of spending by category and income by source for the selected period, plus cashflow cards showing total income, total expenses, and net balance. Use the eye icon next to a category to temporarily exclude it from the chart.
+2. **Monthly** — stacked bar chart of expenses across all months, broken down by category, to spot seasonal patterns.
+3. **Trends** — category-level trend lines across months to see which spending areas are growing or shrinking.
+4. **Income vs Expenses** — bar chart comparing income and spending month by month, giving a quick cashflow health view over time.
+5. **Cashflow** — Sankey diagram showing how income sources flow into expense categories for the selected period, ending in a Surplus (or a Deficit source when you spent more than you earned).
 
 All dashboard views support flexible time-range navigation: switch between monthly, quarterly, and yearly scopes and step forward/backward through time. Choose **Custom** to filter by an exact start and end date (both inclusive). Custom ranges are saved in the URL and preserved when switching dashboard tabs; click the displayed dates to edit them.
 
@@ -124,6 +125,7 @@ Track per-vehicle costs alongside your regular expenses. Once enabled, a **Vehic
 | Desktop - Dashboard – Income vs Expenses (dark) | ![](./etc/desktop-dashboard-income-vs-expenses.png) |
 | Desktop - Dashboard – Monthly (light)           | ![](./etc/desktop-dashboard-monthly.png)            |
 | Desktop - Dashboard – Trends (dark)             | ![](./etc/desktop-dashboard-trends.png)             |
+| Desktop - Dashboard – Cashflow (light)          | ![](./etc/desktop-dashboard-cashflow.png)           |
 | Mobile - Table view                             | ![](./etc/mobile-table.png)                         |
 | Desktop - Table View                            | ![](./etc/desktop-table-view.png)                   |
 | Desktop - Table View (group by category)        | ![](./etc/desktop-table-grouped.png)                |

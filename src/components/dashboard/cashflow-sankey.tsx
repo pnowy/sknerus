@@ -81,7 +81,7 @@ export function CashflowSankey({ expenses, categories, currency }: Props) {
             node={renderNode as never}
             nodePadding={28}
             nodeWidth={12}
-            margin={{ top: 10, right: 130, bottom: 10, left: 10 }}
+            margin={{ top: 10, right: 130, bottom: 28, left: 10 }}
             sort={false}
           >
             <Tooltip
