@@ -5,6 +5,7 @@ import { AddExpenseFab } from '@/components/add-expense-fab'
 import { CashflowCards } from '@/components/dashboard/cashflow-cards'
 import { CashflowSankey } from '@/components/dashboard/cashflow-sankey'
 import { CategoryTrends } from '@/components/dashboard/category-trends'
+import { DashboardTabsNav } from '@/components/dashboard/dashboard-tabs-nav'
 import { ExpenseChart } from '@/components/dashboard/expense-chart'
 import { IncomeExpensesChart } from '@/components/dashboard/income-expenses-chart'
 import { MonthlyChart } from '@/components/dashboard/monthly-chart'
@@ -12,7 +13,7 @@ import { DateRangeNav } from '@/components/date-range-nav'
 import { ExpenseFormDialog } from '@/components/expense-form-dialog'
 import { AppLayout } from '@/components/layout/app-layout'
 import { Button } from '@/components/ui/button'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { Tabs, TabsContent } from '@/components/ui/tabs'
 import { useDateRange } from '@/hooks/use-date-range'
 import { useConfig, useExpenses } from '@/hooks/use-expenses'
 import { useVehicles } from '@/hooks/use-vehicles'
@@ -116,13 +117,7 @@ function DashboardPage() {
         </div>
         <CashflowCards currency={currency} expenses={expenses} income={income} />
         <Tabs value={activeTab} onValueChange={(tab) => setTab(tab as DashboardTab)}>
-          <TabsList>
-            <TabsTrigger value={DashboardTab.Breakdown}>Breakdown</TabsTrigger>
-            <TabsTrigger value={DashboardTab.Monthly}>Monthly</TabsTrigger>
-            <TabsTrigger value={DashboardTab.Trends}>Trends</TabsTrigger>
-            <TabsTrigger value={DashboardTab.Balance}>Income vs Expenses</TabsTrigger>
-            <TabsTrigger value={DashboardTab.Cashflow}>Cashflow</TabsTrigger>
-          </TabsList>
+          <DashboardTabsNav activeTab={activeTab} />
           <TabsContent value={DashboardTab.Breakdown}>
             <div className="space-y-6">
               <section className="space-y-2">
