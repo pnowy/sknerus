@@ -270,8 +270,8 @@ Sknerus ships with a built-in demo data generator that seeds ~2.5 years of reali
 
 The seed generates:
 
-- **13 categories**: Salary, Groceries, Housing, Utilities, Transport, Health, Entertainment, Kids, Dining Out, Clothing, Education, Subscriptions, Motorcycle
-- **Income**: primary salary (with annual raises), partner salary starting a few months in, December bonuses, occasional freelance income
+- **17 categories**: Salary, Freelance, Apartment Rental, Dividends, Savings Interest, Groceries, Housing, Utilities, Transport, Health, Entertainment, Kids, Dining Out, Clothing, Education, Subscriptions, Motorcycle
+- **Income**: primary salary (with annual raises), partner salary starting a few months in, December bonuses, occasional freelance income, monthly apartment rental, quarterly dividends, monthly savings interest
 - **Fixed costs**: rent, internet, streaming subscriptions, gym membership
 - **Variable costs**: groceries (3–4 trips/month), fuel, utilities with seasonal swings (higher in winter), dining out
 - **Seasonal patterns**: clothing peaks in spring/autumn, summer vacation in July, Christmas spending in December, school supplies in August/September

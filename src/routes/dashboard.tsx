@@ -3,6 +3,7 @@ import { Plus } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import { AddExpenseFab } from '@/components/add-expense-fab'
 import { CashflowCards } from '@/components/dashboard/cashflow-cards'
+import { CashflowSankey } from '@/components/dashboard/cashflow-sankey'
 import { CategoryTrends } from '@/components/dashboard/category-trends'
 import { ExpenseChart } from '@/components/dashboard/expense-chart'
 import { IncomeExpensesChart } from '@/components/dashboard/income-expenses-chart'
@@ -75,7 +76,12 @@ function DashboardPage() {
   }, [periodExpenses, categories])
 
   function setTab(tab: DashboardTab) {
-    const scopeForTab = scope === RangeScope.Custom ? scope : tab === DashboardTab.Breakdown ? RangeScope.Month : RangeScope.Year
+    const scopeForTab =
+      scope === RangeScope.Custom
+        ? scope
+        : tab === DashboardTab.Breakdown || tab === DashboardTab.Cashflow
+          ? RangeScope.Month
+          : RangeScope.Year
     void navigate({
       to: '/dashboard',
       search: (prev) => ({ ...prev, tab, scope: scopeForTab, offset: scopeForTab === scope ? offset : 0 }),
@@ -115,6 +121,7 @@ function DashboardPage() {
             <TabsTrigger value={DashboardTab.Monthly}>Monthly</TabsTrigger>
             <TabsTrigger value={DashboardTab.Trends}>Trends</TabsTrigger>
             <TabsTrigger value={DashboardTab.Balance}>Income vs Expenses</TabsTrigger>
+            <TabsTrigger value={DashboardTab.Cashflow}>Cashflow</TabsTrigger>
           </TabsList>
           <TabsContent value={DashboardTab.Breakdown}>
             <div className="space-y-6">
@@ -136,6 +143,9 @@ function DashboardPage() {
           </TabsContent>
           <TabsContent value={DashboardTab.Balance}>
             <IncomeExpensesChart currency={currency} expenses={allExpenses} from={from} to={to} />
+          </TabsContent>
+          <TabsContent value={DashboardTab.Cashflow}>
+            <CashflowSankey categories={categories} currency={currency} expenses={periodExpenses} />
           </TabsContent>
         </Tabs>
       </div>

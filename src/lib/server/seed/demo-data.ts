@@ -29,6 +29,10 @@ export function generateDemoData(): { config: Config; expenses: Array<Expense>; 
   const motorcycleId = genVehicleId()
   const cats = {
     salary: { id: genCategoryId(), name: 'Salary', color: '#22c55e', isIncome: true },
+    freelance: { id: genCategoryId(), name: 'Freelance', color: '#14b8a6', isIncome: true },
+    rental: { id: genCategoryId(), name: 'Apartment Rental', color: '#0d9488', isIncome: true },
+    dividends: { id: genCategoryId(), name: 'Dividends', color: '#65a30d', isIncome: true },
+    interest: { id: genCategoryId(), name: 'Savings Interest', color: '#4ade80', isIncome: true },
     groceries: { id: genCategoryId(), name: 'Groceries', color: '#84cc16' },
     housing: { id: genCategoryId(), name: 'Housing', color: '#3b82f6' },
     utilities: { id: genCategoryId(), name: 'Utilities', color: '#f97316' },
@@ -110,8 +114,14 @@ export function generateDemoData(): { config: Config; expenses: Array<Expense>; 
         push('Annual Bonus', rand(4000, 8000), cats.salary.id, year, month, randInt(10, 20))
       }
       if (Math.random() > 0.85) {
-        push('Freelance Income', rand(300, 900), cats.salary.id, year, month, randInt(5, 25))
+        push('Freelance Income', rand(300, 900), cats.freelance.id, year, month, randInt(5, 25))
       }
+      push('Apartment Rent Received', rand(1180, 1220), cats.rental.id, year, month, 10)
+      // Quarterly dividends
+      if (month % 3 === 0) {
+        push('Dividends - Index ETF', rand(180, 420), cats.dividends.id, year, month, randInt(18, 25))
+      }
+      push('Savings Account Interest', rand(25, 60), cats.interest.id, year, month, 28)
 
       // Housing
       push('Rent', -1750, cats.housing.id, year, month, 1)
