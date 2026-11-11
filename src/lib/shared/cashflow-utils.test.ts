@@ -27,6 +27,19 @@ describe('buildCashflowData', () => {
       expect(data.nodes.find((n) => n.name === 'Surplus')?.value).toBe(600)
     })
 
+    it('should give each category its share of the side total', () => {
+      expect(data.nodes.find((n) => n.name === 'Salary')?.share).toBe(1)
+      expect(data.nodes.find((n) => n.name === 'Food')?.share).toBe(1)
+    })
+
+    it('should express Surplus as a share of income', () => {
+      expect(data.nodes.find((n) => n.name === 'Surplus')?.share).toBe(0.6)
+    })
+
+    it('should not assign a share to the hub', () => {
+      expect(data.nodes.find((n) => n.side === 'hub')?.share).toBeUndefined()
+    })
+
     it('should conserve flow through the hub', () => {
       const hub = data.nodes.findIndex((n) => n.side === 'hub')
       const inflow = data.links.filter((l) => l.target === hub).reduce((s, l) => s + l.value, 0)
@@ -37,6 +50,11 @@ describe('buildCashflowData', () => {
   })
 
   describe('when expenses exceed income', () => {
+    it('should express Deficit as a share of expenses', () => {
+      const data = buildCashflowData([tx('cat_salary', 100), tx('cat_food', -400)], categories)
+      expect(data.nodes.find((n) => n.name === 'Deficit')?.share).toBe(0.75)
+    })
+
     it('should add a Deficit source instead of Surplus', () => {
       const data = buildCashflowData([tx('cat_salary', 100), tx('cat_food', -250)], categories)
       expect(data.nodes.find((n) => n.name === 'Deficit')?.value).toBe(150)
@@ -108,6 +126,11 @@ describe('buildCashflowData drill-down', () => {
 
     it('should list the next categories and group the remainder again', () => {
       expect(data.nodes.filter((n) => n.side === 'sink').map((n) => n.name)).toEqual(['Cat 7', 'Cat 6', 'Cat 5', 'Cat 4', 'Other'])
+    })
+
+    it('should keep shares relative to all expenses, not the drilled subset', () => {
+      expect(data.nodes.find((n) => n.name === 'Cat 7')?.share).toBeCloseTo(80 / 780)
+      expect(data.nodes[0].share).toBeCloseTo(360 / 780)
     })
 
     it('should link the root to every category', () => {

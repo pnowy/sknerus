@@ -11,6 +11,8 @@ export type CashflowNode = {
   isOther?: boolean
   /** Number of categories inside an "Other" node. */
   groupedCount?: number
+  /** Share (0–1) of total income for income nodes, or of total expenses for expense nodes. */
+  share?: number
 }
 
 export type CashflowLink = { source: number; target: number; value: number }
@@ -34,6 +36,8 @@ type Entry = Omit<CashflowNode, 'side'>
 
 const EMPTY: CashflowData = { nodes: [], links: [] }
 const sum = (entries: Array<Entry>) => entries.reduce((s, e) => s + e.value, 0)
+const withShare = (entries: Array<Entry>, total: number): Array<Entry> =>
+  entries.map((e) => ({ ...e, share: total > 0 ? e.value / total : 0 }))
 
 /** Keeps the `max` largest entries (input sorted desc) and sums the rest into a single "Other" entry. */
 function groupTail(entries: Array<Entry>, max: number): Array<Entry> {
@@ -107,10 +111,16 @@ export function buildCashflowData(
   const totalExpenses = outgoings.reduce((s, i) => s + i.value, 0)
   if (totalIncome === 0 && totalExpenses === 0) return EMPTY
 
-  const sources = [...incomes]
-  if (totalExpenses > totalIncome) sources.push({ name: 'Deficit', color: '#ef4444', value: totalExpenses - totalIncome })
-  const sinks = [...outgoings]
-  if (totalIncome > totalExpenses) sinks.push({ name: 'Surplus', color: HUB_COLOR, value: totalIncome - totalExpenses })
+  const sources = withShare(incomes, totalIncome)
+  if (totalExpenses > totalIncome) {
+    const value = totalExpenses - totalIncome
+    sources.push({ name: 'Deficit', color: '#ef4444', value, share: value / totalExpenses })
+  }
+  const sinks = withShare(outgoings, totalExpenses)
+  if (totalIncome > totalExpenses) {
+    const value = totalIncome - totalExpenses
+    sinks.push({ name: 'Surplus', color: HUB_COLOR, value, share: value / totalIncome })
+  }
 
   const hubValue = Math.max(totalIncome, totalExpenses)
   const nodes: Array<CashflowNode> = [
@@ -133,12 +143,15 @@ export function buildCashflowData(
 function buildDrillData(sorted: Array<Entry>, { side, depth }: CashflowDrill, max: number): CashflowData {
   const tail = sorted.slice(depth * (max - 1))
   if (tail.length === 0) return EMPTY
-  const items = groupTail(tail, max).map((e) => ({ ...e, side }))
+  // Shares stay relative to the whole side so they match the top-level view and the Breakdown.
+  const sideTotal = sum(sorted)
+  const items = withShare(groupTail(tail, max), sideTotal).map((e) => ({ ...e, side }))
   const root: CashflowNode = {
     name: side === 'sink' ? 'Other expenses' : 'Other income',
     color: OTHER_COLOR,
     value: sum(tail),
     side: 'hub',
+    share: sum(tail) / sideTotal,
   }
 
   if (side === 'sink') {
