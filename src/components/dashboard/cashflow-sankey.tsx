@@ -157,6 +157,7 @@ export function CashflowSankey({ expenses, categories, currency }: Props) {
         </text>
         <text x={labelX} y={midY + 11} textAnchor={anchor} fontSize={11} fontFamily="monospace" fill="currentColor" opacity={0.6}>
           {formatCurrency(payload.value, currency)}
+          {payload.share !== undefined && ` (${(payload.share * 100).toFixed(1)}%)`}
         </text>
       </g>
     )

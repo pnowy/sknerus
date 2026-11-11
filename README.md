@@ -72,7 +72,7 @@ The dashboard is the heart of the app, organized into five tabs (on phones they 
 2. **Monthly** — stacked bar chart of expenses across all months, broken down by category, to spot seasonal patterns.
 3. **Trends** — category-level trend lines across months to see which spending areas are growing or shrinking.
 4. **Income vs Expenses** — bar chart comparing income and spending month by month, giving a quick cashflow health view over time.
-5. **Cashflow** — Sankey diagram showing how income sources flow into expense categories for the selected period, ending in a Surplus (or a Deficit source when you spent more than you earned). By default the 8 largest categories on each side are shown individually and smaller ones are grouped into "Other"; switch to 12, 16 or All categories above the chart (remembered per browser), and the diagram grows taller to keep labels readable. Click an "Other" node to drill into the categories it contains, and use **Back** to return. On phones the diagram keeps a readable width and scrolls horizontally.
+5. **Cashflow** — Sankey diagram of how income flows into expense categories, with each node's amount and share. Smaller categories are grouped into an expandable "Other" node.
 
 All dashboard views support flexible time-range navigation: switch between monthly, quarterly, and yearly scopes and step forward/backward through time. Choose **Custom** to filter by an exact start and end date (both inclusive). Custom ranges are saved in the URL and preserved when switching dashboard tabs; click the displayed dates to edit them.
 
