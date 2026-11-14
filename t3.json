@@ -1,0 +1,18 @@
+{
+  "$schema": "https://t3.codes/schema/t3.json",
+  "iconPath": "public/apple-touch-icon.png",
+  "scripts": [
+    {
+      "name": "Dev",
+      "command": "npm run dev",
+      "icon": "play",
+      "stopOnSettle": true
+    },
+    {
+      "name": "Setup Worktree",
+      "command": "node scripts/setup-worktree.ts",
+      "icon": "configure",
+      "runOnWorktreeCreate": true
+    }
+  ]
+}
