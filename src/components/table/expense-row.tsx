@@ -23,7 +23,8 @@ type Props = {
 }
 
 export function ExpenseRow({ expense, categories, vehicles, hasTags, showNotes, onEdit, onDuplicate, onDelete }: Props) {
-  const categoryName = categories.find((c) => c.id === expense.categoryId)?.name ?? expense.categoryId
+  const category = categories.find((c) => c.id === expense.categoryId)
+  const categoryName = category?.name ?? expense.categoryId
   const vehicleIcon = resolveVehicleExpenseIcon(expense, vehicles)
 
   return (
@@ -38,7 +39,14 @@ export function ExpenseRow({ expense, categories, vehicles, hasTags, showNotes, 
           {showNotes && expense.notes && <NoteIndicator notes={expense.notes} />}
         </span>
       </TableCell>
-      <TableCell>{categoryName}</TableCell>
+      <TableCell>
+        <span className="flex items-center gap-2">
+          {category && (
+            <span aria-hidden className="inline-block size-2.5 shrink-0 rounded-sm" style={{ backgroundColor: category.color }} />
+          )}
+          {categoryName}
+        </span>
+      </TableCell>
       {hasTags && (
         <TableCell className={TAGS_CELL_CLASS}>
           <div className="flex flex-wrap gap-1">
