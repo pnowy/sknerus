@@ -1,6 +1,7 @@
 import { apiFetch } from '@/lib/api-client'
-import type { ExpenseInput, VehicleInput } from '@/lib/schemas'
+import type { BookPaymentInput, ExpenseInput, ImportRecurringInput, SubscriptionPayload, VehicleInput } from '@/lib/schemas'
 import type { Config, Expense, RecurringExpense } from '@/lib/shared/types/expense'
+import type { Subscription } from '@/lib/shared/types/subscription'
 import type { Vehicle } from '@/lib/shared/types/vehicle'
 
 const API_PREFIX = '/api/v1'
@@ -72,7 +73,48 @@ export function deleteVehicle(id: string): Promise<{ success: true }> {
   return apiFetch(`${API_PREFIX}/vehicles/${encodeURIComponent(id)}`, { method: 'DELETE' })
 }
 
+export function getSubscriptions(): Promise<Array<Subscription>> {
+  return apiFetch(`${API_PREFIX}/subscriptions`)
+}
+
+export function createSubscription(data: SubscriptionPayload): Promise<Subscription> {
+  return apiFetch(`${API_PREFIX}/subscriptions`, { method: 'POST', body: JSON.stringify(data) })
+}
+
+export function updateSubscription({ id, ...data }: SubscriptionPayload & { id: string }): Promise<Subscription> {
+  return apiFetch(`${API_PREFIX}/subscriptions/${encodeURIComponent(id)}`, { method: 'PUT', body: JSON.stringify(data) })
+}
+
+export function deleteSubscription(data: { id: string; withRecurring: boolean }): Promise<{ success: true }> {
+  const query = data.withRecurring ? '?withRecurring=true' : ''
+  return apiFetch(`${API_PREFIX}/subscriptions/${encodeURIComponent(data.id)}${query}`, { method: 'DELETE' })
+}
+
+export function bookSubscriptionPayment({ id, ...data }: BookPaymentInput & { id: string }): Promise<{ subscription: Subscription }> {
+  return apiFetch(`${API_PREFIX}/subscriptions/${encodeURIComponent(id)}/book`, { method: 'POST', body: JSON.stringify(data) })
+}
+
+export function skipSubscriptionRenewal(id: string): Promise<Subscription> {
+  return apiFetch(`${API_PREFIX}/subscriptions/${encodeURIComponent(id)}/skip`, { method: 'POST' })
+}
+
+export function importRecurringSubscriptions(data: ImportRecurringInput): Promise<{ created: number }> {
+  return apiFetch(`${API_PREFIX}/subscriptions/import-recurring`, { method: 'POST', body: JSON.stringify(data) })
+}
+
 export function resolveExchangeRate(data: { date: string; from: string; to: string }): Promise<number> {
   const query = new URLSearchParams(data)
   return apiFetch(`${API_PREFIX}/exchange-rate?${query}`)
 }
+
+export function restoreBackup(backup: unknown): Promise<{
+  expenses: number
+  recurring: number
+  vehicles: number
+  subscriptions: number
+  categories: number
+}> {
+  return apiFetch(`${API_PREFIX}/backup`, { method: 'POST', body: JSON.stringify(backup) })
+}
+
+export const BACKUP_DOWNLOAD_URL = `${API_PREFIX}/backup`

@@ -1,5 +1,6 @@
 import { format } from 'date-fns'
 import { genExpenseId, genRecurringId } from '@/lib/server/ids.server'
+import { runRecurringDeleted, runRecurringUpdated } from '@/lib/server/plugins'
 import { NotFoundError } from '@/lib/server/services/errors'
 import { withWriteLock } from '@/lib/server/services/lock'
 import { storage } from '@/lib/server/storage'
@@ -26,6 +27,7 @@ export function updateRecurring(data: RecurringExpense): Promise<RecurringExpens
     if (idx === -1) throw new NotFoundError('Recurring not found')
     recurring[idx] = data
     await storage.saveRecurring(recurring)
+    await runRecurringUpdated(data)
     return data
   })
 }
@@ -34,6 +36,7 @@ export function removeRecurring(id: string): Promise<{ success: true }> {
   return withWriteLock(async () => {
     const recurring = await storage.getRecurring()
     await storage.saveRecurring(recurring.filter((item) => item.id !== id))
+    await runRecurringDeleted(id)
     return { success: true }
   })
 }

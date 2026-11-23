@@ -80,7 +80,7 @@ All dashboard views support flexible time-range navigation: switch between month
 
 - Chronological list of all transactions for the selected period
 - The same preset and custom date ranges as the dashboard
-- Optional search (enable **Show search** in Settings → Display): click the search icon to find transactions by name, notes, or tags across your whole history; Esc clears the query, then closes search
+- Optional search (enable **Show search** in Settings → Appearance → Display): click the search icon to find transactions by name, notes, or tags across your whole history; Esc clears the query, then closes search
 - Toggle between flat list and grouped-by-category view
 - Inline delete with confirmation
 - Add new expenses directly from the table view
@@ -92,17 +92,17 @@ All dashboard views support flexible time-range navigation: switch between month
 - Configure fiscal month start date and default start page
 - Choose the side of the mobile floating add-expense button (or turn it off)
 - Toggle visibility of tags and notes fields across the app, and enable transaction search in the table view
-- Manage recurring transactions (view, edit, delete templates)
-- Export and import all expenses
+- Manage recurring transactions (view, edit, delete templates) — repeat every N days, weeks, months, or years (e.g. every 3 months)
+- Download a full backup (settings, transactions, recurring transactions, vehicles, subscriptions) and restore it on any instance; export and import transactions as CSV
 - Enable optional plugins (see below)
 
 ### Plugins
 
-Optional features that extend the core tracker. Toggle them on under **Settings → Plugins** — they stay invisible until you need them, so the app stays focused for users who only want basic expense tracking.
+Optional features that extend the core tracker. Toggle them on under **Settings → General → Plugins** — they stay invisible until you need them, so the app stays focused for users who only want basic expense tracking.
 
 #### Vehicle expense tracking
 
-Track per-vehicle costs alongside your regular expenses. Once enabled, a **Vehicles** tab appears in Settings where you can:
+Track per-vehicle costs alongside your regular expenses. Once enabled, a **Vehicles** page appears in the navigation and a **Vehicles** tab appears in Settings (category → vehicle mapping). You can:
 
 - Register one or more vehicles (car or motorcycle) with engine size, fuel tank size, fuel type, and starting odometer
 - Bind a category to a vehicle so any expense in that category is automatically a vehicle expense
@@ -113,6 +113,31 @@ Track per-vehicle costs alongside your regular expenses. Once enabled, a **Vehic
 - Open the **Stats** dialog on a vehicle for a fuel history table and a weekly spend-breakdown chart across all expense types
 
 > Units are metric: kilometers, liters, L/100km. Imperial units (miles, gallons, MPG) are not currently supported — open an issue if you'd like a metric/imperial toggle.
+
+#### Subscription tracking
+
+See what your subscriptions really cost per month and per year. Once enabled, a **Subscriptions** page appears in the navigation and a **Subscriptions** tab appears in Settings:
+
+- Add subscriptions with a price per billing period (monthly, every 3/6 months, yearly, or any number of months) in any supported currency — costs are converted to your primary currency at today's exchange rate and spread per month
+- Summary cards for monthly and yearly totals, the cost after deductions, and your monthly tax savings, plus a cost-share bar and Private / Business / Inactive filters
+- Mark a subscription as a business cost by assigning a **deduction profile** (Settings → Subscriptions). A profile defines the VAT rate, the share of VAT you recover, your income tax rate, and an optional extra rate (e.g. a health contribution) — so it fits any tax setup, not just one country's. Non-recovered VAT is added to the cost before income tax is deducted. Turn off "Price includes VAT" for invoices without VAT (e.g. reverse-charge services from abroad)
+- The info icon on each subscription shows the per-month breakdown: price → VAT back → tax back → real cost
+- The **Stats** dialog on a subscription summarizes its payments (linked manually or booked by a recurring transaction): total paid, last payment, price change since the first payment, cost after deductions, plus a payment history with the change vs the previous payment, a per-year bar chart, and a price trend chart
+
+**Manual payments** — for subscriptions you renew by hand (e.g. a yearly plan you may or may not extend):
+
+- Link past transactions to the subscription with **Link payments** (search pre-filled with the subscription name); the next renewal is set one billing period after the latest payment
+- A week before the renewal date the subscription shows up under **Due for renewal** on the Subscriptions page, with a badge on the navigation link. Nothing is booked automatically: **Book payment** creates the transaction (amount and date editable, optionally updating the subscription price) and moves the renewal one period ahead, **Skip** moves it ahead without a transaction, **End** deactivates the subscription
+- Overdue renewals stay visible until you act on them
+- Subscriptions billed less often than monthly (quarterly, yearly, …) get a subtle blue "Renews in N days" note in the list from 30 days before renewal, so there's time to cancel or switch plans
+
+**Linking with recurring transactions** — a subscription can book its payments as a recurring expense:
+
+- **Create** a recurring transaction from the subscription form (pick the first payment date), **link** an existing one, or use **Track as subscription** on a recurring transaction in Settings. **Import from recurring** on the Subscriptions page converts several monthly/yearly recurring expenses at once
+- Name, price, currency, billing period, and category stay in sync both ways. Deactivating a subscription ends its recurring transaction; reactivating it or changing the billing period restarts the schedule from today, so missed periods are never backfilled
+- Linked subscriptions show their next payment date and the total paid so far; linked recurring transactions get a **Subscription** badge that jumps to the subscription
+- Deleting a recurring transaction keeps the subscription (unlinked). Deleting a subscription can optionally delete its recurring transaction too. Transactions that were already booked are never changed
+- Daily and weekly recurring transactions, and income, can't be linked
 
 # Screenshots
 
@@ -231,18 +256,34 @@ The API uses the same JSON storage as the web app.
 
 ### In-App Settings
 
-Everything else is configured from the `/settings` page:
+Everything else is configured from the `/settings` page, grouped into tabs (the active tab is kept in the URL, e.g. `/settings?section=transactions`):
+
+**General**
+
+- **Currency** — set the primary display currency
+- **Exchange Rate Provider** — choose between Frankfurter (31 major currencies, no setup) or ExchangeRate-API (165 currencies including MVR, THB, etc. — requires a free API key)
+- **Fiscal Start Day** — day of month that begins a new fiscal period (default: 1st)
+- **Additional Currencies** — currencies available when adding a transaction (exchange rates resolved automatically)
+- **Plugins** — enable optional features such as vehicle or subscription tracking. See the [Plugins](#plugins) section above for details.
+
+**Transactions**
 
 - **Categories** — add, rename, reorder (drag-and-drop), and delete categories
-- **Currency** — set the primary display currency
-- **Supported Currencies** — currencies available when adding a transaction (exchange rates resolved automatically)
-- **Exchange Rate Provider** — choose between Frankfurter (31 major currencies, no setup) or ExchangeRate-API (165 currencies including MVR, THB, etc. — requires a free API key)
-- **Start Date** — day of month that begins a new fiscal period (default: 1st)
-- **Start Page** — which page loads first: dashboard or table view
-- **Mobile Add Button** — position of the floating add-expense button on phones: bottom right (default), bottom left, or off
 - **Recurring Transactions** — manage recurring income and expense templates
-- **Export / Import** — download all data as CSV or upload a CSV to import transactions. The import modal in the app describes the expected format and supported columns in detail.
-- **Plugins** — enable optional features such as vehicle expense tracking. See the [Plugins](#plugins) section above for details.
+
+**Appearance**
+
+- **Start Page** — which page loads first: dashboard or table view
+- **Theme** — light, dark, or follow the system
+- **Display** — show or hide tags and notes, enable transaction search
+- **Mobile Add Button** — position of the floating add-expense button on phones: bottom right (default), bottom left, or off
+
+**Data**
+
+- **Full backup** — download everything as one JSON file (settings, categories, transactions, recurring transactions, vehicles, subscriptions, and the links between them) or restore such a file. Restoring replaces all current data after a confirmation; the exchange-rate API key is never written to the file and the one configured on the instance is kept
+- **Transactions CSV** — export transactions as CSV or import a CSV, adding its rows to the existing transactions. The import modal in the app describes the expected format and supported columns in detail.
+
+Enabled plugins add their own tabs with plugin configuration: **Vehicles** (category → vehicle mapping) and **Subscriptions** (deduction profiles). The vehicles and subscriptions themselves live on their own pages in the navigation.
 
 ### Data Storage
 

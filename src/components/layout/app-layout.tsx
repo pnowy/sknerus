@@ -1,10 +1,16 @@
 import { Link } from '@tanstack/react-router'
-import { LayoutDashboard, Settings, Table } from 'lucide-react'
+import { Car, CreditCard, LayoutDashboard, Settings, Table } from 'lucide-react'
+import { useConfig } from '@/hooks/use-expenses'
+import { useSubscriptions } from '@/hooks/use-subscriptions'
+import { todayISO } from '@/lib/shared/date-utils'
+import { dueRenewals } from '@/lib/shared/subscription-utils'
 import { cn } from '@/lib/utils'
 
 const NAV_LINKS = [
   { to: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
-  { to: '/table', label: 'Table', icon: Table },
+  { to: '/table', label: 'Transactions', icon: Table },
+  { to: '/vehicles', label: 'Vehicles', icon: Car },
+  { to: '/subscriptions', label: 'Subscriptions', icon: CreditCard },
   { to: '/settings', label: 'Settings', icon: Settings },
 ] as const
 
@@ -15,6 +21,14 @@ type Props = {
 }
 
 export function AppLayout({ children, wide = false }: Props) {
+  const { data: config } = useConfig()
+  const subscriptionsEnabled = config?.features?.subscriptionTracking ?? false
+  const { data: subscriptions = [] } = useSubscriptions(subscriptionsEnabled)
+  const dueCount = subscriptionsEnabled ? dueRenewals(subscriptions, todayISO()).length : 0
+  const vehiclesEnabled = config?.features?.vehicleExpenseTracking ?? false
+  const links = NAV_LINKS.filter(
+    (link) => (link.to !== '/subscriptions' || subscriptionsEnabled) && (link.to !== '/vehicles' || vehiclesEnabled)
+  )
   const width = wide ? 'max-w-7xl sm:w-fit sm:min-w-[min(64rem,100%)]' : 'max-w-5xl'
 
   return (
@@ -26,7 +40,7 @@ export function AppLayout({ children, wide = false }: Props) {
             <span className="text-lg font-semibold tracking-tight">Sknerus</span>
           </Link>
           <div className="flex items-center gap-1">
-            {NAV_LINKS.map(({ to, label, icon: Icon }) => (
+            {links.map(({ to, label, icon: Icon }) => (
               <Link
                 key={to}
                 to={to}
@@ -36,7 +50,15 @@ export function AppLayout({ children, wide = false }: Props) {
                   'text-muted-foreground hover:text-foreground flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm transition-colors'
                 )}
               >
-                <Icon className="size-4" />
+                <span className="relative">
+                  <Icon className="size-4" />
+                  {to === '/subscriptions' && dueCount > 0 && (
+                    <span className="bg-destructive absolute -top-1.5 -right-1.5 flex size-3.5 items-center justify-center rounded-full text-[9px] leading-none font-semibold text-white">
+                      {dueCount}
+                      <span className="sr-only"> renewal{dueCount === 1 ? '' : 's'} due</span>
+                    </span>
+                  )}
+                </span>
                 <span className="hidden sm:inline">{label}</span>
               </Link>
             ))}

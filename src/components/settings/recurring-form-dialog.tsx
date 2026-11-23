@@ -18,6 +18,7 @@ import type { Category, RecurringExpense } from '@/lib/shared/types/expense'
 const DAYS_OF_WEEK = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
 const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
 const DAY_NUMS = Array.from({ length: 31 }, (_, i) => i + 1)
+const INTERVAL_UNITS = { daily: 'day(s)', weekly: 'week(s)', monthly: 'month(s)', yearly: 'year(s)' } as const
 
 type Props = {
   categories: Array<Category>
@@ -55,6 +56,7 @@ export function RecurringFormDialog({ categories, currency, allTags, recurring, 
           tags: recurring.tags,
           notes: recurring.notes ?? '',
           frequency: recurring.frequency,
+          interval: recurring.interval ?? 1,
           dayOfMonth: recurring.dayOfMonth ?? 1,
           dayOfWeek: recurring.dayOfWeek ?? 1,
           month: recurring.month ?? 1,
@@ -70,6 +72,7 @@ export function RecurringFormDialog({ categories, currency, allTags, recurring, 
           tags: [],
           notes: '',
           frequency: 'monthly' as const,
+          interval: 1,
           dayOfMonth: 1,
           dayOfWeek: 1,
           month: 1,
@@ -89,6 +92,7 @@ export function RecurringFormDialog({ categories, currency, allTags, recurring, 
       notes: trimmedNotes ? trimmedNotes : undefined,
       amount: signedAmount,
       endDate: endDate || undefined,
+      interval: rest.interval && rest.interval > 1 ? rest.interval : undefined,
       dayOfMonth: rest.frequency === 'weekly' ? undefined : rest.dayOfMonth,
       dayOfWeek: rest.frequency === 'weekly' ? rest.dayOfWeek : undefined,
       month: rest.frequency === 'yearly' ? rest.month : undefined,
@@ -174,6 +178,22 @@ export function RecurringFormDialog({ categories, currency, allTags, recurring, 
                   </Select>
                 )}
               />
+            </div>
+            <div className="space-y-1">
+              <Label htmlFor="rec-interval">Repeat every</Label>
+              <div className="flex items-center gap-2">
+                <Input
+                  className="w-20"
+                  id="rec-interval"
+                  max="120"
+                  min="1"
+                  step="1"
+                  type="number"
+                  {...register('interval', { setValueAs: (v) => (v === '' || v == null ? undefined : Number(v)) })}
+                />
+                <span className="text-muted-foreground text-sm">{INTERVAL_UNITS[frequency]}</span>
+              </div>
+              {errors.interval && <p className="text-destructive text-xs">{errors.interval.message}</p>}
             </div>
             {frequency === 'weekly' && (
               <div className="space-y-1">

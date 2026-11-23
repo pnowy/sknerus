@@ -1,4 +1,5 @@
 import type { Config, ExchangeRate, Expense, RecurringExpense } from '@/lib/shared/types/expense'
+import type { Subscription } from '@/lib/shared/types/subscription'
 import type { Vehicle } from '@/lib/shared/types/vehicle'
 
 export interface StorageAdapter {
@@ -12,4 +13,6 @@ export interface StorageAdapter {
   saveExchangeRates(rates: Array<ExchangeRate>): Promise<void>
   getVehicles(): Promise<Array<Vehicle>>
   saveVehicles(vehicles: Array<Vehicle>): Promise<void>
+  getSubscriptions(): Promise<Array<Subscription>>
+  saveSubscriptions(subscriptions: Array<Subscription>): Promise<void>
 }

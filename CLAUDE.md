@@ -45,9 +45,11 @@ TanStack Start (SSR) + TanStack Router (file-based) + TanStack Query · React 19
 - `Expense` — signed `amount` (negative = expense, positive = income), `categoryId`, optional `recurringId`
 - `Category` — `{ id, name, color }`
 - `Config` — `{ categories, currency, startDate }` (fiscal month start day)
-- `RecurringExpense` — template for auto-generated expenses
+- `RecurringExpense` — template for auto-generated expenses; optional `interval` repeats every N periods
+- `Subscription` (plugin) — positive price per `billingPeriodMonths`, optional `deductionProfileId`; payments come either from a linked `recurringId` or from manually booked transactions in `paymentIds` (with `nextRenewal` as the due date)
+- `DeductionProfile` — `Config.deductionProfiles`, tax rates as percentages
 
-IDs follow `<prefix>_<ULID>` convention (`exp_`, `cat_`, `rec_`).
+IDs follow `<prefix>_<ULID>` convention (`exp_`, `cat_`, `rec_`, `veh_`, `sub_`, `ded_`).
 
 ## Architecture rules
 
@@ -57,6 +59,7 @@ IDs follow `<prefix>_<ULID>` convention (`exp_`, `cat_`, `rec_`).
 - **Routes** — each route pre-fetches data in its `loader` via `queryClient.ensureQueryData`
 - **Client state** — use TanStack Query for server state; mutations must invalidate relevant query keys
 - **Shared types** — enum types go in `src/lib/shared/types/`
+- **Plugins** — gated by `Config.features`; core services must not import plugin code directly. React to core changes through hooks in `src/lib/server/plugins/` (e.g. `RecurringHooks`), which run inside the caller's write lock and must use `storage` directly (`withWriteLock` is not re-entrant)
 
 ## UI conventions
 

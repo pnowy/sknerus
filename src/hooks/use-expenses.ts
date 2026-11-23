@@ -96,7 +96,9 @@ export function useUpdateRecurring() {
   const qc = useQueryClient()
   return useMutation({
     mutationFn: (data: RecurringExpense) => updateRecurring(data),
-    onSuccess: () => qc.invalidateQueries({ queryKey: queryKeys.recurring }),
+    // subscriptions mirror their linked recurring template on the server
+    onSuccess: () =>
+      Promise.all([qc.invalidateQueries({ queryKey: queryKeys.recurring }), qc.invalidateQueries({ queryKey: ['subscriptions'] })]),
   })
 }
 
@@ -104,6 +106,7 @@ export function useDeleteRecurring() {
   const qc = useQueryClient()
   return useMutation({
     mutationFn: (id: string) => deleteRecurring(id),
-    onSuccess: () => qc.invalidateQueries({ queryKey: queryKeys.recurring }),
+    onSuccess: () =>
+      Promise.all([qc.invalidateQueries({ queryKey: queryKeys.recurring }), qc.invalidateQueries({ queryKey: ['subscriptions'] })]),
   })
 }

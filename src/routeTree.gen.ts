@@ -12,18 +12,26 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as SettingsRouteImport } from './routes/settings'
+import { Route as SubscriptionsRouteImport } from './routes/subscriptions'
 import { Route as TableRouteImport } from './routes/table'
+import { Route as VehiclesRouteImport } from './routes/vehicles'
+import { Route as ApiV1BackupRouteImport } from './routes/api/v1/backup'
 import { Route as ApiV1CategoriesRouteImport } from './routes/api/v1/categories'
 import { Route as ApiV1ConfigRouteImport } from './routes/api/v1/config'
 import { Route as ApiV1ExchangeRateRouteImport } from './routes/api/v1/exchange-rate'
 import { Route as ApiV1ExpensesRouteImport } from './routes/api/v1/expenses'
 import { Route as ApiV1RecurringRouteImport } from './routes/api/v1/recurring'
+import { Route as ApiV1SubscriptionsRouteImport } from './routes/api/v1/subscriptions'
 import { Route as ApiV1VehiclesRouteImport } from './routes/api/v1/vehicles'
 import { Route as ApiV1ExpensesIdRouteImport } from './routes/api/v1/expenses.$id'
 import { Route as ApiV1RecurringIdRouteImport } from './routes/api/v1/recurring.$id'
 import { Route as ApiV1RecurringMaterializeRouteImport } from './routes/api/v1/recurring.materialize'
+import { Route as ApiV1SubscriptionsIdRouteImport } from './routes/api/v1/subscriptions.$id'
+import { Route as ApiV1SubscriptionsImportRecurringRouteImport } from './routes/api/v1/subscriptions.import-recurring'
 import { Route as ApiV1VehiclesIdRouteImport } from './routes/api/v1/vehicles.$id'
 import { Route as ApiV1CategoriesIdRenameRouteImport } from './routes/api/v1/categories.$id.rename'
+import { Route as ApiV1SubscriptionsIdBookRouteImport } from './routes/api/v1/subscriptions.$id.book'
+import { Route as ApiV1SubscriptionsIdSkipRouteImport } from './routes/api/v1/subscriptions.$id.skip'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -40,9 +48,24 @@ const SettingsRoute = SettingsRouteImport.update({
   path: '/settings',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SubscriptionsRoute = SubscriptionsRouteImport.update({
+  id: '/subscriptions',
+  path: '/subscriptions',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const TableRoute = TableRouteImport.update({
   id: '/table',
   path: '/table',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const VehiclesRoute = VehiclesRouteImport.update({
+  id: '/vehicles',
+  path: '/vehicles',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiV1BackupRoute = ApiV1BackupRouteImport.update({
+  id: '/api/v1/backup',
+  path: '/api/v1/backup',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiV1CategoriesRoute = ApiV1CategoriesRouteImport.update({
@@ -70,6 +93,11 @@ const ApiV1RecurringRoute = ApiV1RecurringRouteImport.update({
   path: '/api/v1/recurring',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiV1SubscriptionsRoute = ApiV1SubscriptionsRouteImport.update({
+  id: '/api/v1/subscriptions',
+  path: '/api/v1/subscriptions',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiV1VehiclesRoute = ApiV1VehiclesRouteImport.update({
   id: '/api/v1/vehicles',
   path: '/api/v1/vehicles',
@@ -91,6 +119,17 @@ const ApiV1RecurringMaterializeRoute =
     path: '/materialize',
     getParentRoute: () => ApiV1RecurringRoute,
   } as any)
+const ApiV1SubscriptionsIdRoute = ApiV1SubscriptionsIdRouteImport.update({
+  id: '/$id',
+  path: '/$id',
+  getParentRoute: () => ApiV1SubscriptionsRoute,
+} as any)
+const ApiV1SubscriptionsImportRecurringRoute =
+  ApiV1SubscriptionsImportRecurringRouteImport.update({
+    id: '/import-recurring',
+    path: '/import-recurring',
+    getParentRoute: () => ApiV1SubscriptionsRoute,
+  } as any)
 const ApiV1VehiclesIdRoute = ApiV1VehiclesIdRouteImport.update({
   id: '/$id',
   path: '/$id',
@@ -101,58 +140,94 @@ const ApiV1CategoriesIdRenameRoute = ApiV1CategoriesIdRenameRouteImport.update({
   path: '/$id/rename',
   getParentRoute: () => ApiV1CategoriesRoute,
 } as any)
+const ApiV1SubscriptionsIdBookRoute =
+  ApiV1SubscriptionsIdBookRouteImport.update({
+    id: '/book',
+    path: '/book',
+    getParentRoute: () => ApiV1SubscriptionsIdRoute,
+  } as any)
+const ApiV1SubscriptionsIdSkipRoute =
+  ApiV1SubscriptionsIdSkipRouteImport.update({
+    id: '/skip',
+    path: '/skip',
+    getParentRoute: () => ApiV1SubscriptionsIdRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRoute
   '/settings': typeof SettingsRoute
+  '/subscriptions': typeof SubscriptionsRoute
   '/table': typeof TableRoute
+  '/vehicles': typeof VehiclesRoute
+  '/api/v1/backup': typeof ApiV1BackupRoute
   '/api/v1/categories': typeof ApiV1CategoriesRouteWithChildren
   '/api/v1/config': typeof ApiV1ConfigRoute
   '/api/v1/exchange-rate': typeof ApiV1ExchangeRateRoute
   '/api/v1/expenses': typeof ApiV1ExpensesRouteWithChildren
   '/api/v1/recurring': typeof ApiV1RecurringRouteWithChildren
+  '/api/v1/subscriptions': typeof ApiV1SubscriptionsRouteWithChildren
   '/api/v1/vehicles': typeof ApiV1VehiclesRouteWithChildren
   '/api/v1/expenses/$id': typeof ApiV1ExpensesIdRoute
   '/api/v1/recurring/$id': typeof ApiV1RecurringIdRoute
   '/api/v1/recurring/materialize': typeof ApiV1RecurringMaterializeRoute
+  '/api/v1/subscriptions/$id': typeof ApiV1SubscriptionsIdRouteWithChildren
+  '/api/v1/subscriptions/import-recurring': typeof ApiV1SubscriptionsImportRecurringRoute
   '/api/v1/vehicles/$id': typeof ApiV1VehiclesIdRoute
   '/api/v1/categories/$id/rename': typeof ApiV1CategoriesIdRenameRoute
+  '/api/v1/subscriptions/$id/book': typeof ApiV1SubscriptionsIdBookRoute
+  '/api/v1/subscriptions/$id/skip': typeof ApiV1SubscriptionsIdSkipRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRoute
   '/settings': typeof SettingsRoute
+  '/subscriptions': typeof SubscriptionsRoute
   '/table': typeof TableRoute
+  '/vehicles': typeof VehiclesRoute
+  '/api/v1/backup': typeof ApiV1BackupRoute
   '/api/v1/categories': typeof ApiV1CategoriesRouteWithChildren
   '/api/v1/config': typeof ApiV1ConfigRoute
   '/api/v1/exchange-rate': typeof ApiV1ExchangeRateRoute
   '/api/v1/expenses': typeof ApiV1ExpensesRouteWithChildren
   '/api/v1/recurring': typeof ApiV1RecurringRouteWithChildren
+  '/api/v1/subscriptions': typeof ApiV1SubscriptionsRouteWithChildren
   '/api/v1/vehicles': typeof ApiV1VehiclesRouteWithChildren
   '/api/v1/expenses/$id': typeof ApiV1ExpensesIdRoute
   '/api/v1/recurring/$id': typeof ApiV1RecurringIdRoute
   '/api/v1/recurring/materialize': typeof ApiV1RecurringMaterializeRoute
+  '/api/v1/subscriptions/$id': typeof ApiV1SubscriptionsIdRouteWithChildren
+  '/api/v1/subscriptions/import-recurring': typeof ApiV1SubscriptionsImportRecurringRoute
   '/api/v1/vehicles/$id': typeof ApiV1VehiclesIdRoute
   '/api/v1/categories/$id/rename': typeof ApiV1CategoriesIdRenameRoute
+  '/api/v1/subscriptions/$id/book': typeof ApiV1SubscriptionsIdBookRoute
+  '/api/v1/subscriptions/$id/skip': typeof ApiV1SubscriptionsIdSkipRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRoute
   '/settings': typeof SettingsRoute
+  '/subscriptions': typeof SubscriptionsRoute
   '/table': typeof TableRoute
+  '/vehicles': typeof VehiclesRoute
+  '/api/v1/backup': typeof ApiV1BackupRoute
   '/api/v1/categories': typeof ApiV1CategoriesRouteWithChildren
   '/api/v1/config': typeof ApiV1ConfigRoute
   '/api/v1/exchange-rate': typeof ApiV1ExchangeRateRoute
   '/api/v1/expenses': typeof ApiV1ExpensesRouteWithChildren
   '/api/v1/recurring': typeof ApiV1RecurringRouteWithChildren
+  '/api/v1/subscriptions': typeof ApiV1SubscriptionsRouteWithChildren
   '/api/v1/vehicles': typeof ApiV1VehiclesRouteWithChildren
   '/api/v1/expenses/$id': typeof ApiV1ExpensesIdRoute
   '/api/v1/recurring/$id': typeof ApiV1RecurringIdRoute
   '/api/v1/recurring/materialize': typeof ApiV1RecurringMaterializeRoute
+  '/api/v1/subscriptions/$id': typeof ApiV1SubscriptionsIdRouteWithChildren
+  '/api/v1/subscriptions/import-recurring': typeof ApiV1SubscriptionsImportRecurringRoute
   '/api/v1/vehicles/$id': typeof ApiV1VehiclesIdRoute
   '/api/v1/categories/$id/rename': typeof ApiV1CategoriesIdRenameRoute
+  '/api/v1/subscriptions/$id/book': typeof ApiV1SubscriptionsIdBookRoute
+  '/api/v1/subscriptions/$id/skip': typeof ApiV1SubscriptionsIdSkipRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -160,64 +235,92 @@ export interface FileRouteTypes {
     | '/'
     | '/dashboard'
     | '/settings'
+    | '/subscriptions'
     | '/table'
+    | '/vehicles'
+    | '/api/v1/backup'
     | '/api/v1/categories'
     | '/api/v1/config'
     | '/api/v1/exchange-rate'
     | '/api/v1/expenses'
     | '/api/v1/recurring'
+    | '/api/v1/subscriptions'
     | '/api/v1/vehicles'
     | '/api/v1/expenses/$id'
     | '/api/v1/recurring/$id'
     | '/api/v1/recurring/materialize'
+    | '/api/v1/subscriptions/$id'
+    | '/api/v1/subscriptions/import-recurring'
     | '/api/v1/vehicles/$id'
     | '/api/v1/categories/$id/rename'
+    | '/api/v1/subscriptions/$id/book'
+    | '/api/v1/subscriptions/$id/skip'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/dashboard'
     | '/settings'
+    | '/subscriptions'
     | '/table'
+    | '/vehicles'
+    | '/api/v1/backup'
     | '/api/v1/categories'
     | '/api/v1/config'
     | '/api/v1/exchange-rate'
     | '/api/v1/expenses'
     | '/api/v1/recurring'
+    | '/api/v1/subscriptions'
     | '/api/v1/vehicles'
     | '/api/v1/expenses/$id'
     | '/api/v1/recurring/$id'
     | '/api/v1/recurring/materialize'
+    | '/api/v1/subscriptions/$id'
+    | '/api/v1/subscriptions/import-recurring'
     | '/api/v1/vehicles/$id'
     | '/api/v1/categories/$id/rename'
+    | '/api/v1/subscriptions/$id/book'
+    | '/api/v1/subscriptions/$id/skip'
   id:
     | '__root__'
     | '/'
     | '/dashboard'
     | '/settings'
+    | '/subscriptions'
     | '/table'
+    | '/vehicles'
+    | '/api/v1/backup'
     | '/api/v1/categories'
     | '/api/v1/config'
     | '/api/v1/exchange-rate'
     | '/api/v1/expenses'
     | '/api/v1/recurring'
+    | '/api/v1/subscriptions'
     | '/api/v1/vehicles'
     | '/api/v1/expenses/$id'
     | '/api/v1/recurring/$id'
     | '/api/v1/recurring/materialize'
+    | '/api/v1/subscriptions/$id'
+    | '/api/v1/subscriptions/import-recurring'
     | '/api/v1/vehicles/$id'
     | '/api/v1/categories/$id/rename'
+    | '/api/v1/subscriptions/$id/book'
+    | '/api/v1/subscriptions/$id/skip'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   DashboardRoute: typeof DashboardRoute
   SettingsRoute: typeof SettingsRoute
+  SubscriptionsRoute: typeof SubscriptionsRoute
   TableRoute: typeof TableRoute
+  VehiclesRoute: typeof VehiclesRoute
+  ApiV1BackupRoute: typeof ApiV1BackupRoute
   ApiV1CategoriesRoute: typeof ApiV1CategoriesRouteWithChildren
   ApiV1ConfigRoute: typeof ApiV1ConfigRoute
   ApiV1ExchangeRateRoute: typeof ApiV1ExchangeRateRoute
   ApiV1ExpensesRoute: typeof ApiV1ExpensesRouteWithChildren
   ApiV1RecurringRoute: typeof ApiV1RecurringRouteWithChildren
+  ApiV1SubscriptionsRoute: typeof ApiV1SubscriptionsRouteWithChildren
   ApiV1VehiclesRoute: typeof ApiV1VehiclesRouteWithChildren
 }
 
@@ -244,11 +347,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SettingsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/subscriptions': {
+      id: '/subscriptions'
+      path: '/subscriptions'
+      fullPath: '/subscriptions'
+      preLoaderRoute: typeof SubscriptionsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/table': {
       id: '/table'
       path: '/table'
       fullPath: '/table'
       preLoaderRoute: typeof TableRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/vehicles': {
+      id: '/vehicles'
+      path: '/vehicles'
+      fullPath: '/vehicles'
+      preLoaderRoute: typeof VehiclesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/v1/backup': {
+      id: '/api/v1/backup'
+      path: '/api/v1/backup'
+      fullPath: '/api/v1/backup'
+      preLoaderRoute: typeof ApiV1BackupRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/v1/categories': {
@@ -286,6 +410,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiV1RecurringRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/v1/subscriptions': {
+      id: '/api/v1/subscriptions'
+      path: '/api/v1/subscriptions'
+      fullPath: '/api/v1/subscriptions'
+      preLoaderRoute: typeof ApiV1SubscriptionsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/v1/vehicles': {
       id: '/api/v1/vehicles'
       path: '/api/v1/vehicles'
@@ -314,6 +445,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiV1RecurringMaterializeRouteImport
       parentRoute: typeof ApiV1RecurringRoute
     }
+    '/api/v1/subscriptions/$id': {
+      id: '/api/v1/subscriptions/$id'
+      path: '/$id'
+      fullPath: '/api/v1/subscriptions/$id'
+      preLoaderRoute: typeof ApiV1SubscriptionsIdRouteImport
+      parentRoute: typeof ApiV1SubscriptionsRoute
+    }
+    '/api/v1/subscriptions/import-recurring': {
+      id: '/api/v1/subscriptions/import-recurring'
+      path: '/import-recurring'
+      fullPath: '/api/v1/subscriptions/import-recurring'
+      preLoaderRoute: typeof ApiV1SubscriptionsImportRecurringRouteImport
+      parentRoute: typeof ApiV1SubscriptionsRoute
+    }
     '/api/v1/vehicles/$id': {
       id: '/api/v1/vehicles/$id'
       path: '/$id'
@@ -327,6 +472,20 @@ declare module '@tanstack/react-router' {
       fullPath: '/api/v1/categories/$id/rename'
       preLoaderRoute: typeof ApiV1CategoriesIdRenameRouteImport
       parentRoute: typeof ApiV1CategoriesRoute
+    }
+    '/api/v1/subscriptions/$id/book': {
+      id: '/api/v1/subscriptions/$id/book'
+      path: '/book'
+      fullPath: '/api/v1/subscriptions/$id/book'
+      preLoaderRoute: typeof ApiV1SubscriptionsIdBookRouteImport
+      parentRoute: typeof ApiV1SubscriptionsIdRoute
+    }
+    '/api/v1/subscriptions/$id/skip': {
+      id: '/api/v1/subscriptions/$id/skip'
+      path: '/skip'
+      fullPath: '/api/v1/subscriptions/$id/skip'
+      preLoaderRoute: typeof ApiV1SubscriptionsIdSkipRouteImport
+      parentRoute: typeof ApiV1SubscriptionsIdRoute
     }
   }
 }
@@ -369,6 +528,33 @@ const ApiV1RecurringRouteWithChildren = ApiV1RecurringRoute._addFileChildren(
   ApiV1RecurringRouteChildren,
 )
 
+interface ApiV1SubscriptionsIdRouteChildren {
+  ApiV1SubscriptionsIdBookRoute: typeof ApiV1SubscriptionsIdBookRoute
+  ApiV1SubscriptionsIdSkipRoute: typeof ApiV1SubscriptionsIdSkipRoute
+}
+
+const ApiV1SubscriptionsIdRouteChildren: ApiV1SubscriptionsIdRouteChildren = {
+  ApiV1SubscriptionsIdBookRoute: ApiV1SubscriptionsIdBookRoute,
+  ApiV1SubscriptionsIdSkipRoute: ApiV1SubscriptionsIdSkipRoute,
+}
+
+const ApiV1SubscriptionsIdRouteWithChildren =
+  ApiV1SubscriptionsIdRoute._addFileChildren(ApiV1SubscriptionsIdRouteChildren)
+
+interface ApiV1SubscriptionsRouteChildren {
+  ApiV1SubscriptionsIdRoute: typeof ApiV1SubscriptionsIdRouteWithChildren
+  ApiV1SubscriptionsImportRecurringRoute: typeof ApiV1SubscriptionsImportRecurringRoute
+}
+
+const ApiV1SubscriptionsRouteChildren: ApiV1SubscriptionsRouteChildren = {
+  ApiV1SubscriptionsIdRoute: ApiV1SubscriptionsIdRouteWithChildren,
+  ApiV1SubscriptionsImportRecurringRoute:
+    ApiV1SubscriptionsImportRecurringRoute,
+}
+
+const ApiV1SubscriptionsRouteWithChildren =
+  ApiV1SubscriptionsRoute._addFileChildren(ApiV1SubscriptionsRouteChildren)
+
 interface ApiV1VehiclesRouteChildren {
   ApiV1VehiclesIdRoute: typeof ApiV1VehiclesIdRoute
 }
@@ -385,12 +571,16 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   DashboardRoute: DashboardRoute,
   SettingsRoute: SettingsRoute,
+  SubscriptionsRoute: SubscriptionsRoute,
   TableRoute: TableRoute,
+  VehiclesRoute: VehiclesRoute,
+  ApiV1BackupRoute: ApiV1BackupRoute,
   ApiV1CategoriesRoute: ApiV1CategoriesRouteWithChildren,
   ApiV1ConfigRoute: ApiV1ConfigRoute,
   ApiV1ExchangeRateRoute: ApiV1ExchangeRateRoute,
   ApiV1ExpensesRoute: ApiV1ExpensesRouteWithChildren,
   ApiV1RecurringRoute: ApiV1RecurringRouteWithChildren,
+  ApiV1SubscriptionsRoute: ApiV1SubscriptionsRouteWithChildren,
   ApiV1VehiclesRoute: ApiV1VehiclesRouteWithChildren,
 }
 export const routeTree = rootRouteImport

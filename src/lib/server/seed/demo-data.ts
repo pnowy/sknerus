@@ -1,6 +1,7 @@
-import { genCategoryId, genExpenseId, genVehicleId } from '@/lib/server/ids.server'
+import { genCategoryId, genDeductionProfileId, genExpenseId, genSubscriptionId, genVehicleId } from '@/lib/server/ids.server'
 import type { Category, Config, Expense } from '@/lib/shared/types/expense'
 import { FabPosition } from '@/lib/shared/types/fab-position'
+import type { DeductionProfile, Subscription } from '@/lib/shared/types/subscription'
 import type { Vehicle, VehicleExpense } from '@/lib/shared/types/vehicle'
 import { FuelType, VehicleExpenseType, VehicleType } from '@/lib/shared/types/vehicle'
 
@@ -25,7 +26,12 @@ function randInt(min: number, max: number): number {
   return Math.floor(Math.random() * (max - min + 1)) + min
 }
 
-export function generateDemoData(): { config: Config; expenses: Array<Expense>; vehicles: Array<Vehicle> } {
+export function generateDemoData(): {
+  config: Config
+  expenses: Array<Expense>
+  vehicles: Array<Vehicle>
+  subscriptions: Array<Subscription>
+} {
   const motorcycleId = genVehicleId()
   const cats = {
     salary: { id: genCategoryId(), name: 'Salary', color: '#22c55e', isIncome: true },
@@ -343,6 +349,71 @@ export function generateDemoData(): { config: Config; expenses: Array<Expense>; 
     odometerReading: Math.round(odometer * 0.85),
   })
 
+  const businessProfile: DeductionProfile = {
+    id: genDeductionProfileId(),
+    name: 'Business (VAT 23% + income tax 19%)',
+    vatRate: 23,
+    vatRecoverable: 100,
+    incomeTaxRate: 19,
+    extraRate: 0,
+  }
+
+  const subscriptions: Array<Subscription> = [
+    {
+      id: genSubscriptionId(),
+      name: 'Netflix',
+      amount: 15.99,
+      currency: 'USD',
+      billingPeriodMonths: 1,
+      categoryId: cats.subscriptions.id,
+      priceIncludesVat: true,
+      active: true,
+    },
+    {
+      id: genSubscriptionId(),
+      name: 'Spotify',
+      amount: 10.99,
+      currency: 'USD',
+      billingPeriodMonths: 1,
+      categoryId: cats.subscriptions.id,
+      priceIncludesVat: true,
+      active: true,
+    },
+    {
+      id: genSubscriptionId(),
+      name: 'IDE license',
+      amount: 289,
+      currency: 'EUR',
+      billingPeriodMonths: 12,
+      categoryId: cats.education.id,
+      deductionProfileId: businessProfile.id,
+      priceIncludesVat: false,
+      active: true,
+      url: 'https://example.com',
+    },
+    {
+      id: genSubscriptionId(),
+      name: 'Cloud hosting',
+      amount: 36,
+      currency: 'USD',
+      billingPeriodMonths: 3,
+      categoryId: cats.utilities.id,
+      deductionProfileId: businessProfile.id,
+      priceIncludesVat: true,
+      active: true,
+    },
+    {
+      id: genSubscriptionId(),
+      name: 'Gym',
+      amount: 39,
+      currency: 'USD',
+      billingPeriodMonths: 1,
+      categoryId: cats.health.id,
+      priceIncludesVat: true,
+      active: false,
+    },
+  ]
+
   return {
     config: {
       categories,
@@ -355,9 +426,11 @@ export function generateDemoData(): { config: Config; expenses: Array<Expense>; 
       showNotes: true,
       showSearch: true,
       fabPosition: FabPosition.Right,
-      features: { vehicleExpenseTracking: true },
+      features: { vehicleExpenseTracking: true, subscriptionTracking: true },
+      deductionProfiles: [businessProfile],
     },
     expenses,
     vehicles,
+    subscriptions,
   }
 }

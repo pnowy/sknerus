@@ -8,6 +8,7 @@ import {
   formatRangeLabel,
   generateMonthBuckets,
   getMonthRange,
+  nextOccurrence,
 } from '@/lib/shared/date-utils'
 import type { Expense, RecurringExpense } from '@/lib/shared/types/expense'
 import { RangeScope } from '@/lib/shared/types/range-scope'
@@ -360,6 +361,93 @@ describe('computeOccurrences', () => {
     it('should advance to the first Monday when startDate is not a Monday', () => {
       const dates = computeOccurrences({ ...baseRecurring, frequency: 'weekly', dayOfWeek: 1, startDate: '2024-04-03' }, '2024-04-22')
       expect(dates).toEqual(['2024-04-08', '2024-04-15', '2024-04-22'])
+    })
+  })
+
+  describe('when frequency is monthly with interval 3', () => {
+    it('should generate one occurrence every third month anchored to the start month', () => {
+      const dates = computeOccurrences(
+        { ...baseRecurring, frequency: 'monthly', interval: 3, dayOfMonth: 15, startDate: '2024-01-15' },
+        '2024-12-31'
+      )
+      expect(dates).toEqual(['2024-01-15', '2024-04-15', '2024-07-15', '2024-10-15'])
+    })
+
+    it('should clamp day 31 in each matching month', () => {
+      const dates = computeOccurrences(
+        { ...baseRecurring, frequency: 'monthly', interval: 3, dayOfMonth: 31, startDate: '2024-01-31' },
+        '2024-12-31'
+      )
+      expect(dates).toEqual(['2024-01-31', '2024-04-30', '2024-07-31', '2024-10-31'])
+    })
+
+    it('should skip the start month when its occurrence falls before startDate and continue on the cadence', () => {
+      const dates = computeOccurrences(
+        { ...baseRecurring, frequency: 'monthly', interval: 3, dayOfMonth: 10, startDate: '2024-01-20' },
+        '2024-07-31'
+      )
+      expect(dates).toEqual(['2024-04-10', '2024-07-10'])
+    })
+  })
+
+  describe('when frequency is yearly with interval 2', () => {
+    it('should generate an occurrence every other year', () => {
+      const dates = computeOccurrences(
+        { ...baseRecurring, frequency: 'yearly', interval: 2, month: 3, dayOfMonth: 1, startDate: '2020-01-01' },
+        '2026-12-31'
+      )
+      expect(dates).toEqual(['2020-03-01', '2022-03-01', '2024-03-01', '2026-03-01'])
+    })
+  })
+
+  describe('when frequency is weekly with interval 2', () => {
+    it('should generate every other Monday', () => {
+      const dates = computeOccurrences(
+        { ...baseRecurring, frequency: 'weekly', interval: 2, dayOfWeek: 1, startDate: '2024-04-01' },
+        '2024-04-30'
+      )
+      expect(dates).toEqual(['2024-04-01', '2024-04-15', '2024-04-29'])
+    })
+  })
+
+  describe('when interval is omitted', () => {
+    it('should behave like interval 1', () => {
+      const withInterval = computeOccurrences(
+        { ...baseRecurring, frequency: 'monthly', interval: 1, startDate: '2024-01-05' },
+        '2024-06-30'
+      )
+      const without = computeOccurrences({ ...baseRecurring, frequency: 'monthly', startDate: '2024-01-05' }, '2024-06-30')
+      expect(without).toEqual(withInterval)
+      expect(without).toHaveLength(6)
+    })
+  })
+})
+
+describe('nextOccurrence', () => {
+  describe('when a monthly template is active', () => {
+    it('should return the first date strictly after today', () => {
+      const next = nextOccurrence({ ...baseRecurring, frequency: 'monthly', dayOfMonth: 15, startDate: '2024-01-15' }, '2024-03-15')
+      expect(next).toBe('2024-04-15')
+    })
+  })
+
+  describe('when a quarterly template is active', () => {
+    it('should skip months outside the cadence', () => {
+      const next = nextOccurrence(
+        { ...baseRecurring, frequency: 'monthly', interval: 3, dayOfMonth: 1, startDate: '2024-01-01' },
+        '2024-02-10'
+      )
+      expect(next).toBe('2024-04-01')
+    })
+  })
+
+  describe('when the template has ended', () => {
+    it('should return undefined', () => {
+      const next = nextOccurrence(
+        { ...baseRecurring, frequency: 'monthly', dayOfMonth: 1, startDate: '2024-01-01', endDate: '2024-02-01' },
+        '2024-03-10'
+      )
+      expect(next).toBeUndefined()
     })
   })
 })
