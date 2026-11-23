@@ -173,6 +173,8 @@ export async function bookPayment(id: string, input: BookPaymentInput): Promise<
     const [subscriptions, expenses] = await Promise.all([storage.getSubscriptions(), storage.getExpenses()])
     const idx = subscriptions.findIndex((item) => item.id === id)
     const subscription = requireManual(subscriptions[idx])
+    // the rate was resolved for the currency seen before the lock
+    if (subscription.currency !== current.currency) throw new BadRequestError('The subscription currency changed, try again')
 
     const signed = -Math.abs(input.amount)
     const foreign = subscription.currency !== config.currency

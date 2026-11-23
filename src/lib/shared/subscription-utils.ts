@@ -1,4 +1,4 @@
-import { addMonths, differenceInCalendarDays, format, parseISO } from 'date-fns'
+import { addMonths, differenceInCalendarDays, format, isLastDayOfMonth, lastDayOfMonth, parseISO } from 'date-fns'
 import type { Expense, RecurringExpense } from '@/lib/shared/types/expense'
 import { type DeductionProfile, type Subscription, SubscriptionFilter } from '@/lib/shared/types/subscription'
 
@@ -165,14 +165,14 @@ export function applySubscriptionToRecurring(recurring: RecurringExpense, subscr
   const restart = periodChanged || (subscription.active && isEnded)
 
   if (restart) {
-    const schedule = scheduleForPeriod(subscription.billingPeriodMonths, today)
-    const originalStart = parseISO(recurring.startDate)
     next.startDate = recurring.startDate > today ? recurring.startDate : today
+    const schedule = scheduleForPeriod(subscription.billingPeriodMonths, next.startDate)
     next.frequency = schedule.frequency
     next.interval = schedule.interval
-    // keep the original payment day so the cadence stays on the same day of month
-    next.dayOfMonth = recurring.dayOfMonth ?? originalStart.getDate()
-    next.month = schedule.frequency === 'yearly' ? (recurring.month ?? originalStart.getMonth() + 1) : undefined
+    // monthly keeps its payment day; a yearly restart is paid on the restart date, an old anchor month would skip this year's payment
+    next.dayOfMonth =
+      schedule.frequency === 'yearly' ? schedule.dayOfMonth : (recurring.dayOfMonth ?? parseISO(recurring.startDate).getDate())
+    next.month = schedule.month
     next.dayOfWeek = undefined
   }
 
@@ -231,7 +231,10 @@ export const RENEWAL_DUE_DAYS = 7
 export const RENEWAL_NOTICE_DAYS = 30
 
 export function advanceRenewal(date: string, billingPeriodMonths: number): string {
-  return format(addMonths(parseISO(date), Math.max(1, billingPeriodMonths)), 'yyyy-MM-dd')
+  const current = parseISO(date)
+  const next = addMonths(current, Math.max(1, billingPeriodMonths))
+  // only the date is stored, so a month-end renewal stays at month end (Jan 31 → Feb 28 → Mar 31) instead of drifting to the 28th
+  return format(isLastDayOfMonth(current) ? lastDayOfMonth(next) : next, 'yyyy-MM-dd')
 }
 
 /** Next renewal implied by the most recent payment, or undefined without payments */

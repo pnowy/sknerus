@@ -500,6 +500,43 @@ describe('REST route handlers', () => {
       })
     })
 
+    describe('when the backup has duplicate ids', () => {
+      it('should reject it without touching the data', async () => {
+        expenses = [transaction]
+        const backup = await json(await exportBackupHandler())
+        backup.data.expenses = [transaction, { ...transaction, name: 'Milk' }]
+        const response = await restoreBackupHandler(request('/api/v1/backup', 'POST', backup))
+        expect(response.status).toBe(400)
+        expect(expenses).toEqual([transaction])
+      })
+    })
+
+    describe('when the backup links to records it does not contain', () => {
+      it('should restore it with the dangling links dropped', async () => {
+        expenses = [transaction]
+        const backup = await json(await exportBackupHandler())
+        backup.data.subscriptions = [
+          {
+            id: 'sub_1',
+            name: 'Domain',
+            amount: 18,
+            currency: 'PLN',
+            billingPeriodMonths: 12,
+            priceIncludesVat: true,
+            active: true,
+            recurringId: 'rec_missing',
+            deductionProfileId: 'ded_missing',
+            paymentIds: ['exp_1', 'exp_deleted'],
+          },
+        ]
+        const response = await restoreBackupHandler(request('/api/v1/backup', 'POST', backup))
+        expect(response.status).toBe(200)
+        expect(subscriptions[0]).toMatchObject({ paymentIds: ['exp_1'] })
+        expect(subscriptions[0]).not.toHaveProperty('recurringId')
+        expect(subscriptions[0]).not.toHaveProperty('deductionProfileId')
+      })
+    })
+
     describe('when the file is not a backup', () => {
       it('should reject it without touching the data', async () => {
         expenses = [transaction]

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { categorySchema, configSchema } from '@/lib/schemas'
+import { categorySchema, configSchema, deductionProfileFormSchema } from '@/lib/schemas'
 
 describe('categorySchema', () => {
   it('should validate category with isIncome set to true', () => {
@@ -51,6 +51,24 @@ describe('categorySchema', () => {
     it('should default search to disabled', () => {
       const result = configSchema.parse({ categories: [], currency: 'USD', startDate: 1 })
       expect(result.showSearch).toBe(false)
+    })
+  })
+})
+
+describe('deductionProfileFormSchema', () => {
+  const profile = { name: 'Business', vatRate: 23, vatRecoverable: 100, incomeTaxRate: 19, extraRate: 9 }
+
+  describe('when income tax and the extra rate stay within 100%', () => {
+    it('should accept the profile', () => {
+      expect(deductionProfileFormSchema.safeParse(profile).success).toBe(true)
+    })
+  })
+
+  describe('when income tax and the extra rate add up to more than 100%', () => {
+    it('should reject it on the extra rate field', () => {
+      const result = deductionProfileFormSchema.safeParse({ ...profile, incomeTaxRate: 60, extraRate: 50 })
+      expect(result.success).toBe(false)
+      expect(result.error?.issues[0].path).toEqual(['extraRate'])
     })
   })
 })

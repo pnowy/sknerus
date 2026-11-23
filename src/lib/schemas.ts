@@ -74,7 +74,7 @@ const featuresSchema = z
 
 const percent = z.number().min(0, 'Must be 0 or more').max(100, 'Must be 100 or less')
 
-export const deductionProfileSchema = z.object({
+const deductionProfileFields = z.object({
   id: z.string().min(1),
   name: z.string().min(1, 'Name is required'),
   vatRate: percent,
@@ -83,7 +83,16 @@ export const deductionProfileSchema = z.object({
   extraRate: percent,
 })
 
-export const deductionProfileFormSchema = deductionProfileSchema.omit({ id: true })
+// both rates are taken from the same net cost, so together they can't give back more than was paid
+const taxRatesWithinCost = <T extends { incomeTaxRate: number; extraRate: number }>(schema: z.ZodType<T>) =>
+  schema.refine((profile) => profile.incomeTaxRate + profile.extraRate <= 100, {
+    message: 'Income tax and extra rate together must be 100% or less',
+    path: ['extraRate'],
+  })
+
+export const deductionProfileSchema = taxRatesWithinCost(deductionProfileFields)
+
+export const deductionProfileFormSchema = taxRatesWithinCost(deductionProfileFields.omit({ id: true }))
 
 export const configSchema = z.object({
   categories: z.array(categorySchema),

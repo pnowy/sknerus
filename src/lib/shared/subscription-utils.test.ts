@@ -232,6 +232,21 @@ describe('applySubscriptionToRecurring', () => {
       expect(next.startDate).toBe('2026-06-01')
     })
   })
+
+  describe('when an ended yearly subscription is reactivated', () => {
+    it('should anchor the yearly payment on the restart date so this year is not skipped', () => {
+      const ended: RecurringExpense = { ...baseRecurring, frequency: 'yearly', month: 1, endDate: '2026-02-01' }
+      const next = applySubscriptionToRecurring(ended, { ...linked, billingPeriodMonths: 12 }, '2026-06-20')
+      expect(next).toMatchObject({ frequency: 'yearly', startDate: '2026-06-20', month: 6, dayOfMonth: 20 })
+    })
+  })
+
+  describe('when a monthly subscription becomes yearly', () => {
+    it('should start the yearly cadence from today', () => {
+      const next = applySubscriptionToRecurring(baseRecurring, { ...linked, billingPeriodMonths: 12 }, '2026-06-20')
+      expect(next).toMatchObject({ frequency: 'yearly', interval: 1, month: 6, dayOfMonth: 20 })
+    })
+  })
 })
 
 describe('applyRecurringToSubscription', () => {
@@ -275,6 +290,20 @@ describe('advanceRenewal', () => {
   describe('when the target month is shorter', () => {
     it('should clamp to the last day of the month', () => {
       expect(advanceRenewal('2026-01-31', 1)).toBe('2026-02-28')
+    })
+  })
+
+  describe('when the renewal is at month end', () => {
+    it('should stay at month end instead of drifting to an earlier day', () => {
+      expect(advanceRenewal('2026-02-28', 1)).toBe('2026-03-31')
+      expect(advanceRenewal('2026-04-30', 1)).toBe('2026-05-31')
+    })
+  })
+
+  describe('when the renewal is mid-month', () => {
+    it('should keep the same day', () => {
+      expect(advanceRenewal('2026-03-30', 1)).toBe('2026-04-30')
+      expect(advanceRenewal('2026-04-30', 2)).toBe('2026-06-30')
     })
   })
 })

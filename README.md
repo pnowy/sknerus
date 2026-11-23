@@ -296,7 +296,7 @@ Everything else is configured from the `/settings` page, grouped into tabs (the 
 
 **Data**
 
-- **Full backup** — download everything as one JSON file (settings, categories, transactions, recurring transactions, vehicles, subscriptions, and the links between them) or restore such a file. Restoring replaces all current data after a confirmation; the exchange-rate API key is never written to the file and the one configured on the instance is kept
+- **Full backup** — download everything as one JSON file (settings, categories, transactions, recurring transactions, vehicles, subscriptions, and the links between them) or restore such a file. Restoring replaces all current data after a confirmation; a file with duplicate ids is rejected, and links to records missing from the file (e.g. a payment that was deleted) are dropped. The exchange-rate API key is never written to the file and the one configured on the instance is kept
 - **Transactions CSV** — export transactions as CSV or import a CSV, adding its rows to the existing transactions. The import modal in the app describes the expected format and supported columns in detail.
 
 Enabled plugins add their own tabs with plugin configuration: **Vehicles** (category → vehicle mapping) and **Subscriptions** (deduction profiles). The vehicles and subscriptions themselves live on their own pages in the navigation.
