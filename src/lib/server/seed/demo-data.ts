@@ -18,6 +18,12 @@ function date(year: number, month: number, day: number): string {
   return `${year}-${pad(month)}-${pad(Math.min(day, maxDay))}`
 }
 
+/** ISO date `months` months and `days` days away from today (negative = past) */
+function fromToday(months: number, days = 0): string {
+  const d = new Date(now.getFullYear(), now.getMonth() + months, now.getDate() + days)
+  return date(d.getFullYear(), d.getMonth() + 1, d.getDate())
+}
+
 function rand(min: number, max: number): number {
   return Number((Math.random() * (max - min) + min).toFixed(2))
 }
@@ -57,9 +63,18 @@ export function generateDemoData(): {
 
   const expenses: Array<Expense> = []
 
-  const push = (name: string, amount: number, catId: string, year: number, month: number, day: number, tags: Array<string> = []): void => {
+  const push = (
+    name: string,
+    amount: number,
+    catId: string,
+    year: number,
+    month: number,
+    day: number,
+    tags: Array<string> = []
+  ): string => {
+    const id = genExpenseId()
     expenses.push({
-      id: genExpenseId(),
+      id,
       name,
       amount,
       currency: 'USD',
@@ -67,6 +82,7 @@ export function generateDemoData(): {
       date: date(year, month, day),
       tags,
     })
+    return id
   }
 
   const pushVehicle = (
@@ -94,6 +110,11 @@ export function generateDemoData(): {
     const d = new Date(now.getFullYear(), now.getMonth() - monthsBack, 1)
     return { year: d.getFullYear(), month: d.getMonth() + 1 }
   }
+
+  const netflixPayments: Array<string> = []
+  const spotifyPayments: Array<string> = []
+  // price hikes give the subscription stats dialog a visible trend
+  const netflixPrice = (year: number): number => (year <= 2023 ? 13.99 : year === 2024 ? 15.49 : 17.99)
 
   let primarySalary = 5800
   let secondarySalary = 3200
@@ -146,8 +167,8 @@ export function generateDemoData(): {
       // Subscriptions (fixed monthly)
       push('Internet', -59.99, cats.subscriptions.id, year, month, 5)
       push('Phone Plan', -rand(45, 80), cats.subscriptions.id, year, month, randInt(5, 10))
-      push('Netflix', -15.99, cats.subscriptions.id, year, month, 15)
-      push('Spotify', -10.99, cats.subscriptions.id, year, month, 20)
+      netflixPayments.push(push('Netflix', -netflixPrice(year), cats.subscriptions.id, year, month, 15))
+      spotifyPayments.push(push('Spotify', year <= 2023 ? -9.99 : -10.99, cats.subscriptions.id, year, month, 20))
 
       // Groceries: 3-4 trips/month
       const groceryDays = [4, 11, 18, 25]
@@ -358,16 +379,49 @@ export function generateDemoData(): {
     extraRate: 0,
   }
 
+  // Manually renewed subscriptions: past payments linked via paymentIds, next renewal one period after the last one
+  const EUR_TO_USD = 1.08
+  const pushPayment = (name: string, price: number, currency: 'USD' | 'EUR', categoryId: string, isoDate: string): string => {
+    const id = genExpenseId()
+    const foreign = currency !== 'USD'
+    expenses.push({
+      id,
+      name,
+      amount: -Number((foreign ? price * EUR_TO_USD : price).toFixed(2)),
+      currency: 'USD',
+      categoryId,
+      date: isoDate,
+      tags: [],
+      ...(foreign ? { originalAmount: -price, originalCurrency: currency } : {}),
+    })
+    return id
+  }
+
+  // renews in ~3 weeks → subtle "Renews in N days" note on the list
+  const ideRenewalDays = 20
+  const idePayments = [249, 269, 289].map((price, i) =>
+    pushPayment('IDE license', price, 'EUR', cats.education.id, fromToday(-12 * (3 - i), ideRenewalDays))
+  )
+  // renews in a few days → "Due for renewal" card and navigation badge
+  const domainRenewalDays = 4
+  const domainPayments = [12, 15, 18].map((price, i) =>
+    pushPayment('Domain renewal', price, 'USD', cats.utilities.id, fromToday(-12 * (3 - i), domainRenewalDays))
+  )
+  const cloudPayments = Array.from({ length: 8 }, (_, i) =>
+    pushPayment('Cloud hosting', i < 4 ? 30 : 36, 'USD', cats.utilities.id, fromToday(-3 * (8 - i), 50))
+  )
+
   const subscriptions: Array<Subscription> = [
     {
       id: genSubscriptionId(),
       name: 'Netflix',
-      amount: 15.99,
+      amount: 17.99,
       currency: 'USD',
       billingPeriodMonths: 1,
       categoryId: cats.subscriptions.id,
       priceIncludesVat: true,
       active: true,
+      paymentIds: netflixPayments,
     },
     {
       id: genSubscriptionId(),
@@ -378,6 +432,7 @@ export function generateDemoData(): {
       categoryId: cats.subscriptions.id,
       priceIncludesVat: true,
       active: true,
+      paymentIds: spotifyPayments,
     },
     {
       id: genSubscriptionId(),
@@ -390,6 +445,21 @@ export function generateDemoData(): {
       priceIncludesVat: false,
       active: true,
       url: 'https://example.com',
+      paymentIds: idePayments,
+      nextRenewal: fromToday(0, ideRenewalDays),
+    },
+    {
+      id: genSubscriptionId(),
+      name: 'Domain renewal',
+      amount: 18,
+      currency: 'USD',
+      billingPeriodMonths: 12,
+      categoryId: cats.utilities.id,
+      deductionProfileId: businessProfile.id,
+      priceIncludesVat: true,
+      active: true,
+      paymentIds: domainPayments,
+      nextRenewal: fromToday(0, domainRenewalDays),
     },
     {
       id: genSubscriptionId(),
@@ -401,6 +471,8 @@ export function generateDemoData(): {
       deductionProfileId: businessProfile.id,
       priceIncludesVat: true,
       active: true,
+      paymentIds: cloudPayments,
+      nextRenewal: fromToday(0, 50),
     },
     {
       id: genSubscriptionId(),
