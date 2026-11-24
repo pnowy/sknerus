@@ -17,3 +17,11 @@ export function genRecurringId() {
 export function genVehicleId() {
   return `veh_${ulid()}`
 }
+
+export function genSubscriptionId() {
+  return `sub_${ulid()}`
+}
+
+export function genDeductionProfileId() {
+  return `ded_${ulid()}`
+}

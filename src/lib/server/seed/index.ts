@@ -15,13 +15,19 @@ export async function seedIfFirstRun(storage: StorageAdapter): Promise<void> {
   }
 
   log.info('Seeding demo data...')
-  const { config: demoConfig, expenses: demoExpenses, vehicles: demoVehicles } = generateDemoData()
+  const { config: demoConfig, expenses: demoExpenses, vehicles: demoVehicles, subscriptions: demoSubscriptions } = generateDemoData()
 
-  await Promise.all([storage.saveConfig(demoConfig), storage.saveExpenses(demoExpenses), storage.saveVehicles(demoVehicles)])
+  await Promise.all([
+    storage.saveConfig(demoConfig),
+    storage.saveExpenses(demoExpenses),
+    storage.saveVehicles(demoVehicles),
+    storage.saveSubscriptions(demoSubscriptions),
+  ])
 
   log.info(`Demo data seeded`, {
     expenses: demoExpenses.length,
     categories: demoConfig.categories.length,
     vehicles: demoVehicles.length,
+    subscriptions: demoSubscriptions.length,
   })
 }

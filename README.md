@@ -35,9 +35,11 @@ The original inspiration for this project was [ExpenseOwl](https://github.com/ta
 Sknerus picks up where ExpenseOwl left off. It keeps the philosophy of **dead simple, self-hosted, single-user or family expense tracking**, while adding:
 
 - A proper analytics dashboard with multiple chart types and time-range navigation
-- Table view with grouping and sorting
+- Transactions view with grouping and sorting
 - Full recurring expense management (create, edit, delete templates)
 - Multi-currency support with automatic exchange rate resolution
+- Optional plugins for vehicle costs and subscriptions
+- One-click full backup and restore
 - A modern SSR React stack (TanStack Start)
 
 It is still *not* a budgeting app. No accounts, no complex budgets, no bank syncing. Just a fast, honest look at where your money goes.
@@ -57,9 +59,10 @@ It is still *not* a budgeting app. No accounts, no complex budgets, no bank sync
 - Custom categories with color coding — reorder, rename, or remove them at any time; mark a category as income to preset the income toggle when adding a transaction
 - Recurring transactions — define a template once, the app materializes entries automatically up to today
 - Multi-currency support: record transactions in any currency, configure supported currencies, and exchange rates are resolved and cached automatically. Two providers available: [Frankfurter](https://www.frankfurter.app/) (31 currencies, no key needed) and [ExchangeRate-API](https://www.exchangerate-api.com/) (165 currencies, free API key required)
-- Export and import — bring your data in from any tool or take it anywhere, also from ExpenseOwl
+- Full backup and restore — all data (settings, transactions, recurring transactions, vehicles, subscriptions) in one JSON file
+- CSV export and import — bring your transactions in from any tool or take them anywhere, also from ExpenseOwl
 - Configurable fiscal month start date (e.g. set to 5 to count from the 5th of each month)
-- Configurable default start page (dashboard or table view)
+- Configurable default start page (dashboard or transactions)
 - Floating add-expense button on mobile — placed in thumb reach, switchable between bottom right, bottom left, or off
 - Light and dark theme with system-preference detection
 - PWA — installable on desktop and mobile for a native-app feel
@@ -76,33 +79,35 @@ The dashboard is the heart of the app, organized into five tabs (on phones they 
 
 All dashboard views support flexible time-range navigation: switch between monthly, quarterly, and yearly scopes and step forward/backward through time. Choose **Custom** to filter by an exact start and end date (both inclusive). Custom ranges are saved in the URL and preserved when switching dashboard tabs; click the displayed dates to edit them.
 
-### Table View
+### Transactions
 
 - Chronological list of all transactions for the selected period
 - The same preset and custom date ranges as the dashboard
-- Optional search (enable **Show search** in Settings → Display): click the search icon to find transactions by name, notes, or tags across your whole history; Esc clears the query, then closes search
+- Optional search (enable **Show search** in Settings → Appearance → Display): click the search icon to find transactions by name, notes, or tags across your whole history; Esc clears the query, then closes search
 - Toggle between flat list and grouped-by-category view
 - Inline delete with confirmation
-- Add new expenses directly from the table view
+- Add new expenses directly from the transactions view
 
 ### Settings
+
+Settings are split into tabs — **General**, **Transactions**, **Appearance**, **Data**, plus one tab per enabled plugin (see [In-App Settings](#in-app-settings) for details):
 
 - Add, rename, reorder, and delete categories (drag-and-drop ordering)
 - Set primary currency and a list of supported currencies for multi-currency entry
 - Configure fiscal month start date and default start page
 - Choose the side of the mobile floating add-expense button (or turn it off)
-- Toggle visibility of tags and notes fields across the app, and enable transaction search in the table view
-- Manage recurring transactions (view, edit, delete templates)
-- Export and import all expenses
+- Toggle visibility of tags and notes fields across the app, and enable transaction search in the transactions view
+- Manage recurring transactions (view, edit, delete templates) — repeat every N days, weeks, months, or years (e.g. every 3 months)
+- Download a full backup (settings, transactions, recurring transactions, vehicles, subscriptions) and restore it on any instance; export and import transactions as CSV
 - Enable optional plugins (see below)
 
 ### Plugins
 
-Optional features that extend the core tracker. Toggle them on under **Settings → Plugins** — they stay invisible until you need them, so the app stays focused for users who only want basic expense tracking.
+Optional features that extend the core tracker. Toggle them on under **Settings → General → Plugins** — they stay invisible until you need them, so the app stays focused for users who only want basic expense tracking.
 
 #### Vehicle expense tracking
 
-Track per-vehicle costs alongside your regular expenses. Once enabled, a **Vehicles** tab appears in Settings where you can:
+Track per-vehicle costs alongside your regular expenses. Once enabled, a **Vehicles** page appears in the navigation and a **Vehicles** tab appears in Settings (category → vehicle mapping). You can:
 
 - Register one or more vehicles (car or motorcycle) with engine size, fuel tank size, fuel type, and starting odometer
 - Bind a category to a vehicle so any expense in that category is automatically a vehicle expense
@@ -113,6 +118,31 @@ Track per-vehicle costs alongside your regular expenses. Once enabled, a **Vehic
 - Open the **Stats** dialog on a vehicle for a fuel history table and a weekly spend-breakdown chart across all expense types
 
 > Units are metric: kilometers, liters, L/100km. Imperial units (miles, gallons, MPG) are not currently supported — open an issue if you'd like a metric/imperial toggle.
+
+#### Subscription tracking
+
+See what your subscriptions really cost per month and per year. Once enabled, a **Subscriptions** page appears in the navigation and a **Subscriptions** tab appears in Settings:
+
+- Add subscriptions with a price per billing period (monthly, every 3/6 months, yearly, or any number of months) in any supported currency — costs are converted to your primary currency at today's exchange rate and spread per month
+- Summary cards for monthly and yearly totals, the cost after deductions, and your monthly tax savings, plus a cost-share bar and Private / Business / Inactive filters
+- Mark a subscription as a business cost by assigning a **deduction profile** (Settings → Subscriptions). A profile defines the VAT rate, the share of VAT you recover, your income tax rate, and an optional extra rate (e.g. a health contribution) — so it fits any tax setup, not just one country's. Non-recovered VAT is added to the cost before income tax is deducted. Turn off "Price includes VAT" for invoices without VAT (e.g. reverse-charge services from abroad)
+- The info icon on each subscription shows the per-month breakdown: price → VAT back → tax back → real cost
+- The **Stats** dialog on a subscription summarizes its payments (linked manually or booked by a recurring transaction): total paid, last payment, price change since the first payment, cost after deductions, plus a payment history with the change vs the previous payment, a per-year bar chart, and a price trend chart
+
+**Manual payments** — for subscriptions you renew by hand (e.g. a yearly plan you may or may not extend):
+
+- Link past transactions to the subscription with **Link payments** (search pre-filled with the subscription name); the next renewal is set one billing period after the latest payment
+- A week before the renewal date the subscription shows up under **Due for renewal** on the Subscriptions page, with a badge on the navigation link. Nothing is booked automatically: **Book payment** creates the transaction (amount and date editable, optionally updating the subscription price) and moves the renewal one period ahead, **Skip** moves it ahead without a transaction, **End** deactivates the subscription
+- Overdue renewals stay visible until you act on them
+- Subscriptions billed less often than monthly (quarterly, yearly, …) get a subtle blue "Renews in N days" note in the list from 30 days before renewal, so there's time to cancel or switch plans
+
+**Linking with recurring transactions** — a subscription can book its payments as a recurring expense:
+
+- **Create** a recurring transaction from the subscription form (pick the first payment date), **link** an existing one, or use **Track as subscription** on a recurring transaction in Settings. **Import from recurring** on the Subscriptions page converts several monthly/yearly recurring expenses at once
+- Name, price, currency, billing period, and category stay in sync both ways. Deactivating a subscription ends its recurring transaction; reactivating it or changing the billing period restarts the schedule from today, so missed periods are never backfilled
+- Linked subscriptions show their next payment date and the total paid so far; linked recurring transactions get a **Subscription** badge that jumps to the subscription
+- Deleting a recurring transaction keeps the subscription (unlinked). Deleting a subscription can optionally delete its recurring transaction too. Transactions that were already booked are never changed
+- Daily and weekly recurring transactions, and income, can't be linked
 
 # Screenshots
 
@@ -126,12 +156,16 @@ Track per-vehicle costs alongside your regular expenses. Once enabled, a **Vehic
 | Desktop - Dashboard – Monthly (light)           | ![](./etc/desktop-dashboard-monthly.png)            |
 | Desktop - Dashboard – Trends (dark)             | ![](./etc/desktop-dashboard-trends.png)             |
 | Desktop - Dashboard – Cashflow (light)          | ![](./etc/desktop-dashboard-cashflow.png)           |
-| Mobile - Table view                             | ![](./etc/mobile-table.png)                         |
-| Desktop - Table View                            | ![](./etc/desktop-table-view.png)                   |
-| Desktop - Table View (group by category)        | ![](./etc/desktop-table-grouped.png)                |
+| Mobile - Transactions                           | ![](./etc/mobile-table.png)                         |
+| Desktop - Transactions                          | ![](./etc/desktop-table-view.png)                   |
+| Desktop - Transactions (group by category)      | ![](./etc/desktop-table-grouped.png)                |
 | Desktop - Settings                              | ![](./etc/desktop-settings.png)                     |
-| Desktop - Vehicle Settings                      | ![](./etc/vehicle-settings.png)                     |
+| Desktop - Settings – Full backup                | ![](./etc/desktop-settings-backup.png)              |
+| Desktop - Vehicles                              | ![](./etc/desktop-vehicles.png)                     |
 | Desktop - Vehicle Stats                         | ![](./etc/vehicle-stats.png)                        |
+| Desktop - Subscriptions                         | ![](./etc/desktop-subscriptions.png)                |
+| Desktop - Subscription (manual payments)        | ![](./etc/subscription-form.png)                    |
+| Desktop - Subscription Stats                    | ![](./etc/subscription-stats.png)                   |
 
 </details>
 
@@ -209,49 +243,74 @@ curl http://localhost:3000/api/v1/expenses
 
 All endpoints are under `/api/v1` and return JSON. Expense amounts are signed (negative for expenses, positive for income); `date` uses `YYYY-MM-DD`.
 
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| `GET` | `/expenses` | List expenses; optional `from`, `to`, `categoryId`, and `tag` query filters |
-| `POST` | `/expenses` | Create an expense; `currency` defaults to the configured currency and `tags` defaults to an empty list |
-| `GET` | `/expenses/:id` | Get one expense |
-| `PUT` | `/expenses/:id` | Replace an expense |
-| `PATCH` | `/expenses/:id` | Update supplied expense fields |
-| `DELETE` | `/expenses/:id` | Delete an expense |
-| `GET` | `/categories` | List categories |
-| `POST` | `/categories/:id/rename` | Rename a category with `{ "newName": "..." }` |
-| `GET`, `PUT` | `/config` | Get or replace app configuration |
-| `GET`, `POST` | `/recurring` | List or create recurring transactions |
-| `PUT`, `DELETE` | `/recurring/:id` | Update or delete a recurring transaction |
-| `POST` | `/recurring/materialize` | Create due recurring expenses |
-| `GET`, `POST` | `/vehicles` | List or create vehicles |
-| `PUT`, `DELETE` | `/vehicles/:id` | Update or delete a vehicle |
-| `GET` | `/exchange-rate?date=YYYY-MM-DD&from=USD&to=PLN` | Resolve an exchange rate |
+| Method          | Endpoint                                         | Description                                                                                            |
+|-----------------|--------------------------------------------------|--------------------------------------------------------------------------------------------------------|
+| `GET`           | `/expenses`                                      | List expenses; optional `from`, `to`, `categoryId`, and `tag` query filters                            |
+| `POST`          | `/expenses`                                      | Create an expense; `currency` defaults to the configured currency and `tags` defaults to an empty list |
+| `GET`           | `/expenses/:id`                                  | Get one expense                                                                                        |
+| `PUT`           | `/expenses/:id`                                  | Replace an expense                                                                                     |
+| `PATCH`         | `/expenses/:id`                                  | Update supplied expense fields                                                                         |
+| `DELETE`        | `/expenses/:id`                                  | Delete an expense                                                                                      |
+| `GET`           | `/categories`                                    | List categories                                                                                        |
+| `POST`          | `/categories/:id/rename`                         | Rename a category with `{ "newName": "..." }`                                                          |
+| `GET`, `PUT`    | `/config`                                        | Get or replace app configuration                                                                       |
+| `GET`, `POST`   | `/recurring`                                     | List or create recurring transactions                                                                  |
+| `PUT`, `DELETE` | `/recurring/:id`                                 | Update or delete a recurring transaction                                                               |
+| `POST`          | `/recurring/materialize`                         | Create due recurring expenses                                                                          |
+| `GET`, `POST`   | `/vehicles`                                      | List or create vehicles                                                                                |
+| `PUT`, `DELETE` | `/vehicles/:id`                                  | Update or delete a vehicle                                                                             |
+| `GET`, `POST`   | `/subscriptions`                                 | List or create subscriptions                                                                           |
+| `PUT`, `DELETE` | `/subscriptions/:id`                             | Update or delete a subscription                                                                        |
+| `POST`          | `/subscriptions/:id/book`                        | Book a manual renewal payment (creates the transaction, moves the next renewal)                        |
+| `POST`          | `/subscriptions/:id/skip`                        | Skip a manual renewal without booking a transaction                                                    |
+| `POST`          | `/subscriptions/import-recurring`                | Convert recurring transactions into subscriptions                                                      |
+| `GET`           | `/backup`                                        | Download a full backup (JSON, without the exchange-rate API key)                                       |
+| `POST`          | `/backup`                                        | Restore a full backup — replaces all data                                                              |
+| `GET`           | `/exchange-rate?date=YYYY-MM-DD&from=USD&to=PLN` | Resolve an exchange rate                                                                               |
 
 The API uses the same JSON storage as the web app.
 
 ### In-App Settings
 
-Everything else is configured from the `/settings` page:
+Everything else is configured from the `/settings` page, grouped into tabs (the active tab is kept in the URL, e.g. `/settings?section=transactions`):
+
+**General**
+
+- **Currency** — set the primary display currency
+- **Exchange Rate Provider** — choose between Frankfurter (31 major currencies, no setup) or ExchangeRate-API (165 currencies including MVR, THB, etc. — requires a free API key)
+- **Fiscal Start Day** — day of month that begins a new fiscal period (default: 1st)
+- **Additional Currencies** — currencies available when adding a transaction (exchange rates resolved automatically)
+- **Plugins** — enable optional features such as vehicle or subscription tracking. See the [Plugins](#plugins) section above for details.
+
+**Transactions**
 
 - **Categories** — add, rename, reorder (drag-and-drop), and delete categories
-- **Currency** — set the primary display currency
-- **Supported Currencies** — currencies available when adding a transaction (exchange rates resolved automatically)
-- **Exchange Rate Provider** — choose between Frankfurter (31 major currencies, no setup) or ExchangeRate-API (165 currencies including MVR, THB, etc. — requires a free API key)
-- **Start Date** — day of month that begins a new fiscal period (default: 1st)
-- **Start Page** — which page loads first: dashboard or table view
-- **Mobile Add Button** — position of the floating add-expense button on phones: bottom right (default), bottom left, or off
 - **Recurring Transactions** — manage recurring income and expense templates
-- **Export / Import** — download all data as CSV or upload a CSV to import transactions. The import modal in the app describes the expected format and supported columns in detail.
-- **Plugins** — enable optional features such as vehicle expense tracking. See the [Plugins](#plugins) section above for details.
+
+**Appearance**
+
+- **Start Page** — which page loads first: dashboard or transactions
+- **Theme** — light, dark, or follow the system
+- **Display** — show or hide tags and notes, enable transaction search
+- **Mobile Add Button** — position of the floating add-expense button on phones: bottom right (default), bottom left, or off
+
+**Data**
+
+- **Full backup** — download everything as one JSON file (settings, categories, transactions, recurring transactions, vehicles, subscriptions, and the links between them) or restore such a file. Restoring replaces all current data after a confirmation; a file with duplicate ids is rejected, and links to records missing from the file (e.g. a payment that was deleted) are dropped. The exchange-rate API key is never written to the file and the one configured on the instance is kept
+- **Transactions CSV** — export transactions as CSV or import a CSV, adding its rows to the existing transactions. The import modal in the app describes the expected format and supported columns in detail.
+
+Enabled plugins add their own tabs with plugin configuration: **Vehicles** (category → vehicle mapping) and **Subscriptions** (deduction profiles). The vehicles and subscriptions themselves live on their own pages in the navigation.
 
 ### Data Storage
 
-Sknerus uses a simple file-based JSON storage by default. Data is stored in three files inside `DATA_DIR`:
+Sknerus uses a simple file-based JSON storage by default. Data is stored in these files inside `DATA_DIR`:
 
 - `expenses.json` — all transactions
-- `config.json` — categories, currency, and app settings
+- `config.json` — categories, currency, app settings, and deduction profiles
 - `recurring.json` — recurring transaction templates
-- `exchange-rates.json` - cache for exchange rates data
+- `vehicles.json` — vehicles (vehicle plugin)
+- `subscriptions.json` — subscriptions (subscription plugin)
+- `exchange-rates.json` — cache for exchange rates data
 
 Mount `DATA_DIR` as a persistent volume to retain data across container restarts.
 
@@ -279,6 +338,7 @@ The seed generates:
 - **Seasonal patterns**: clothing peaks in spring/autumn, summer vacation in July, Christmas spending in December, school supplies in August/September
 - **Sporadic entries**: doctor visits, pharmacy, dental, car service, home maintenance
 - **Vehicle plugin enabled** with a Kawasaki Z900 SE motorcycle bought ~14 months ago: purchase, two annual insurance cycles, gear/accessories, ~25 fuel fills with odometer readings (consumption around 6 L/100km), and two oil changes — enough to populate the fuel-history table and the weekly spend-trend chart
+- **Subscription plugin enabled** with a business deduction profile and subscriptions covering every state: Netflix and Spotify with linked monthly payments and price increases over the years, a yearly IDE license paid in EUR renewing in ~3 weeks (shows the renewal note), a yearly domain due in a few days (shows **Due for renewal** and the navigation badge), quarterly cloud hosting, and an inactive gym membership
 
 Once data exists, the seed is skipped automatically on subsequent starts — safe to leave the flag enabled.
 

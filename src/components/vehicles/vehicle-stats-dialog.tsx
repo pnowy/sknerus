@@ -1,12 +1,22 @@
-import { VehicleSpendTrendChart } from '@/components/settings/vehicle-spend-trend-chart'
+import { ChartArea, Fuel } from 'lucide-react'
+import { useState } from 'react'
+import { type UnderlineTab, UnderlineTabsList } from '@/components/layout/underline-tabs-list'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Separator } from '@/components/ui/separator'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { Tabs, TabsContent } from '@/components/ui/tabs'
+import { VehicleSpendTrendChart } from '@/components/vehicles/vehicle-spend-trend-chart'
 import { formatCurrency, formatDate } from '@/lib/shared/format'
 import type { Expense } from '@/lib/shared/types/expense'
 import type { Vehicle } from '@/lib/shared/types/vehicle'
 import { VehicleExpenseType } from '@/lib/shared/types/vehicle'
 import { calcFuelBurned, calcFuelConsumption } from '@/lib/shared/vehicle-utils'
+
+type StatsTab = 'fuel' | 'trend'
+
+const STATS_TABS: Array<UnderlineTab<StatsTab>> = [
+  { value: 'fuel', label: 'Fuel', icon: Fuel },
+  { value: 'trend', label: 'Spend trend', icon: ChartArea },
+]
 
 type Props = {
   vehicle: Vehicle
@@ -25,6 +35,7 @@ function StatCard({ label, value }: { label: string; value: string }) {
 }
 
 export function VehicleStatsDialog({ vehicle, expenses, currency, onClose }: Props) {
+  const [tab, setTab] = useState<StatsTab>('fuel')
   const fuelEntries = expenses
     .filter((e) => e.vehicleExpense?.vehicleId === vehicle.id && e.vehicleExpense.expenseType === VehicleExpenseType.Fuel)
     .sort((a, b) => b.date.localeCompare(a.date))
@@ -53,11 +64,8 @@ export function VehicleStatsDialog({ vehicle, expenses, currency, onClose }: Pro
         <DialogHeader>
           <DialogTitle>{vehicle.name} — Stats</DialogTitle>
         </DialogHeader>
-        <Tabs defaultValue="fuel" className="flex min-h-0 flex-1 flex-col">
-          <TabsList>
-            <TabsTrigger value="fuel">Fuel</TabsTrigger>
-            <TabsTrigger value="trend">Spend trend</TabsTrigger>
-          </TabsList>
+        <Tabs className="flex min-h-0 flex-1 flex-col" value={tab} onValueChange={(value) => setTab(value as StatsTab)}>
+          <UnderlineTabsList activeTab={tab} tabs={STATS_TABS} />
           <TabsContent value="fuel" className="flex min-h-0 flex-1 flex-col space-y-3">
             <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
               <StatCard label="Avg. consumption" value={avgConsumption != null ? `${avgConsumption} L/100km` : '—'} />

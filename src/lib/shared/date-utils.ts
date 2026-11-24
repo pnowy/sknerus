@@ -2,6 +2,7 @@ import {
   addDays,
   addMonths,
   addWeeks,
+  addYears,
   differenceInCalendarDays,
   format,
   getDay,
@@ -153,6 +154,7 @@ export function computeOccurrences(template: RecurringExpense, todayStr: string)
   const today = parseISO(todayStr)
   const endRaw = template.endDate ? parseISO(template.endDate) : today
   const upper = isBefore(endRaw, today) ? endRaw : today
+  const step = Math.max(1, template.interval ?? 1)
 
   const dates: Array<string> = []
 
@@ -160,7 +162,7 @@ export function computeOccurrences(template: RecurringExpense, todayStr: string)
     let cur = start
     while (!isAfter(cur, upper)) {
       dates.push(format(cur, 'yyyy-MM-dd'))
-      cur = addDays(cur, 1)
+      cur = addDays(cur, step)
     }
   } else if (template.frequency === 'weekly') {
     const target = template.dayOfWeek ?? getDay(start)
@@ -168,30 +170,23 @@ export function computeOccurrences(template: RecurringExpense, todayStr: string)
     while (getDay(cur) !== target) cur = addDays(cur, 1)
     while (!isAfter(cur, upper)) {
       dates.push(format(cur, 'yyyy-MM-dd'))
-      cur = addWeeks(cur, 1)
+      cur = addWeeks(cur, step)
     }
   } else if (template.frequency === 'monthly') {
     const targetDay = template.dayOfMonth ?? start.getDate()
-    let year = start.getFullYear()
-    let mo = start.getMonth()
-    const endYear = upper.getFullYear()
-    const endMo = upper.getMonth()
-    while (year < endYear || (year === endYear && mo <= endMo)) {
-      const monthFirst = new Date(year, mo, 1)
+    // Months are counted from the start month, so "every 3 months" keeps the cadence anchored to startDate
+    for (let k = 0; ; k += step) {
+      const monthFirst = addMonths(new Date(start.getFullYear(), start.getMonth(), 1), k)
+      if (isAfter(monthFirst, upper)) break
       const occurrence = setDate(monthFirst, Math.min(targetDay, getDaysInMonth(monthFirst)))
       if (!isBefore(occurrence, start) && !isAfter(occurrence, upper)) {
         dates.push(format(occurrence, 'yyyy-MM-dd'))
-      }
-      mo++
-      if (mo > 11) {
-        mo = 0
-        year++
       }
     }
   } else if (template.frequency === 'yearly') {
     const targetMonth = (template.month ?? start.getMonth() + 1) - 1
     const targetDay = template.dayOfMonth ?? start.getDate()
-    for (let year = start.getFullYear(); year <= upper.getFullYear(); year++) {
+    for (let year = start.getFullYear(); year <= upper.getFullYear(); year += step) {
       const monthFirst = new Date(year, targetMonth, 1)
       const occurrence = setDate(monthFirst, Math.min(targetDay, getDaysInMonth(monthFirst)))
       if (!isBefore(occurrence, start) && !isAfter(occurrence, upper)) {
@@ -200,6 +195,13 @@ export function computeOccurrences(template: RecurringExpense, todayStr: string)
     }
   }
   return dates
+}
+
+/** First occurrence strictly after `todayStr`, or undefined when the template has ended. */
+export function nextOccurrence(template: RecurringExpense, todayStr: string): string | undefined {
+  const step = Math.max(1, template.interval ?? 1)
+  const horizon = format(addYears(parseISO(todayStr), step + 1), 'yyyy-MM-dd')
+  return computeOccurrences(template, horizon).find((date) => date > todayStr)
 }
 
 export function generateMonthBuckets(from: Date, to: Date): Array<{ label: string; year: number; month: number }> {

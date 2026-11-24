@@ -1,38 +1,61 @@
 import { useQueryClient } from '@tanstack/react-query'
-import { createFileRoute } from '@tanstack/react-router'
+import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
+import { ArrowLeftRight, Car, CreditCard, Database, Palette, SlidersHorizontal } from 'lucide-react'
 import { useTheme } from 'next-themes'
-import { useState } from 'react'
 import { toast } from 'sonner'
+import { z } from 'zod'
 import { AppLayout } from '@/components/layout/app-layout'
+import { type UnderlineTab, UnderlineTabsList } from '@/components/layout/underline-tabs-list'
+import { BackupSection } from '@/components/settings/backup-section'
 import { CategoryList } from '@/components/settings/category-list'
 import { CurrencySelector } from '@/components/settings/currency-selector'
+import { DeductionProfileList } from '@/components/settings/deduction-profile-list'
 import { ExchangeProviderSelector } from '@/components/settings/exchange-provider-selector'
 import { ImportDialog } from '@/components/settings/import-dialog'
 import { RecurringList } from '@/components/settings/recurring-list'
 import { SupportedCurrenciesSelector } from '@/components/settings/supported-currencies-selector'
-import { VehicleList } from '@/components/settings/vehicle-list'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Switch } from '@/components/ui/switch'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { Tabs, TabsContent } from '@/components/ui/tabs'
 import { queryKeys, useConfig, useExpenses, useRenameCategory, useUpdateConfig } from '@/hooks/use-expenses'
+import { useSubscriptions } from '@/hooks/use-subscriptions'
 import { useVehicles } from '@/hooks/use-vehicles'
-import { createExpense, getConfig, getExpenses, getRecurring, getVehicles } from '@/lib/api'
+import { createExpense, getConfig, getExpenses, getRecurring, getSubscriptions, getVehicles } from '@/lib/api'
 import { exportToCSV, parseCSV } from '@/lib/shared/csv'
 import { CURRENCIES } from '@/lib/shared/currencies'
 import { FabPosition } from '@/lib/shared/types/fab-position'
 import { StartPage } from '@/lib/shared/types/start-page'
+import type { DeductionProfile } from '@/lib/shared/types/subscription'
+
+const SETTINGS_TABS = ['general', 'transactions', 'appearance', 'data', 'vehicles', 'subscriptions'] as const
+type SettingsTab = (typeof SETTINGS_TABS)[number]
+
+const TAB_ITEMS: Array<UnderlineTab<SettingsTab>> = [
+  { value: 'general', label: 'General', icon: SlidersHorizontal },
+  { value: 'transactions', label: 'Transactions', icon: ArrowLeftRight },
+  { value: 'appearance', label: 'Appearance', icon: Palette },
+  { value: 'data', label: 'Data', icon: Database },
+  { value: 'vehicles', label: 'Vehicles', icon: Car },
+  { value: 'subscriptions', label: 'Subscriptions', icon: CreditCard },
+]
 
 export const Route = createFileRoute('/settings')({
-  loader: ({ context: { queryClient } }) =>
-    Promise.all([
+  validateSearch: z.object({ section: z.enum(SETTINGS_TABS).optional().catch(undefined) }),
+  loader: async ({ context: { queryClient } }) => {
+    const [, config] = await Promise.all([
       queryClient.ensureQueryData({ queryKey: ['expenses'], queryFn: () => getExpenses() }),
       queryClient.ensureQueryData({ queryKey: ['config'], queryFn: () => getConfig() }),
       queryClient.ensureQueryData({ queryKey: ['recurring'], queryFn: () => getRecurring() }),
       queryClient.ensureQueryData({ queryKey: ['vehicles'], queryFn: () => getVehicles() }),
-    ]),
+    ])
+    // the subscriptions API is only served while the plugin is on
+    if (config.features?.subscriptionTracking) {
+      await queryClient.ensureQueryData({ queryKey: ['subscriptions'], queryFn: () => getSubscriptions() })
+    }
+  },
   component: SettingsPage,
 })
 
@@ -48,11 +71,13 @@ function SettingsPage() {
   const { data: config } = useConfig()
   const { data: allExpenses = [] } = useExpenses()
   const { data: vehicles = [] } = useVehicles()
+  const { data: subscriptions = [] } = useSubscriptions(config?.features?.subscriptionTracking ?? false)
   const updateConfig = useUpdateConfig()
   const renameCategoryMutation = useRenameCategory()
   const queryClient = useQueryClient()
   const { theme, setTheme } = useTheme()
-  const [activeTab, setActiveTab] = useState('general')
+  const { section } = Route.useSearch()
+  const navigate = useNavigate()
 
   if (!config) return null
   const currentConfig = config
@@ -189,27 +214,47 @@ function SettingsPage() {
   }
 
   const vehicleTrackingEnabled = config.features?.vehicleExpenseTracking ?? false
+  const subscriptionTrackingEnabled = config.features?.subscriptionTracking ?? false
+  // A plugin tab in the URL falls back to General once that plugin is switched off
+  const pluginTabHidden =
+    (section === 'vehicles' && !vehicleTrackingEnabled) || (section === 'subscriptions' && !subscriptionTrackingEnabled)
+  const activeTab: SettingsTab = !section || pluginTabHidden ? 'general' : section
+
+  const visibleTabs = TAB_ITEMS.filter(
+    ({ value }) => (value !== 'vehicles' || vehicleTrackingEnabled) && (value !== 'subscriptions' || subscriptionTrackingEnabled)
+  )
+
+  function setTab(next: SettingsTab) {
+    void navigate({ to: '/settings', search: (prev) => ({ ...prev, section: next === 'general' ? undefined : next }), replace: true })
+  }
+
+  async function handleFeatureToggle(feature: 'vehicleExpenseTracking' | 'subscriptionTracking', checked: boolean, label: string) {
+    try {
+      await updateConfig.mutateAsync({ ...currentConfig, features: { ...currentConfig.features, [feature]: checked } })
+      toast.success(checked ? `${label} enabled` : `${label} disabled`)
+    } catch {
+      toast.error('Failed to update setting')
+    }
+  }
+
+  async function handleDeductionProfilesChange(deductionProfiles: Array<DeductionProfile>) {
+    try {
+      await updateConfig.mutateAsync({ ...currentConfig, deductionProfiles })
+      toast.success('Deduction profiles updated')
+    } catch {
+      toast.error('Failed to update deduction profiles')
+    }
+  }
 
   return (
     <AppLayout>
       <div className="space-y-4">
         <h1 className="hidden text-xl font-semibold sm:block">Settings</h1>
-        <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList>
-            <TabsTrigger value="general">General</TabsTrigger>
-            {vehicleTrackingEnabled && <TabsTrigger value="vehicles">Vehicles</TabsTrigger>}
-          </TabsList>
+        <Tabs value={activeTab} onValueChange={(value) => setTab(value as SettingsTab)}>
+          <UnderlineTabsList activeTab={activeTab} tabs={visibleTabs} />
 
           <TabsContent value="general">
             <div className="space-y-6 pt-4">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Categories</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <CategoryList categories={config.categories} onChange={handleCategoriesChange} onNameChange={handleCategoryRename} />
-                </CardContent>
-              </Card>
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <Card>
                   <CardHeader>
@@ -251,6 +296,73 @@ function SettingsPage() {
                     <p className="text-muted-foreground mt-1 text-xs">Day of month when your budget cycle starts</p>
                   </CardContent>
                 </Card>
+              </div>
+              <Card>
+                <CardHeader>
+                  <CardTitle>Additional Currencies</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-muted-foreground mb-3 text-sm">Select currencies to use when recording expenses.</p>
+                  <SupportedCurrenciesSelector
+                    allCurrencies={CURRENCIES}
+                    defaultCurrency={config.currency}
+                    value={config.supportedCurrencies}
+                    onChange={handleSupportedCurrenciesChange}
+                  />
+                </CardContent>
+              </Card>
+              <Card>
+                <CardHeader>
+                  <CardTitle>Plugins</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-3">
+                      <Switch
+                        checked={vehicleTrackingEnabled}
+                        id="vehicle-tracking"
+                        onCheckedChange={(checked) => handleFeatureToggle('vehicleExpenseTracking', checked, 'Vehicle tracking')}
+                      />
+                      <Label htmlFor="vehicle-tracking">Vehicle expense tracking</Label>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <Switch
+                        checked={subscriptionTrackingEnabled}
+                        id="subscription-tracking"
+                        onCheckedChange={(checked) => handleFeatureToggle('subscriptionTracking', checked, 'Subscription tracking')}
+                      />
+                      <Label htmlFor="subscription-tracking">Subscription tracking</Label>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </TabsContent>
+
+          <TabsContent value="transactions">
+            <div className="space-y-6 pt-4">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Categories</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <CategoryList categories={config.categories} onChange={handleCategoriesChange} onNameChange={handleCategoryRename} />
+                </CardContent>
+              </Card>
+              <Card>
+                <CardHeader>
+                  <CardTitle>Recurring Transactions</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <RecurringList categories={config.categories} currency={config.currency} />
+                </CardContent>
+              </Card>
+            </div>
+          </TabsContent>
+
+          <TabsContent value="appearance">
+            <div className="space-y-6 pt-4">
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <Card>
                   <CardHeader>
                     <CardTitle>Start Page</CardTitle>
@@ -258,11 +370,11 @@ function SettingsPage() {
                   <CardContent>
                     <Select value={config.startPage} onValueChange={(v) => v && handleStartPageChange(v)}>
                       <SelectTrigger>
-                        <SelectValue>{(value: string) => (value === StartPage.Table ? 'Table' : 'Dashboard')}</SelectValue>
+                        <SelectValue>{(value: string) => (value === StartPage.Table ? 'Transactions' : 'Dashboard')}</SelectValue>
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value={StartPage.Dashboard}>Dashboard</SelectItem>
-                        <SelectItem value={StartPage.Table}>Table</SelectItem>
+                        <SelectItem value={StartPage.Table}>Transactions</SelectItem>
                       </SelectContent>
                     </Select>
                     <p className="text-muted-foreground mt-1 text-xs">Page shown when you open the app</p>
@@ -339,33 +451,27 @@ function SettingsPage() {
                   </CardContent>
                 </Card>
               </div>
+            </div>
+          </TabsContent>
+
+          <TabsContent value="data">
+            <div className="space-y-6 pt-4">
               <Card>
                 <CardHeader>
-                  <CardTitle>Additional Currencies</CardTitle>
+                  <CardTitle>Full backup</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-muted-foreground mb-3 text-sm">Select currencies to use when recording expenses.</p>
-                  <SupportedCurrenciesSelector
-                    allCurrencies={CURRENCIES}
-                    defaultCurrency={config.currency}
-                    value={config.supportedCurrencies}
-                    onChange={handleSupportedCurrenciesChange}
-                  />
+                  <BackupSection />
                 </CardContent>
               </Card>
               <Card>
                 <CardHeader>
-                  <CardTitle>Recurring Transactions</CardTitle>
+                  <CardTitle>Transactions CSV</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <RecurringList categories={config.categories} currency={config.currency} />
-                </CardContent>
-              </Card>
-              <Card>
-                <CardHeader>
-                  <CardTitle>Data</CardTitle>
-                </CardHeader>
-                <CardContent>
+                  <p className="text-muted-foreground mb-3 text-sm">
+                    Transactions only, for spreadsheets or moving data from another app. Imported rows are added to the existing ones.
+                  </p>
                   <div className="flex flex-wrap gap-3">
                     <Button variant="outline" onClick={handleCsvExport}>
                       Export CSV
@@ -374,45 +480,20 @@ function SettingsPage() {
                   </div>
                 </CardContent>
               </Card>
-              <Card>
-                <CardHeader>
-                  <CardTitle>Plugins</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="flex items-center gap-3">
-                    <Switch
-                      checked={vehicleTrackingEnabled}
-                      id="vehicle-tracking"
-                      onCheckedChange={async (checked) => {
-                        try {
-                          await updateConfig.mutateAsync({
-                            ...currentConfig,
-                            features: { ...currentConfig.features, vehicleExpenseTracking: checked },
-                          })
-                          if (!checked) setActiveTab('general')
-                          toast.success(checked ? 'Vehicle tracking enabled' : 'Vehicle tracking disabled')
-                        } catch {
-                          toast.error('Failed to update setting')
-                        }
-                      }}
-                    />
-                    <Label htmlFor="vehicle-tracking">Vehicle expense tracking</Label>
-                  </div>
-                </CardContent>
-              </Card>
             </div>
           </TabsContent>
 
           <TabsContent value="vehicles">
             <div className="space-y-6 pt-4">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Vehicles</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <VehicleList currency={config.currency} expenses={allExpenses} vehicles={vehicles} />
-                </CardContent>
-              </Card>
+              {vehicles.length === 0 && (
+                <p className="text-muted-foreground text-sm">
+                  Add a vehicle on the{' '}
+                  <Link className="text-foreground underline underline-offset-4" to="/vehicles">
+                    Vehicles
+                  </Link>{' '}
+                  page to map categories to it.
+                </p>
+              )}
               {vehicles.length > 0 && (
                 <Card>
                   <CardHeader>
@@ -457,6 +538,27 @@ function SettingsPage() {
                   </CardContent>
                 </Card>
               )}
+            </div>
+          </TabsContent>
+
+          <TabsContent value="subscriptions">
+            <div className="space-y-6 pt-4">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Deduction Profiles</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-muted-foreground mb-3 text-sm">
+                    Describe how business costs are deducted (VAT, income tax, other contributions). Assign a profile to a subscription to
+                    see its real cost.
+                  </p>
+                  <DeductionProfileList
+                    profiles={config.deductionProfiles ?? []}
+                    subscriptions={subscriptions}
+                    onChange={handleDeductionProfilesChange}
+                  />
+                </CardContent>
+              </Card>
             </div>
           </TabsContent>
         </Tabs>

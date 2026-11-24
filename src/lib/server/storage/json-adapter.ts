@@ -3,6 +3,7 @@ import * as path from 'node:path'
 import { genCategoryId } from '@/lib/server/ids.server'
 import type { Config, ExchangeRate, Expense, RecurringExpense } from '@/lib/shared/types/expense'
 import { FabPosition } from '@/lib/shared/types/fab-position'
+import type { Subscription } from '@/lib/shared/types/subscription'
 import type { Vehicle } from '@/lib/shared/types/vehicle'
 import type { StorageAdapter } from './types'
 
@@ -17,7 +18,8 @@ const DEFAULT_CONFIG: Config = {
   showNotes: true,
   showSearch: false,
   fabPosition: FabPosition.Right,
-  features: { vehicleExpenseTracking: false },
+  features: { vehicleExpenseTracking: false, subscriptionTracking: false },
+  deductionProfiles: [],
 }
 
 export class JsonAdapter implements StorageAdapter {
@@ -27,6 +29,7 @@ export class JsonAdapter implements StorageAdapter {
   private readonly recurringFile: string
   private readonly exchangeRatesFile: string
   private readonly vehiclesFile: string
+  private readonly subscriptionsFile: string
 
   constructor(dataDir?: string) {
     this.dataDir = path.resolve(process.cwd(), dataDir ?? process.env.DATA_DIR ?? '.data')
@@ -35,6 +38,7 @@ export class JsonAdapter implements StorageAdapter {
     this.recurringFile = path.join(this.dataDir, 'recurring.json')
     this.exchangeRatesFile = path.join(this.dataDir, 'exchange-rates.json')
     this.vehiclesFile = path.join(this.dataDir, 'vehicles.json')
+    this.subscriptionsFile = path.join(this.dataDir, 'subscriptions.json')
   }
 
   private ensureDataDir() {
@@ -83,7 +87,8 @@ export class JsonAdapter implements StorageAdapter {
       showNotes: stored.showNotes ?? DEFAULT_CONFIG.showNotes,
       showSearch: stored.showSearch ?? DEFAULT_CONFIG.showSearch,
       fabPosition: stored.fabPosition ?? DEFAULT_CONFIG.fabPosition,
-      features: { vehicleExpenseTracking: false, ...stored.features },
+      features: { vehicleExpenseTracking: false, subscriptionTracking: false, ...stored.features },
+      deductionProfiles: stored.deductionProfiles ?? [],
     }
 
     if (needsWrite) await this.saveConfig(config)
@@ -126,5 +131,16 @@ export class JsonAdapter implements StorageAdapter {
   async saveVehicles(vehicles: Array<Vehicle>): Promise<void> {
     this.ensureDataDir()
     fs.writeFileSync(this.vehiclesFile, JSON.stringify(vehicles, null, 2))
+  }
+
+  async getSubscriptions(): Promise<Array<Subscription>> {
+    this.ensureDataDir()
+    if (!fs.existsSync(this.subscriptionsFile)) return []
+    return JSON.parse(fs.readFileSync(this.subscriptionsFile, 'utf-8')) as Array<Subscription>
+  }
+
+  async saveSubscriptions(subscriptions: Array<Subscription>): Promise<void> {
+    this.ensureDataDir()
+    fs.writeFileSync(this.subscriptionsFile, JSON.stringify(subscriptions, null, 2))
   }
 }

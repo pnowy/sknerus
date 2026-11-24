@@ -1,4 +1,5 @@
 import type { FabPosition } from '@/lib/shared/types/fab-position'
+import type { DeductionProfile } from '@/lib/shared/types/subscription'
 import type { VehicleExpense } from '@/lib/shared/types/vehicle.ts'
 
 export type Expense = {
@@ -27,6 +28,8 @@ export type RecurringExpense = {
   tags: Array<string>
   notes?: string
   frequency: 'daily' | 'weekly' | 'monthly' | 'yearly'
+  /** Repeat every N periods of `frequency`; omitted = 1 */
+  interval?: number
   dayOfMonth?: number
   dayOfWeek?: number
   month?: number
@@ -44,6 +47,7 @@ export type Category = {
 
 export type AppFeatures = {
   vehicleExpenseTracking?: boolean
+  subscriptionTracking?: boolean
 }
 
 export type Config = {
@@ -59,6 +63,7 @@ export type Config = {
   showSearch: boolean
   fabPosition: FabPosition
   features?: AppFeatures
+  deductionProfiles?: Array<DeductionProfile>
 }
 
 type CurrencyCode = string
