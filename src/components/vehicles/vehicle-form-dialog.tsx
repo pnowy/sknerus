@@ -1,6 +1,8 @@
 import { zodResolver } from '@hookform/resolvers/zod'
+import { Shapes } from 'lucide-react'
 import { Controller, useForm } from 'react-hook-form'
 import { toast } from 'sonner'
+import { IconPicker } from '@/components/icon-picker'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
@@ -10,12 +12,7 @@ import { useCreateVehicle, useUpdateVehicle } from '@/hooks/use-vehicles'
 import { type VehicleFormInput, vehicleFormSchema } from '@/lib/schemas'
 import type { Vehicle } from '@/lib/shared/types/vehicle'
 import { FuelType, VEHICLE_EXPENSE_TYPE_LABELS, type VehicleExpenseType, VehicleType } from '@/lib/shared/types/vehicle'
-import {
-  DEFAULT_EXPENSE_TYPE_COLOR,
-  DEFAULT_EXPENSE_TYPE_ICON,
-  getExpenseTypeIcon,
-  VEHICLE_EXPENSE_ICON_OPTIONS,
-} from '@/lib/shared/vehicle-icons'
+import { DEFAULT_EXPENSE_TYPE_COLOR, DEFAULT_EXPENSE_TYPE_ICON, VEHICLE_EXPENSE_ICONS } from '@/lib/shared/vehicle-icons'
 
 const EXPENSE_TYPE_ENTRIES = Object.entries(VEHICLE_EXPENSE_TYPE_LABELS) as Array<[VehicleExpenseType, string]>
 
@@ -103,6 +100,7 @@ export function VehicleFormDialog({ vehicle, onClose }: Props) {
           expenseTypeColors: buildDefaultColors(),
         },
   })
+  const watchedColors = watch('expenseTypeColors')
 
   async function onSubmit(data: VehicleFormInput) {
     const names: Partial<Record<VehicleExpenseType, string>> = {}
@@ -112,7 +110,7 @@ export function VehicleFormDialog({ vehicle, onClose }: Props) {
       const n = data.expenseTypeNames?.[type]
       if (n) names[type] = n
       const i = data.expenseTypeIcons?.[type]
-      if (i) icons[type] = i
+      if (i !== undefined) icons[type] = i
       const c = data.expenseTypeColors?.[type]
       if (c && c !== DEFAULT_EXPENSE_TYPE_COLOR[type]) colors[type] = c
     }
@@ -296,26 +294,16 @@ export function VehicleFormDialog({ vehicle, onClose }: Props) {
                     control={control}
                     name={`expenseTypeIcons.${type}`}
                     render={({ field }) => (
-                      <Select value={field.value ?? ''} onValueChange={field.onChange}>
-                        <SelectTrigger size="sm" className="shrink-0" aria-label="Icon">
-                          <SelectValue>
-                            {(v: string) => {
-                              const ValueIcon = getExpenseTypeIcon(v)
-                              return ValueIcon ? <ValueIcon className="size-4" /> : null
-                            }}
-                          </SelectValue>
-                        </SelectTrigger>
-                        <SelectContent>
-                          {VEHICLE_EXPENSE_ICON_OPTIONS.map((o) => {
-                            const OptionIcon = getExpenseTypeIcon(o.value)
-                            return (
-                              <SelectItem key={o.value} value={o.value} aria-label={o.label}>
-                                {OptionIcon && <OptionIcon className="size-4" />}
-                              </SelectItem>
-                            )
-                          })}
-                        </SelectContent>
-                      </Select>
+                      <IconPicker
+                        color={watchedColors?.[type] || DEFAULT_EXPENSE_TYPE_COLOR[type]}
+                        curated={VEHICLE_EXPENSE_ICONS}
+                        placeholder={<Shapes className="size-3.5" />}
+                        tooltip={field.value ? `Change icon for ${label}` : `Choose icon for ${label}`}
+                        triggerLabel={`Choose icon for ${label}`}
+                        allowNone
+                        value={field.value || undefined}
+                        onChange={(icon) => field.onChange(icon ?? '')}
+                      />
                     )}
                   />
                 </div>

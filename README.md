@@ -56,7 +56,7 @@ It is still *not* a budgeting app. No accounts, no complex budgets, no bank sync
 
 - Add income and expenses with category, date, amount, currency, optional tags, and free-text notes
 - Toggle tags and notes on or off globally from Settings — disabled fields disappear from forms, tables, and cards if you don't use them
-- Custom categories with color coding — reorder, rename, or remove them at any time; mark a category as income to preset the income toggle when adding a transaction
+- Custom categories with color coding — reorder, rename, or remove them at any time; mark a category as income to preset the income toggle when adding a transaction; archive categories you no longer use to hide them from new entries while history and charts keep showing them
 - Recurring transactions — define a template once, the app materializes entries automatically up to today
 - Multi-currency support: record transactions in any currency, configure supported currencies, and exchange rates are resolved and cached automatically. Two providers available: [Frankfurter](https://www.frankfurter.app/) (31 currencies, no key needed) and [ExchangeRate-API](https://www.exchangerate-api.com/) (165 currencies, free API key required)
 - Full backup and restore — all data (settings, transactions, recurring transactions, vehicles, subscriptions) in one JSON file
@@ -85,6 +85,8 @@ All dashboard views support flexible time-range navigation: switch between month
 - The same preset and custom date ranges as the dashboard
 - Optional search (enable **Show search** in Settings → Appearance → Display): click the search icon to find transactions by name, notes, or tags across your whole history; Esc clears the query, then closes search
 - Toggle between flat list and grouped-by-category view
+- Searching or filtering by category shows a summary: number of matching transactions, income, expenses and net
+- Filter by a single category across all time via `?category=<id>` (e.g. the **Show transactions** link in the archive dialog); clear it with the chip above the table
 - Inline delete with confirmation
 - Add new expenses directly from the transactions view
 
@@ -93,6 +95,8 @@ All dashboard views support flexible time-range navigation: switch between month
 Settings are split into tabs — **General**, **Transactions**, **Appearance**, **Data**, plus one tab per enabled plugin (see [In-App Settings](#in-app-settings) for details):
 
 - Add, rename, reorder, and delete categories (drag-and-drop ordering)
+- Pick an optional icon per category from a curated set, or search the full [Lucide](https://lucide.dev/icons) library; it's shown in the category color wherever the color dot would appear (table, groups, pickers)
+- Archive or restore categories; the confirmation shows how many transactions use the category, the latest one, and any recurring transactions or subscriptions still booking into it, with a link that opens those transactions in a new tab
 - Set primary currency and a list of supported currencies for multi-currency entry
 - Configure fiscal month start date and default start page
 - Choose the side of the mobile floating add-expense button (or turn it off)
@@ -111,7 +115,7 @@ Track per-vehicle costs alongside your regular expenses. Once enabled, a **Vehic
 
 - Register one or more vehicles (car or motorcycle) with engine size, fuel tank size, fuel type, and starting odometer
 - Bind a category to a vehicle so any expense in that category is automatically a vehicle expense
-- Pick an expense type per transaction — Fuel, Insurance, Oil change, Purchase, or Accessories — and customize the name, icon, and color of each type per vehicle (the icon/color shows up next to the expense name in tables and cards)
+- Pick an expense type per transaction — Fuel, Insurance, Oil change, Purchase, or Accessories — and customize the name, icon (curated set or a search of the full Lucide library, same picker as categories, or no icon at all), and color of each type per vehicle (the icon/color shows up next to the expense name in tables and cards)
 - Record fuel fills with liters, odometer reading, and post-fill tank level to compute real-world L/100km consumption
 - Set oil-change intervals in both kilometers and months — the app warns when either threshold is approaching, whichever comes first
 - Track insurance and technical inspection expiry dates with status indicators (ok / warning / critical)

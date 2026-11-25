@@ -1,5 +1,7 @@
 import { ChevronDown, ChevronRight, Copy, Pencil, Repeat, Trash2 } from 'lucide-react'
 import { useMemo, useState } from 'react'
+import { CategoryMarker } from '@/components/category-marker'
+import { NamedIcon } from '@/components/named-icon'
 import { NoteIndicator } from '@/components/note-indicator'
 import { ExpenseCard } from '@/components/table/expense-card'
 import { ACTIONS_CELL_CLASS, NAME_TEXT_CLASS, TAGS_CELL_CLASS } from '@/components/table/table-classes'
@@ -12,7 +14,7 @@ import { compareExpensesByDate } from '@/lib/shared/expense-utils'
 import { formatCurrency, formatDate } from '@/lib/shared/format'
 import type { Category, Expense } from '@/lib/shared/types/expense'
 import type { Vehicle } from '@/lib/shared/types/vehicle'
-import { resolveVehicleExpenseIcon } from '@/lib/shared/vehicle-icons'
+import { resolveVehicleExpenseIcon, VEHICLE_EXPENSE_ICONS } from '@/lib/shared/vehicle-icons'
 import { cn } from '@/lib/utils'
 
 export const GROUP_SORT_OPTIONS = [
@@ -94,7 +96,7 @@ export function GroupedExpenseTable({ expenses, categories, vehicles, currency, 
               >
                 <span className="flex items-center gap-2 text-sm font-semibold">
                   <Icon className="size-4" />
-                  <span className="inline-block size-3 rounded-sm" style={{ backgroundColor: group.category.color }} />
+                  <CategoryMarker category={group.category} size="md" />
                   {group.category.name}
                   <span className="text-muted-foreground font-normal">({group.expenses.length})</span>
                 </span>
@@ -197,7 +199,7 @@ function GroupSection({
           <div className="flex items-center justify-between">
             <span className="flex items-center gap-2 text-sm font-semibold">
               <Icon className="size-4" />
-              <span className="inline-block size-3 rounded-sm" style={{ backgroundColor: group.category.color }} />
+              <CategoryMarker category={group.category} size="md" />
               {group.category.name}
               <span className="text-muted-foreground font-normal">({group.expenses.length})</span>
             </span>
@@ -217,7 +219,13 @@ function GroupSection({
                 <span className="flex items-center gap-1.5">
                   <TruncatedText className={NAME_TEXT_CLASS} text={expense.name} />
                   {vehicleIcon && (
-                    <vehicleIcon.Icon aria-label="Vehicle expense" className="size-3.5 shrink-0" style={{ color: vehicleIcon.color }} />
+                    <NamedIcon
+                      aria-label="Vehicle expense"
+                      className="size-3.5 shrink-0"
+                      curated={VEHICLE_EXPENSE_ICONS}
+                      name={vehicleIcon.name}
+                      style={{ color: vehicleIcon.color }}
+                    />
                   )}
                   {expense.recurringId && <Repeat aria-label="Recurring" className="text-muted-foreground size-3 shrink-0" />}
                   {showNotes && expense.notes && <NoteIndicator notes={expense.notes} />}

@@ -1,7 +1,8 @@
 import { useSortable } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
-import { Dices, GripVertical, Trash2, TrendingDown, TrendingUp } from 'lucide-react'
+import { Archive, ArchiveRestore, Dices, GripVertical, Trash2, TrendingDown, TrendingUp } from 'lucide-react'
 import { useRef, useState } from 'react'
+import { CategoryIconPicker } from '@/components/settings/category-icon-picker'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -15,10 +16,21 @@ type Props = {
   onColorChange: (id: string, color: string) => void
   onNameChange: (id: string, newName: string) => void
   onToggleIncome: (id: string) => void
+  onToggleArchived: (id: string) => void
+  onIconChange: (id: string, icon: string | undefined) => void
 }
 
-export function SortableCategoryItem({ category, onDelete, onColorChange, onNameChange, onToggleIncome }: Props) {
-  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: category.id })
+export function SortableCategoryItem({
+  category,
+  onDelete,
+  onColorChange,
+  onNameChange,
+  onToggleIncome,
+  onToggleArchived,
+  onIconChange,
+}: Props) {
+  const archived = !!category.archived
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: category.id, disabled: archived })
   const colorInputRef = useRef<HTMLInputElement>(null)
   const [editing, setEditing] = useState(false)
   const [draft, setDraft] = useState(category.name)
@@ -48,16 +60,25 @@ export function SortableCategoryItem({ category, onDelete, onColorChange, onName
   }
 
   return (
-    <div ref={setNodeRef} className="border-border bg-background flex items-center gap-2 rounded-md border px-3 py-2" style={style}>
-      <button
-        aria-label="Drag to reorder"
-        className="text-muted-foreground hover:text-foreground cursor-grab touch-none"
-        type="button"
-        {...attributes}
-        {...listeners}
-      >
-        <GripVertical className="size-4" />
-      </button>
+    <div
+      ref={setNodeRef}
+      className={cn(
+        'border-border bg-background flex items-center gap-2 rounded-md border px-3 py-2',
+        archived && 'bg-muted/40 border-dashed'
+      )}
+      style={style}
+    >
+      {!archived && (
+        <button
+          aria-label="Drag to reorder"
+          className="text-muted-foreground hover:text-foreground cursor-grab touch-none"
+          type="button"
+          {...attributes}
+          {...listeners}
+        >
+          <GripVertical className="size-4" />
+        </button>
+      )}
       <button
         aria-label={`Change color for ${category.name}`}
         className="size-5 shrink-0 rounded-full border-2 border-black/20 transition-transform hover:scale-110 dark:border-white/20"
@@ -73,6 +94,7 @@ export function SortableCategoryItem({ category, onDelete, onColorChange, onName
         value={category.color}
         onChange={(e) => onColorChange(category.id, e.target.value)}
       />
+      <CategoryIconPicker category={category} onChange={(icon) => onIconChange(category.id, icon)} />
       <TooltipProvider>
         <Tooltip>
           <TooltipTrigger render={<span />}>
@@ -124,7 +146,7 @@ export function SortableCategoryItem({ category, onDelete, onColorChange, onName
       ) : (
         <div className="flex flex-1 items-center gap-2">
           <button
-            className="hover:text-foreground/70 cursor-text text-left text-sm"
+            className={cn('hover:text-foreground/70 cursor-text text-left text-sm', archived && 'text-muted-foreground')}
             title="Click to rename"
             type="button"
             onClick={() => {
@@ -141,6 +163,23 @@ export function SortableCategoryItem({ category, onDelete, onColorChange, onName
           )}
         </div>
       )}
+
+      <TooltipProvider>
+        <Tooltip>
+          <TooltipTrigger render={<span />}>
+            <Button
+              aria-label={archived ? `Restore ${category.name}` : `Archive ${category.name}`}
+              className="text-muted-foreground size-7"
+              size="icon-sm"
+              variant="ghost"
+              onClick={() => onToggleArchived(category.id)}
+            >
+              {archived ? <ArchiveRestore className="size-3.5" /> : <Archive className="size-3.5" />}
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent>{archived ? 'Restore category' : 'Archive category (hide from new transactions)'}</TooltipContent>
+        </Tooltip>
+      </TooltipProvider>
 
       <Button
         aria-label={`Delete ${category.name}`}

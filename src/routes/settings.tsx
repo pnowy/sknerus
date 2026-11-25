@@ -20,7 +20,7 @@ import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Switch } from '@/components/ui/switch'
 import { Tabs, TabsContent } from '@/components/ui/tabs'
-import { queryKeys, useConfig, useExpenses, useRenameCategory, useUpdateConfig } from '@/hooks/use-expenses'
+import { queryKeys, useConfig, useExpenses, useRecurring, useRenameCategory, useUpdateConfig } from '@/hooks/use-expenses'
 import { useSubscriptions } from '@/hooks/use-subscriptions'
 import { useVehicles } from '@/hooks/use-vehicles'
 import { createExpense, getConfig, getExpenses, getRecurring, getSubscriptions, getVehicles } from '@/lib/api'
@@ -71,6 +71,7 @@ function SettingsPage() {
   const { data: config } = useConfig()
   const { data: allExpenses = [] } = useExpenses()
   const { data: vehicles = [] } = useVehicles()
+  const { data: recurring = [] } = useRecurring()
   const { data: subscriptions = [] } = useSubscriptions(config?.features?.subscriptionTracking ?? false)
   const updateConfig = useUpdateConfig()
   const renameCategoryMutation = useRenameCategory()
@@ -346,7 +347,15 @@ function SettingsPage() {
                   <CardTitle>Categories</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <CategoryList categories={config.categories} onChange={handleCategoriesChange} onNameChange={handleCategoryRename} />
+                  <CategoryList
+                    categories={config.categories}
+                    currency={config.currency}
+                    expenses={allExpenses}
+                    recurring={recurring}
+                    subscriptions={subscriptions}
+                    onChange={handleCategoriesChange}
+                    onNameChange={handleCategoryRename}
+                  />
                 </CardContent>
               </Card>
               <Card>

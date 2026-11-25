@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { CartesianGrid, Legend, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
+import { CategoryMarker } from '@/components/category-marker'
 import { filterExpensesByRange } from '@/lib/shared/date-utils'
 import { aggregateByCategoryAndMonth } from '@/lib/shared/expense-utils'
 import { formatCurrency, formatCurrencyCompact } from '@/lib/shared/format'
@@ -55,7 +56,7 @@ export function CategoryTrends({ expenses, categories, currency, from, to }: Pro
               type="button"
               onClick={() => toggleCategory(c.id)}
             >
-              <span className="inline-block size-2.5 rounded-full" style={{ backgroundColor: c.color }} />
+              <CategoryMarker category={c} />
               {c.name}
             </button>
           )

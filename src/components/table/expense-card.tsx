@@ -1,4 +1,6 @@
 import { Copy, MoreHorizontal, Pencil, Repeat, Trash2 } from 'lucide-react'
+import { CategoryMarker } from '@/components/category-marker'
+import { NamedIcon } from '@/components/named-icon'
 import { NoteIndicator } from '@/components/note-indicator'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -6,7 +8,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { formatCurrency, formatDate } from '@/lib/shared/format'
 import type { Category, Expense } from '@/lib/shared/types/expense'
 import type { Vehicle } from '@/lib/shared/types/vehicle'
-import { resolveVehicleExpenseIcon } from '@/lib/shared/vehicle-icons'
+import { resolveVehicleExpenseIcon, VEHICLE_EXPENSE_ICONS } from '@/lib/shared/vehicle-icons'
 import { cn } from '@/lib/utils'
 
 type Props = {
@@ -31,7 +33,13 @@ export function ExpenseCard({ expense, categories, showTags, showNotes, vehicles
         <span className="flex items-center gap-1.5 text-sm font-medium">
           {expense.name}
           {vehicleIcon && (
-            <vehicleIcon.Icon aria-label="Vehicle expense" className="size-3.5 shrink-0" style={{ color: vehicleIcon.color }} />
+            <NamedIcon
+              aria-label="Vehicle expense"
+              className="size-3.5 shrink-0"
+              curated={VEHICLE_EXPENSE_ICONS}
+              name={vehicleIcon.name}
+              style={{ color: vehicleIcon.color }}
+            />
           )}
           {expense.recurringId && <Repeat aria-label="Recurring" className="text-muted-foreground size-3 shrink-0" />}
           {showNotes && expense.notes && <NoteIndicator notes={expense.notes} />}
@@ -51,7 +59,7 @@ export function ExpenseCard({ expense, categories, showTags, showNotes, vehicles
       </div>
       <div className="mt-1 flex items-center justify-between gap-2">
         <span className="text-muted-foreground flex items-center gap-1.5 text-xs">
-          {category && <span className="inline-block size-2.5 rounded-sm" style={{ backgroundColor: category.color }} />}
+          {category && <CategoryMarker category={category} />}
           <span>{categoryName}</span>
           <span>·</span>
           <span>{formatDate(expense.date)}</span>

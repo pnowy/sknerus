@@ -7,6 +7,7 @@ import {
   getEnteredAmount,
   getEnteredCurrency,
   matchesSearch,
+  summarizeExpenses,
 } from '@/lib/shared/expense-utils'
 import type { Expense } from '@/lib/shared/types/expense'
 
@@ -218,6 +219,25 @@ describe('matchesSearch', () => {
   describe('when the expense has no notes', () => {
     it('should not match a query absent from other fields', () => {
       expect(matchesSearch({ ...expense, notes: undefined }, 'cake')).toBe(false)
+    })
+  })
+})
+
+describe('summarizeExpenses', () => {
+  describe('when the list mixes income and expenses', () => {
+    it('should total each side separately and report the net', () => {
+      expect(summarizeExpenses([{ amount: -30 }, { amount: 100 }, { amount: -20 }])).toEqual({
+        count: 3,
+        income: 100,
+        expenses: 50,
+        net: 50,
+      })
+    })
+  })
+
+  describe('when the list is empty', () => {
+    it('should report zeros', () => {
+      expect(summarizeExpenses([])).toEqual({ count: 0, income: 0, expenses: 0, net: 0 })
     })
   })
 })

@@ -1,6 +1,7 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Controller, useForm, useWatch } from 'react-hook-form'
 import { toast } from 'sonner'
+import { CategoryMarker } from '@/components/category-marker'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
@@ -8,6 +9,7 @@ import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { useBookSubscriptionPayment } from '@/hooks/use-subscriptions'
 import { type BookPaymentInput, bookPaymentSchema } from '@/lib/schemas'
+import { getSelectableCategories } from '@/lib/shared/category-utils'
 import { todayISO } from '@/lib/shared/date-utils'
 import { formatDate } from '@/lib/shared/format'
 import { advanceRenewal } from '@/lib/shared/subscription-utils'
@@ -84,11 +86,14 @@ export function BookPaymentDialog({ subscription, categories, onClose }: Props) 
                     </SelectValue>
                   </SelectTrigger>
                   <SelectContent>
-                    {categories
+                    {getSelectableCategories(categories, field.value)
                       .filter((c) => !c.isIncome)
                       .map((c) => (
                         <SelectItem key={c.id} value={c.id}>
-                          {c.name}
+                          <span className="flex items-center gap-2">
+                            <CategoryMarker category={c} />
+                            {c.archived ? `${c.name} (archived)` : c.name}
+                          </span>
                         </SelectItem>
                       ))}
                   </SelectContent>

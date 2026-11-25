@@ -3,6 +3,7 @@ import { Link2, X } from 'lucide-react'
 import { useState } from 'react'
 import { Controller, useForm, useWatch } from 'react-hook-form'
 import { toast } from 'sonner'
+import { CategoryMarker } from '@/components/category-marker'
 import { LinkPaymentsDialog } from '@/components/subscriptions/link-payments-dialog'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
@@ -14,6 +15,7 @@ import { Textarea } from '@/components/ui/textarea'
 import { useConfig, useExpenses, useRecurring } from '@/hooks/use-expenses'
 import { useCreateSubscription, useRatesToBase, useSubscriptions, useUpdateSubscription } from '@/hooks/use-subscriptions'
 import { type SubscriptionFormInput, type SubscriptionPayload, subscriptionFormSchema } from '@/lib/schemas'
+import { getSelectableCategories } from '@/lib/shared/category-utils'
 import { todayISO } from '@/lib/shared/date-utils'
 import { getEnteredAmount, getEnteredCurrency } from '@/lib/shared/expense-utils'
 import { formatCurrency, formatDate } from '@/lib/shared/format'
@@ -304,11 +306,14 @@ export function SubscriptionFormDialog({ subscription, fromRecurring, onClose }:
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="">No category</SelectItem>
-                      {categories
+                      {getSelectableCategories(categories, field.value)
                         .filter((c) => !c.isIncome)
                         .map((c) => (
                           <SelectItem key={c.id} value={c.id}>
-                            {c.name}
+                            <span className="flex items-center gap-2">
+                              <CategoryMarker category={c} />
+                              {c.archived ? `${c.name} (archived)` : c.name}
+                            </span>
                           </SelectItem>
                         ))}
                     </SelectContent>

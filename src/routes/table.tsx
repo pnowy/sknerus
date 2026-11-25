@@ -1,13 +1,16 @@
-import { createFileRoute } from '@tanstack/react-router'
-import { Plus, Search } from 'lucide-react'
+import { createFileRoute, useNavigate } from '@tanstack/react-router'
+import { Plus, Search, X } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import { toast } from 'sonner'
+import { z } from 'zod'
 import { AddExpenseFab } from '@/components/add-expense-fab'
+import { CategoryMarker } from '@/components/category-marker'
 import { DateRangeNav } from '@/components/date-range-nav'
 import { ExpenseFormDialog } from '@/components/expense-form-dialog'
 import { AppLayout } from '@/components/layout/app-layout'
 import { EmptyState } from '@/components/table/empty-state'
 import { ExpenseTable } from '@/components/table/expense-table'
+import { FilterSummary } from '@/components/table/filter-summary'
 import { GROUP_SORT_OPTIONS, GroupedExpenseTable, type GroupSort } from '@/components/table/grouped-expense-table'
 import { TableSearch } from '@/components/table/table-search'
 import { Button } from '@/components/ui/button'
@@ -19,12 +22,13 @@ import { useConfig, useDeleteExpense, useExpenses } from '@/hooks/use-expenses'
 import { useVehicles } from '@/hooks/use-vehicles'
 import { getConfig, getExpenses, getVehicles } from '@/lib/api'
 import { filterExpensesByRange } from '@/lib/shared/date-utils'
-import { compareExpensesByDate, matchesSearch } from '@/lib/shared/expense-utils'
+import { compareExpensesByDate, matchesSearch, summarizeExpenses } from '@/lib/shared/expense-utils'
 import type { Expense } from '@/lib/shared/types/expense'
 import { FabPosition } from '@/lib/shared/types/fab-position'
 import { cn } from '@/lib/utils'
 
 export const Route = createFileRoute('/table')({
+  validateSearch: z.object({ category: z.string().optional().catch(undefined) }),
   loader: ({ context: { queryClient } }) =>
     Promise.all([
       queryClient.ensureQueryData({ queryKey: ['expenses'], queryFn: () => getExpenses() }),
@@ -51,16 +55,26 @@ function TablePage() {
   const { scope, from, to, label, setScope, setCustomRange, prev, next, reset, canGoNext, isCurrentPeriod, showArrows } =
     useDateRange(startDate)
 
+  const { category: categoryParam } = Route.useSearch()
+  const navigate = useNavigate()
+  const filterCategory = config?.categories.find((c) => c.id === categoryParam)
+
   const searchEnabled = config?.showSearch ?? false
   const isSearching = searchEnabled && searchOpen && search.trim() !== ''
-  // An active search spans all history so past expenses can be found regardless of the selected period
+  // An active search or category filter spans all history so past expenses can be found regardless of the selected period
+  const spansAllTime = isSearching || !!filterCategory
   const displayedExpenses = useMemo(
     () =>
-      (isSearching ? allExpenses.filter((e) => matchesSearch(e, search)) : filterExpensesByRange(allExpenses, from, to)).sort(
-        (a, b) => -compareExpensesByDate(a, b)
-      ),
-    [allExpenses, from, to, search, isSearching]
+      (spansAllTime
+        ? allExpenses.filter((e) => (!filterCategory || e.categoryId === filterCategory.id) && (!isSearching || matchesSearch(e, search)))
+        : filterExpensesByRange(allExpenses, from, to)
+      ).sort((a, b) => -compareExpensesByDate(a, b)),
+    [allExpenses, from, to, search, isSearching, spansAllTime, filterCategory]
   )
+
+  function clearCategoryFilter() {
+    void navigate({ to: '.', search: (prev) => ({ ...prev, category: undefined }) })
+  }
 
   function closeSearch() {
     setSearchOpen(false)
@@ -130,7 +144,7 @@ function TablePage() {
               )}
             </div>
             {/* search spans all time, so the period nav is shown but inactive while a query is set */}
-            <div className={cn('transition-opacity', isSearching && 'opacity-40')} inert={isSearching}>
+            <div className={cn('transition-opacity', spansAllTime && 'opacity-40')} inert={spansAllTime}>
               <DateRangeNav
                 canGoNext={canGoNext}
                 isCurrentPeriod={isCurrentPeriod}
@@ -148,11 +162,38 @@ function TablePage() {
             </div>
           </div>
         </div>
-        {searchEnabled && searchOpen && (
-          <TableSearch matchCount={isSearching ? displayedExpenses.length : null} onClose={closeSearch} onSearchChange={setSearch} />
+        {searchEnabled && searchOpen && <TableSearch onClose={closeSearch} onSearchChange={setSearch} />}
+        {filterCategory && (
+          <div className="flex items-center gap-2 text-sm">
+            <span className="border-border inline-flex items-center gap-2 rounded-full border py-1 pr-1 pl-3">
+              <CategoryMarker category={filterCategory} />
+              <span>
+                {filterCategory.name}
+                {filterCategory.archived && <span className="text-muted-foreground"> (archived)</span>}
+              </span>
+              <Button
+                aria-label="Clear category filter"
+                className="size-6 rounded-full"
+                size="icon-sm"
+                variant="ghost"
+                onClick={clearCategoryFilter}
+              >
+                <X className="size-3.5" />
+              </Button>
+            </span>
+          </div>
         )}
+        {spansAllTime && <FilterSummary currency={currency} summary={summarizeExpenses(displayedExpenses)} />}
         {displayedExpenses.length === 0 ? (
-          <EmptyState message={isSearching ? 'No transactions match your search.' : 'No transactions for this period.'} />
+          <EmptyState
+            message={
+              isSearching
+                ? 'No transactions match your search.'
+                : filterCategory
+                  ? 'No transactions in this category.'
+                  : 'No transactions for this period.'
+            }
+          />
         ) : grouped ? (
           <GroupedExpenseTable {...tableProps} currency={currency} groupSort={groupSort} />
         ) : (
