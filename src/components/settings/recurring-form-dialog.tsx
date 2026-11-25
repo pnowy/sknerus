@@ -1,6 +1,7 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Controller, useForm, useWatch } from 'react-hook-form'
 import { toast } from 'sonner'
+import { CategoryMarker } from '@/components/category-marker'
 import { TagInput } from '@/components/dashboard/tag-input'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
@@ -11,7 +12,7 @@ import { Switch } from '@/components/ui/switch'
 import { Textarea } from '@/components/ui/textarea'
 import { useConfig, useCreateRecurring, useUpdateRecurring } from '@/hooks/use-expenses'
 import { type RecurringFormInput, recurringFormSchema } from '@/lib/schemas'
-import { getDefaultCategoryId, resolveIncomeForCategory } from '@/lib/shared/category-utils'
+import { getDefaultCategoryId, getSelectableCategories, resolveIncomeForCategory } from '@/lib/shared/category-utils'
 import { todayISO } from '@/lib/shared/date-utils'
 import type { Category, RecurringExpense } from '@/lib/shared/types/expense'
 
@@ -149,9 +150,12 @@ export function RecurringFormDialog({ categories, currency, allTags, recurring, 
                       </SelectValue>
                     </SelectTrigger>
                     <SelectContent>
-                      {categories.map((c) => (
+                      {getSelectableCategories(categories, field.value).map((c) => (
                         <SelectItem key={c.id} value={c.id}>
-                          {c.name}
+                          <span className="flex items-center gap-2">
+                            <CategoryMarker category={c} />
+                            {c.archived ? `${c.name} (archived)` : c.name}
+                          </span>
                         </SelectItem>
                       ))}
                     </SelectContent>

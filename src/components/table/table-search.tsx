@@ -6,12 +6,11 @@ import { Input } from '@/components/ui/input'
 const SEARCH_DEBOUNCE_MS = 150
 
 type Props = {
-  matchCount: number | null
   onSearchChange: (query: string) => void
   onClose: () => void
 }
 
-export function TableSearch({ matchCount, onSearchChange, onClose }: Props) {
+export function TableSearch({ onSearchChange, onClose }: Props) {
   const [draft, setDraft] = useState('')
 
   // Keystrokes only re-render this input; the expensive table update is debounced and runs as an interruptible transition
@@ -52,11 +51,6 @@ export function TableSearch({ matchCount, onSearchChange, onClose }: Props) {
           </Button>
         )}
       </div>
-      {matchCount !== null && (
-        <span className="text-muted-foreground text-sm">
-          {matchCount} {matchCount === 1 ? 'match' : 'matches'} across all time
-        </span>
-      )}
     </div>
   )
 }

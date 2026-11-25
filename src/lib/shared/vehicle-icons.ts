@@ -44,26 +44,6 @@ export const VEHICLE_EXPENSE_ICONS: Record<string, VehicleExpenseIcon> = {
   settings: Settings,
 }
 
-export const VEHICLE_EXPENSE_ICON_OPTIONS: Array<{ value: string; label: string }> = [
-  { value: 'fuel', label: 'Fuel pump' },
-  { value: 'droplet', label: 'Droplet' },
-  { value: 'droplets', label: 'Droplets' },
-  { value: 'flask', label: 'Flask' },
-  { value: 'container', label: 'Container' },
-  { value: 'zap', label: 'Zap' },
-  { value: 'shield', label: 'Shield' },
-  { value: 'shieldCheck', label: 'Shield check' },
-  { value: 'fileText', label: 'File' },
-  { value: 'wrench', label: 'Wrench' },
-  { value: 'clipboardCheck', label: 'Clipboard check' },
-  { value: 'shoppingCart', label: 'Shopping cart' },
-  { value: 'car', label: 'Car' },
-  { value: 'keyRound', label: 'Key' },
-  { value: 'receipt', label: 'Receipt' },
-  { value: 'package', label: 'Package' },
-  { value: 'settings', label: 'Settings' },
-]
-
 export const DEFAULT_EXPENSE_TYPE_ICON: Record<string, string> = {
   [VehicleExpenseType.Fuel]: 'fuel',
   [VehicleExpenseType.Insurance]: 'shield',
@@ -80,20 +60,17 @@ export const DEFAULT_EXPENSE_TYPE_COLOR: Record<VehicleExpenseType, string> = {
   [VehicleExpenseType.Accessories]: '#06b6d4',
 }
 
-export function getExpenseTypeIcon(name: string | undefined): VehicleExpenseIcon | null {
-  if (!name) return null
-  return VEHICLE_EXPENSE_ICONS[name] ?? null
-}
-
-export type ResolvedVehicleIcon = { Icon: VehicleExpenseIcon; color: string }
+/** `name` is a VEHICLE_EXPENSE_ICONS key or a lucide icon name; render it with NamedIcon */
+export type ResolvedVehicleIcon = { name: string; color: string }
 
 export function resolveVehicleExpenseIcon(expense: Expense, vehicles: Array<Vehicle> | undefined): ResolvedVehicleIcon | null {
   const ve = expense.vehicleExpense
   if (!ve) return null
   const vehicle = vehicles?.find((v) => v.id === ve.vehicleId)
   if (!vehicle) return null
-  const Icon = getExpenseTypeIcon(vehicle.expenseTypeIcons?.[ve.expenseType] ?? DEFAULT_EXPENSE_TYPE_ICON[ve.expenseType])
-  if (!Icon) return null
+  // '' means the user turned the icon off, so only a missing entry falls back to the default
+  const name = vehicle.expenseTypeIcons?.[ve.expenseType] ?? DEFAULT_EXPENSE_TYPE_ICON[ve.expenseType]
+  if (!name) return null
   const color = vehicle.expenseTypeColors?.[ve.expenseType] ?? DEFAULT_EXPENSE_TYPE_COLOR[ve.expenseType]
-  return { Icon, color }
+  return { name, color }
 }

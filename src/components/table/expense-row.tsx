@@ -1,4 +1,6 @@
 import { Copy, Pencil, Repeat, Trash2 } from 'lucide-react'
+import { CategoryMarker } from '@/components/category-marker'
+import { NamedIcon } from '@/components/named-icon'
 import { NoteIndicator } from '@/components/note-indicator'
 import { ACTIONS_CELL_CLASS, NAME_TEXT_CLASS, TAGS_CELL_CLASS } from '@/components/table/table-classes'
 import { TruncatedText } from '@/components/truncated-text'
@@ -8,7 +10,7 @@ import { TableCell, TableRow } from '@/components/ui/table'
 import { formatCurrency, formatDate } from '@/lib/shared/format.ts'
 import type { Category, Expense } from '@/lib/shared/types/expense.ts'
 import type { Vehicle } from '@/lib/shared/types/vehicle'
-import { resolveVehicleExpenseIcon } from '@/lib/shared/vehicle-icons'
+import { resolveVehicleExpenseIcon, VEHICLE_EXPENSE_ICONS } from '@/lib/shared/vehicle-icons'
 import { cn } from '@/lib/utils'
 
 type Props = {
@@ -33,7 +35,13 @@ export function ExpenseRow({ expense, categories, vehicles, hasTags, showNotes, 
         <span className="flex items-center gap-1.5">
           <TruncatedText className={NAME_TEXT_CLASS} text={expense.name} />
           {vehicleIcon && (
-            <vehicleIcon.Icon aria-label="Vehicle expense" className="size-3.5 shrink-0" style={{ color: vehicleIcon.color }} />
+            <NamedIcon
+              aria-label="Vehicle expense"
+              className="size-3.5 shrink-0"
+              curated={VEHICLE_EXPENSE_ICONS}
+              name={vehicleIcon.name}
+              style={{ color: vehicleIcon.color }}
+            />
           )}
           {expense.recurringId && <Repeat aria-label="Recurring" className="text-muted-foreground size-3 shrink-0" />}
           {showNotes && expense.notes && <NoteIndicator notes={expense.notes} />}
@@ -41,9 +49,7 @@ export function ExpenseRow({ expense, categories, vehicles, hasTags, showNotes, 
       </TableCell>
       <TableCell>
         <span className="flex items-center gap-2">
-          {category && (
-            <span aria-hidden className="inline-block size-2.5 shrink-0 rounded-sm" style={{ backgroundColor: category.color }} />
-          )}
+          {category && <CategoryMarker category={category} />}
           {categoryName}
         </span>
       </TableCell>

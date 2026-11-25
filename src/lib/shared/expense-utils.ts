@@ -104,3 +104,21 @@ export function aggregateByCategoryAndMonth(
     return entry
   })
 }
+
+export type ExpenseSummary = {
+  count: number
+  income: number
+  /** Positive total of outgoing amounts */
+  expenses: number
+  net: number
+}
+
+export function summarizeExpenses(expenses: Array<Pick<Expense, 'amount'>>): ExpenseSummary {
+  let income = 0
+  let outgoing = 0
+  for (const e of expenses) {
+    if (e.amount > 0) income += e.amount
+    else outgoing -= e.amount
+  }
+  return { count: expenses.length, income, expenses: outgoing, net: income - outgoing }
+}

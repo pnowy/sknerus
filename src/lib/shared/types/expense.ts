@@ -43,6 +43,10 @@ export type Category = {
   color: string
   vehicleId?: string
   isIncome?: boolean
+  /** Hidden from pickers for new entries; existing transactions and charts keep using it */
+  archived?: boolean
+  /** Key from CATEGORY_ICONS; shown in the category color instead of the plain dot */
+  icon?: string
 }
 
 export type AppFeatures = {

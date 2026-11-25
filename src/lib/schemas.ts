@@ -2,10 +2,12 @@ import { z } from 'zod'
 import { FabPosition } from '@/lib/shared/types/fab-position'
 import { RecurringLinkMode } from '@/lib/shared/types/subscription'
 import { FuelType, VehicleExpenseType, VehicleType } from '@/lib/shared/types/vehicle'
-import { VEHICLE_EXPENSE_ICONS } from '@/lib/shared/vehicle-icons'
 
 const HEX_COLOR = /^#[0-9a-fA-F]{6}$/
-const iconName = z.enum(Object.keys(VEHICLE_EXPENSE_ICONS) as [string, ...Array<string>])
+// Curated keys (camelCase) or lucide kebab-case names; unknown names fall back gracefully when rendered
+const iconName = z.string().regex(/^[a-zA-Z0-9-]{1,64}$/, 'Invalid icon name')
+// '' explicitly turns the icon off; a missing entry falls back to the type's default icon
+const vehicleIconName = z.union([iconName, z.literal('')])
 const hexColor = z.string().regex(HEX_COLOR, 'Must be a #RRGGBB hex color')
 
 const toZodEnum = <T extends string>(obj: Record<string, T>) => z.enum(Object.values(obj) as [T, ...Array<T>])
@@ -63,6 +65,8 @@ export const categorySchema = z.object({
   color: z.string(),
   vehicleId: z.string().optional(),
   isIncome: z.boolean().optional(),
+  archived: z.boolean().optional(),
+  icon: iconName.optional(),
 })
 
 const featuresSchema = z
@@ -165,9 +169,9 @@ export const vehicleSchema = z.object({
     .optional(),
   expenseTypeIcons: z
     .object(
-      Object.fromEntries(Object.values(VehicleExpenseType).map((v) => [v, iconName.optional()])) as Record<
+      Object.fromEntries(Object.values(VehicleExpenseType).map((v) => [v, vehicleIconName.optional()])) as Record<
         VehicleExpenseType,
-        z.ZodOptional<typeof iconName>
+        z.ZodOptional<typeof vehicleIconName>
       >
     )
     .optional(),
