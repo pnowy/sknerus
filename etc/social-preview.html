@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Sknerus — Social Preview</title>
+  <!-- Rendered to social-preview.png (1280×640) for GitHub Settings → Social preview -->
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      width: 1280px;
+      height: 640px;
+      overflow: hidden;
+      font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', Roboto, sans-serif;
+      background: #f8fafc;
+      position: relative;
+    }
+
+    .bg {
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 60% 75% at 78% 55%, rgba(22, 163, 74, 0.10) 0%, transparent 65%),
+        radial-gradient(ellipse 40% 50% at 15% 40%, rgba(37, 99, 235, 0.07) 0%, transparent 60%),
+        linear-gradient(155deg, #f8fafc 0%, #f0fdf4 55%, #f8fafc 100%);
+    }
+
+    .bg::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image: radial-gradient(circle, rgba(0,0,0,0.045) 1px, transparent 1px);
+      background-size: 28px 28px;
+    }
+
+    .brand {
+      position: absolute;
+      left: 72px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 470px;
+      z-index: 5;
+    }
+
+    .logo-row {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      margin-bottom: 28px;
+    }
+
+    .logo-row img {
+      width: 96px;
+      height: 96px;
+    }
+
+    .app-name {
+      font-size: 76px;
+      font-weight: 800;
+      color: #0f172a;
+      letter-spacing: -3px;
+      line-height: 1;
+    }
+
+    .tagline {
+      font-size: 30px;
+      line-height: 1.3;
+      font-weight: 600;
+      color: #1e293b;
+      letter-spacing: -0.5px;
+      margin-bottom: 16px;
+    }
+
+    .sub {
+      font-size: 19px;
+      line-height: 1.5;
+      color: #475569;
+      margin-bottom: 30px;
+    }
+
+    .chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .chip {
+      font-size: 15px;
+      font-weight: 600;
+      color: #166534;
+      background: rgba(220, 252, 231, 0.9);
+      border: 1px solid rgba(22, 101, 52, 0.18);
+      padding: 6px 14px;
+      border-radius: 999px;
+    }
+
+    .window {
+      position: absolute;
+      border-radius: 12px;
+      overflow: hidden;
+      background: #fff;
+      box-shadow:
+        0 0 0 1px rgba(0,0,0,0.08),
+        0 2px 4px rgba(0,0,0,0.08),
+        0 14px 34px rgba(0,0,0,0.14),
+        0 44px 90px rgba(0,0,0,0.12);
+    }
+
+    .chrome {
+      height: 28px;
+      display: flex;
+      align-items: center;
+      padding: 0 12px;
+      gap: 6px;
+      background: #e8e8ea;
+      border-bottom: 1px solid rgba(0,0,0,0.08);
+    }
+
+    .btn { width: 11px; height: 11px; border-radius: 50%; }
+    .btn-r { background: #ff5f57; }
+    .btn-y { background: #febc2e; }
+    .btn-g { background: #28c840; }
+
+    /* Screenshots have wide white margins; crop to the app content area */
+    .shot {
+      background-repeat: no-repeat;
+    }
+
+    .w-main {
+      left: 600px;
+      top: 50px;
+      width: 620px;
+      z-index: 4;
+    }
+    .w-main .shot {
+      height: 512px;
+      background-image: url('./desktop-dashboard-cashflow.png');
+      background-size: 768px auto;
+      background-position: -78px -42px;
+    }
+  </style>
+</head>
+<body>
+  <div class="bg"></div>
+
+  <div class="brand">
+    <div class="logo-row">
+      <img src="./logo.png" alt="Sknerus logo">
+      <span class="app-name">Sknerus</span>
+    </div>
+    <p class="tagline">Self-hosted expense tracker that shows where your money goes.</p>
+    <p class="sub">Dashboards, recurring transactions and multi-currency. One Docker container, no bank syncing.</p>
+    <div class="chips">
+      <span class="chip">Self-hosted</span>
+      <span class="chip">Docker</span>
+      <span class="chip">Multi-currency</span>
+      <span class="chip">PWA</span>
+    </div>
+  </div>
+
+  <div class="window w-main">
+    <div class="chrome"><div class="btn btn-r"></div><div class="btn btn-y"></div><div class="btn btn-g"></div></div>
+    <div class="shot"></div>
+  </div>
+</body>
+</html>

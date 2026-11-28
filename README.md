@@ -186,7 +186,7 @@ docker run -d \
   --name sknerus \
   -p 3000:3000 \
   -v sknerus-data:/app/.data \
-  ghcr.io/pnowy/sknerus:latest
+  ghcr.io/pnowy/sknerus:stable
 ```
 
 ### Docker Compose
@@ -194,7 +194,7 @@ docker run -d \
 ```yaml
 services:
   sknerus:
-    image: ghcr.io/pnowy/sknerus:latest
+    image: ghcr.io/pnowy/sknerus:stable
     restart: unless-stopped
     ports:
       - "3000:3000"
@@ -322,7 +322,7 @@ Mount `DATA_DIR` as a persistent volume to retain data across container restarts
 
 ### Considered features
 
-There is a bunch o potential features which could be added if there will interest. Some which I consider but don't need them in my use-case:
+There are a few features that could be added if there is interest. These are ones I have considered but don't need for my own use case:
 
 - extra storage types (SQL Database – PostgreSQL)
 - authentication and authorization
